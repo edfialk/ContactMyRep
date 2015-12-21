@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'url' => 'http://localhost',
+    'url' => 'http://ContactMyReps.org',
 
     /*
     |--------------------------------------------------------------------------
@@ -145,6 +145,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        App\Providers\Sunlight\SunlightServiceProvider::class,
+
     ],
 
     /*
@@ -192,6 +194,8 @@ return [
         'URL'       => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
+
+        'SunlightAPI' => App\Providers\Sunlight\SunlightAPIFacade::class
 
     ],
 
