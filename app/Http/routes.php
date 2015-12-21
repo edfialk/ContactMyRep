@@ -15,4 +15,4 @@ Route::get('/', function () {
     return view('pages.home');
 });
 
-Route::get('/{zipcode}', 'RepController@show');
+Route::get('/{zipcode}', 'RepresentativeController@show');

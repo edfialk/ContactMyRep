@@ -12,7 +12,7 @@ use App\Providers\Opensecrets\Opensecrets;
 
 use App\Representative;
 
-class RepController extends Controller
+class RepresentativeController extends Controller
 {
 
     protected $sunlight;
@@ -33,7 +33,7 @@ class RepController extends Controller
             array_push($reps, new Representative($result));
         }
 
-        return view('zip', ['reps' => $reps]);
+        return view('pages.zip', ['reps' => $reps]);
     }
 
 }
