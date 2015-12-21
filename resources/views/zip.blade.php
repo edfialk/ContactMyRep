@@ -22,6 +22,7 @@
 	<ul>
 		@if (isset($rep->bioguide_id))
 			<li><a href='http://bioguide.congress.gov/scripts/biodisplay.pl?index={{ $rep->bioguide_id}}'>Bioguide</a></li>
+			<li><a href='https://www.congress.gov/member/{{ $rep->first_name }}-{{ $rep->last_name }}/{{ $rep->bioguide_id }}'>Congress.gov</a></li>
 		@endif
 		@if (isset($rep->birthday))
 			<li>Birthday: {{ $rep->birthday }}</li>
@@ -37,6 +38,9 @@
 		@endif
 		@if (isset($rep->govtrack_id))
 			<li><a href='https://www.govtrack.us/congress/members/{{ $rep->govtrack_id }}'>GovTrack</a></li>
+		@endif
+		@if (isset($rep->crp_id))
+			<li><a href='http://www.opensecrets.org/politicians/summary.php?cid={{ $rep->crp_id }}'>OpenSecrets</a></li>
 		@endif
 		@if (isset($rep->twitter_id))
 			<li><a href='http://twitter.com/{{ $rep->twitter_id }}'>Twitter</a></li>

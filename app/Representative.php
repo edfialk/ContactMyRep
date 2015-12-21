@@ -10,6 +10,7 @@ class Representative
 		'birthday',
 		'chamber',
 		'contact_form',
+		'crp_id',
 		'district',
 		'facebook_id',
 		'fec_id',
@@ -64,5 +65,10 @@ class Representative
     		array_push($parts, '['.$this->party.']');
 
     	$this->name = implode(" ", $parts);
+    }
+
+    public function print_thomas_link()
+    {
+    	return "https://www.congress.gov/member/".$this->first_name."-".$this->last_name."/".$this->thomas_id;
     }
 }
