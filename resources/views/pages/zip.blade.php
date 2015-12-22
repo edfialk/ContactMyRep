@@ -6,6 +6,10 @@
 <div class='alert'>No results for that zipcode</div>
 @endif
 
+@if ($multiple_districts)
+<div class='alert'>Multiple districts in this zip code!</div>
+@endif
+
 @foreach ($reps as $rep)
 <div class='rep'>
 	<h3>{{ $rep->printName() }}</h3>

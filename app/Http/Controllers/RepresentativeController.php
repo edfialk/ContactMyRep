@@ -34,7 +34,12 @@ class RepresentativeController extends Controller
             }
         }
 
-        return view('pages.zip', ['reps' => $reps]);
+        $multiple_districts = count($districts) > 1;
+
+        return view('pages.zip', [
+            'reps' => $reps,
+            'multiple_districts' => $multiple_districts
+        ]);
     }
 
     public function byDistrict($state, $district)
