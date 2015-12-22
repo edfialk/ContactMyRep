@@ -15,4 +15,12 @@ Route::get('/', function () {
     return view('pages.home');
 });
 
-Route::get('/{zipcode}', 'RepresentativeController@show');
+Route::get('/{zipcode}', 'RepresentativeController@viewZipcode');
+Route::get('/{state}/{district}', 'RepresentativeController@viewDistrict');
+
+Route::group(['prefix' => 'api'], function(){
+	Route::group(['prefix' => 'v1'], function(){
+		Route::get('/{zipcode}', 'RepresentativeController@byZipcode');
+		Route::get('/{state}/{district}', 'RepresentativeController@byDistrict');
+	});
+});

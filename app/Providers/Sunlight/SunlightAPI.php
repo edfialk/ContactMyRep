@@ -15,31 +15,38 @@ class SunlightAPI
 		$this->api_key = env('SUNLIGHT_KEY', null);
 
 		if (is_null($this->api_key)){
-			// throw new InvalidArgumentException('Missing Sunlight API Key');
 			abort(500, 'Missing Sunlight API key');
 		}
 
-		$this->client = new Client([
+		$this->fed_client = new Client([
 			'base_uri' => 'http://congress.api.sunlightfoundation.com',
+			'headers' => [
+				'X-APIKEY' => $this->api_key
+			]
+		]);
+		$this->state_client = new Client([
+			'base_uri' => 'http://openstates.org/api/v1/',
 			'headers' => [
 				'X-APIKEY' => $this->api_key
 			]
 		]);
 	}
 
-	public function get()
-	{
-		$resp = $this->client->request('GET', '/legislators/locate?zip=97209');
-		$data = json_decode($resp->getBody());
-		return $data;
-	}
-
 	public function getRepsByZipCode($zip)
 	{
-		$resp = $this->client->request('GET', '/legislators/locate?zip='.$zip);
-		$data = json_decode($resp->getBody());
-		return $data;
+		$resp = $this->fed_client->get('/legislators/locate?zip='.$zip);
+		$json = json_decode($resp->getBody());
+		return $json->results;
+	}
 
+	public function getDistrict($state, $district){
+		$resp = $this->state_client->get('legislators', [
+			'query' => [
+				'district' => $district,
+				'state' => $state
+			]
+		]);
+		return json_decode($resp->getBody());
 	}
 
 

@@ -8,10 +8,25 @@
 
 @foreach ($reps as $rep)
 <div class='rep'>
-	<h3>{{ $rep->name }}</h3>
-	<h5>{{ $rep->title }} from {{ $rep->state_name }} {{ isset($rep->district) ? 'District '.$rep->district : '' }}</h5>
-	@if (isset($rep->office))
-		<h5>{{ $rep->office }}</h5>
+	<h3>{{ $rep->printName() }}</h3>
+	@if (isset($rep->photo_url))
+		<img src='{{ $rep->photo_url }}'>
+	@endif
+	<h5>{{ $rep->title }} from {{ strtoupper($rep->state) }} {{ isset($rep->district) ? 'District '.$rep->district : '' }}</h5>
+	@if (isset($rep->email))
+		<h5>{{ $rep->email }}</h5>
+	@endif
+	@if (isset($rep->offices))
+		@foreach($rep->offices as $o)
+			<h5>{{ $o->name }} address: {{ $o->address }}</h5>
+			<h5>{{ $o->name }} phone: {{ $o->phone }}</h5>
+		@endforeach
+	@endif
+	@if (isset($rep->address))
+		<h5>{{ $rep->address }}</h5>
+	@endif
+	@if (isset($rep->district_address))
+		<h5>District address: {{ $rep->district_address }}
 	@endif
 	@if (isset($rep->phone))
 		<h5>{{ $rep->phone }}</h5>
@@ -50,6 +65,9 @@
 		@endif
 		@if (isset($rep->youtube_id))
 			<li><a href='http://youtube.com/{{ $rep->youtube_id }}'>YouTube</a></li>
+		@endif
+		@if (isset($rep->openstates_id))
+			<li><a href='http://openstates.org/or/legislators/{{ $rep->openstates_id }}'>Open States</a></li>
 		@endif
 	</ul>
 </div>
