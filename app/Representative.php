@@ -138,7 +138,7 @@ class Representative
             }
         }
 
-        if ($state && count($districts) > 0){
+        if (isset($state) && count($districts) > 0){
         	foreach($districts as $d){
                 $reps = array_merge($reps, Representative::getStatesAtDistrict($state, $d));
         	}

@@ -39,6 +39,10 @@ class RepresentativeController extends Controller
 
     public function jsonZipcode($zipcode)
     {
+        //not set up for 9 digit zip yet
+        if (strlen($zipcode) > 5){
+            $zipcode = substr($zipcode, 0, 5);
+        }
         $reps = Representative::getAllAtZip($zipcode);
 
         return response()->json($reps);
