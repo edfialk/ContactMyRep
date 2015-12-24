@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -23,4 +25,8 @@ Route::group(['prefix' => 'api'], function(){
 		Route::get('/{zipcode}', 'RepresentativeController@jsonZipcode');
 		Route::get('/{state}/{district}', 'RepresentativeController@jsonDistrict');
 	});
+});
+
+Route::get('/test', function(Request $request){
+	return $request->ip();
 });

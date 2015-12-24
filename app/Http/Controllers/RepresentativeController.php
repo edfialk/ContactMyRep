@@ -14,6 +14,7 @@ class RepresentativeController extends Controller
 
     public function viewZipcode($zipcode)
     {
+
         $reps = Representative::getAllAtZip($zipcode);
 
         return view('pages.results', [
