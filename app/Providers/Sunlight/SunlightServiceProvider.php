@@ -3,7 +3,8 @@
 namespace App\Providers\Sunlight;
 
 use Illuminate\Support\ServiceProvider;
-use App\Providers\Sunlight\SunlightAPI;
+use App\Providers\Sunlight\FederalAPI;
+use App\Providers\Sunlight\StateAPI;
 
 class SunlightServiceProvider extends ServiceProvider
 {
@@ -29,13 +30,19 @@ class SunlightServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(SunlightAPI::class, function($app){
-            return new SunlightAPI();
+        $this->app->singleton(FederalAPI::class, function($app){
+            return new FederalAPI();
+        });
+        $this->app->singleton(StateAPI::class, function($app){
+            return new StateAPI();
         });
     }
 
     public function provides()
     {
-        return [SunlightAPI::class];
+        return [
+            SunlightAPI::class,
+            StateAPI::class
+        ];
     }
 }

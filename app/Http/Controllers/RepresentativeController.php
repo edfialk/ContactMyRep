@@ -12,45 +12,35 @@ use App\Representative;
 class RepresentativeController extends Controller
 {
 
-    protected $sunlight;
-    protected $opensecrets;
-
     public function viewZipcode($zipcode)
     {
-        $reps = Representative::atZip($zipcode);
-        $districts = [];
-        $state;
-        foreach($reps as $rep){
-            if (isset($rep->district) && !in_array($rep->district, $districts)){
-                array_push($districts, $rep->district);
-            }
-            if (isset($rep->state)){
-                $state = $rep->state;
-            }
-        }
-        if ($state && count($districts) > 0){
-            foreach($districts as $d){
-                $reps = array_merge($reps, Representative::atDistrict($state, $d));
-            }
-        }
+        $reps = Representative::getAllAtZip($zipcode);
 
-        $multiple_districts = count($districts) > 1;
-
-        return view('pages.zip', [
-            'reps' => $reps,
-            'multiple_districts' => $multiple_districts
+        return view('pages.results', [
+            'reps' => $reps
         ]);
     }
 
-    public function byDistrict($state, $district)
+    public function viewDistrict($state, $district)
     {
-        $reps = Representative::atDistrict($state, $district);
+        $reps = Representative::getAllAtDistrict($state, $district);
+
+        return view('pages.results', [
+            'reps' => $reps
+        ]);
+    }
+
+    public function jsonDistrict($state, $district)
+    {
+        $reps = Representative::getAllAtDistrict($state, $district);
+
         return response()->json($reps);
     }
 
-    public function byZipcode($zipcode)
+    public function jsonZipcode($zipcode)
     {
-        $reps = Representative::atZip($zipcode);
+        $reps = Representative::getAllAtZip($zipcode);
+
         return response()->json($reps);
     }
 

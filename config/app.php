@@ -195,7 +195,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
 
-        'SunlightAPI' => App\Providers\Sunlight\SunlightAPIFacade::class
+        'StateAPI' => App\Providers\Sunlight\StateAPIFacade::class,
+        'FederalAPI' => App\Providers\Sunlight\FederalAPIFacade::class
 
     ],
 

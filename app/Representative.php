@@ -2,7 +2,8 @@
 
 namespace App;
 
-use SunlightAPI;
+use StateAPI;
+use FederalAPI;
 
 class Representative
 {
@@ -56,13 +57,14 @@ class Representative
     {
     	foreach ($data as $key=>$value){
     		if (empty($value)) continue;
-    		if (in_array($key, $this->fields)){
+    		if ($key == 'state') $value = strtoupper($value);
+    		// if (in_array($key, $this->fields)){
   				$this->$key = $value;
-    		}
-			if (in_array($key, array_keys($this->rename))){
-				$new_key = $this->rename[$key];
-				$this->$new_key = $value;
-			}
+    		// }
+			// if (in_array($key, array_keys($this->rename))){
+			// 	$new_key = $this->rename[$key];
+			// 	$this->$new_key = $value;
+			// }
     	}
 
     	if (isset($this->chamber)){
@@ -92,31 +94,63 @@ class Representative
     	return implode(" ", $parts);
     }
 
-    public function print_thomas_link()
-    {
-    	return "https://www.congress.gov/member/".$this->first_name."-".$this->last_name."/".$this->thomas_id;
-    }
-
-    public static function atZip($zipcode){
-    	//should be repository
-        $data = SunlightAPI::getRepsByZipCode($zipcode);
+    public static function getFedsAtZip($zip){
         $reps = [];
-
-        foreach ($data as $rep){
-            array_push($reps, new Representative($rep));
+        foreach(FederalAPI::zip($zip) as $repData){
+        	array_push($reps, new Representative($repData));
         }
-
         return $reps;
     }
 
-    public static function atDistrict($state, $district)
-    {
-    	$data = SunlightAPI::getDistrict($state, $district);
+    public static function getFedsAtDistrict($state, $district){
     	$reps = [];
+    	foreach(FederalAPI::district($state, $district) as $repData){
+    		array_push($reps, new Representative($repData));
+    	}
+    	return $reps;
+    }
+
+    public static function getStatesAtDistrict($state, $district)
+    {
+    	$data = StateAPI::district($state, $district);
+    	$reps = [];
+
     	foreach($data as $rep){
     		array_push($reps, new Representative($rep));
     	}
 
     	return $reps;
     }
+
+    public static function getAllAtZip($zipcode){
+    	//should be repository
+        $reps = Representative::getFedsAtZip($zipcode);
+        $districts = [];
+        $state;
+
+        //figure out district/state from list of feds so I can getStatesAtZip
+        foreach($reps as $fed){
+            if (isset($fed->district) && !in_array($fed->district, $districts)){
+                array_push($districts, $fed->district);
+            }
+            if (!isset($state) && isset($fed->state)){
+                $state = $fed->state;
+            }
+        }
+
+        if ($state && count($districts) > 0){
+        	foreach($districts as $d){
+                $reps = array_merge($reps, Representative::getStatesAtDistrict($state, $d));
+        	}
+        }
+
+        return $reps;
+    }
+
+    public static function getAllAtDistrict($state, $district){
+    	$feds = Representative::getFedsAtDistrict($state, $district);
+    	$states = Representative::getStatesAtDistrict($state, $district);
+    	return array_merge($feds, $states);
+    }
+
 }

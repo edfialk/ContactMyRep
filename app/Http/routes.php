@@ -20,7 +20,7 @@ Route::get('/{state}/{district}', 'RepresentativeController@viewDistrict');
 
 Route::group(['prefix' => 'api'], function(){
 	Route::group(['prefix' => 'v1'], function(){
-		Route::get('/{zipcode}', 'RepresentativeController@byZipcode');
-		Route::get('/{state}/{district}', 'RepresentativeController@byDistrict');
+		Route::get('/{zipcode}', 'RepresentativeController@jsonZipcode');
+		Route::get('/{state}/{district}', 'RepresentativeController@jsonDistrict');
 	});
 });
