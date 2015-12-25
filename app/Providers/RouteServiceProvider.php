@@ -25,6 +25,10 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(Router $router)
     {
         $router->pattern('zipcode', '\d{5}([\-]?\d{4})?');
+        $router->pattern('state', '[a-zA-Z]{2}');
+        $router->pattern('district', '\d{1,3}');
+        $router->pattern('lat', '^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)');
+        $router->pattern('lng', '[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)');
 
         parent::boot($router);
     }

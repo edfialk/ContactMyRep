@@ -30,19 +30,28 @@ class RepresentativeController extends Controller
         ]);
     }
 
-    public function viewZipcode($zipcode)
+    public function viewDistrict($state, $district)
     {
-
-        $reps = Representative::getAllAtZip($zipcode);
+        $reps = Representative::getAllAtDistrict($state, $district);
 
         return view('pages.results', [
             'reps' => $reps
         ]);
     }
 
-    public function viewDistrict($state, $district)
+    public function viewGPS($lat, $lng)
     {
-        $reps = Representative::getAllAtDistrict($state, $district);
+        $reps = Representative::getAllAtGPS($lat, $lng);
+
+        return view('pages.results', [
+            'reps' => $reps
+        ]);
+    }
+
+    public function viewZipcode($zipcode)
+    {
+
+        $reps = Representative::getAllAtZip($zipcode);
 
         return view('pages.results', [
             'reps' => $reps
@@ -63,6 +72,13 @@ class RepresentativeController extends Controller
             $zipcode = substr($zipcode, 0, 5);
         }
         $reps = Representative::getAllAtZip($zipcode);
+
+        return response()->json($reps);
+    }
+
+    public function jsonGPS($lat, $lng)
+    {
+        $reps = Representative::getAllAtGPS($lat, $lng);
 
         return response()->json($reps);
     }

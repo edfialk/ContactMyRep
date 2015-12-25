@@ -3,7 +3,7 @@
 @section('content')
 
 @if (count($reps) == 0)
-<div class='alert'>No results for that zipcode</div>
+<div class='alert'>No results for that query</div>
 @endif
 
 @if (isset($location))
