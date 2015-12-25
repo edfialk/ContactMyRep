@@ -9,8 +9,26 @@ use App\Http\Controllers\Controller;
 
 use App\Representative;
 
+use App\Providers\IPInfo\IPInfo;
+
 class RepresentativeController extends Controller
 {
+
+    public function viewIndex(Request $request)
+    {
+        $ip = $request->ip();
+        $location = IPInfo::getLocation($ip);
+        $gps = explode(",", $location->loc);
+        $lat = $gps[0];
+        $lng = $gps[1];
+
+        $reps = Representative::getAllAtGPS($lat, $lng);
+
+        return view('pages.results', [
+            'reps' => $reps,
+            'location' => $gps
+        ]);
+    }
 
     public function viewZipcode($zipcode)
     {

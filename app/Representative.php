@@ -94,37 +94,75 @@ class Representative
     	return implode(" ", $parts);
     }
 
-    public static function getFedsAtZip($zip){
-        $reps = [];
-        foreach(FederalAPI::zip($zip) as $repData){
-        	array_push($reps, new Representative($repData));
-        }
-        return $reps;
-    }
-
-    public static function getFedsAtDistrict($state, $district){
+    public static function fromData($data){
     	$reps = [];
-    	foreach(FederalAPI::district($state, $district) as $repData){
-    		array_push($reps, new Representative($repData));
+    	foreach($data as $repData){
+        	array_push($reps, new Representative($repData));
     	}
     	return $reps;
+    }
+
+    public static function getFedsAtZip($zip)
+    {
+        return self::fromData(FederalApi::zip($zip));
+    }
+
+    public static function getFedsAtDistrict($state, $district)
+    {
+    	return self::fromData(FederalAPI::district($state, $district));
     }
 
     public static function getStatesAtDistrict($state, $district)
     {
-    	$data = StateAPI::district($state, $district);
-    	$reps = [];
+    	return self::fromData(StateAPI::district($state, $district));
+    }
 
-    	foreach($data as $rep){
-    		array_push($reps, new Representative($rep));
-    	}
+    public static function getFedsAtGPS($lat, $lng)
+    {
+    	return self::fromData(FederalAPI::gps($lat, $lng));
+    }
 
-    	return $reps;
+    public static function getStatesAtGPS($lat, $lng)
+    {
+    	return self::fromData(StateAPI::gps($lat, $lng));
+    }
+
+    public static function getAllAtDistrict($state, $district){
+    	$feds = self::getFedsAtDistrict($state, $district);
+    	$states = self::getStatesAtDistrict($state, $district);
+    	return array_merge($feds, $states);
+    }
+
+    public static function getAllAtGPS($lat, $lng){
+    	$feds = self::getFedsAtGPS($lat, $lng);
+    	// $states = self::getStatesAtGPS($lat, $lng);
+    	// holy cow OpenStates geo locate is awful, worse than district
+        $districts = [];
+        $state;
+
+        //figure out district/state from list of feds so I can getStatesAtZip
+        foreach($feds as $fed){
+            if (isset($fed->district) && !in_array($fed->district, $districts)){
+                array_push($districts, $fed->district);
+            }
+            if (!isset($state) && isset($fed->state)){
+                $state = $fed->state;
+            }
+        }
+
+        $states = [];
+        if (isset($state) && count($districts) > 0){
+        	foreach($districts as $d){
+                $states = array_merge($states, self::getStatesAtDistrict($state, $d));
+        	}
+        }
+
+    	return array_merge($feds, $states);
     }
 
     public static function getAllAtZip($zipcode){
     	//should be repository
-        $reps = Representative::getFedsAtZip($zipcode);
+        $reps = self::getFedsAtZip($zipcode);
         $districts = [];
         $state;
 
@@ -140,17 +178,12 @@ class Representative
 
         if (isset($state) && count($districts) > 0){
         	foreach($districts as $d){
-                $reps = array_merge($reps, Representative::getStatesAtDistrict($state, $d));
+                $reps = array_merge($reps, self::getStatesAtDistrict($state, $d));
         	}
         }
 
         return $reps;
     }
 
-    public static function getAllAtDistrict($state, $district){
-    	$feds = Representative::getFedsAtDistrict($state, $district);
-    	$states = Representative::getStatesAtDistrict($state, $district);
-    	return array_merge($feds, $states);
-    }
 
 }

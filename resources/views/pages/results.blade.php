@@ -6,6 +6,10 @@
 <div class='alert'>No results for that zipcode</div>
 @endif
 
+@if (isset($location))
+	{{ $location[0] }},{{ $location[1] }}
+@endif
+
 @foreach ($reps as $rep)
 <div class='rep'>
 	<h3>{{ $rep->printName() }}</h3>

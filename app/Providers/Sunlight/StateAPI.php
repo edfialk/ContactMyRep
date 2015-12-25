@@ -39,4 +39,15 @@ class StateAPI
 		return json_decode($resp->getBody());
 	}
 
+	public function gps($lat, $lng)
+	{
+		$resp = $this->client->get('legislators/geo/', [
+			'query' => [
+				'lat' => $lat,
+				'long' => $lng
+			]
+		]);
+		return json_decode($resp->getBody());
+	}
+
 }

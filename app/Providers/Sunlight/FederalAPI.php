@@ -68,4 +68,11 @@ class FederalAPI
 		return array_values($results); //fix index
 	}
 
+	public function gps($lat, $lng)
+	{
+		$resp = $this->client->get('/legislators/locate?latitude='.$lat.'&longitude='.$lng);
+		$json = json_decode($resp->getBody());
+		return $json->results;
+	}
+
 }
