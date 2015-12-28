@@ -146,7 +146,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         App\Providers\Sunlight\SunlightServiceProvider::class,
-
+        App\Providers\RepServiceProvider::class,
     ],
 
     /*

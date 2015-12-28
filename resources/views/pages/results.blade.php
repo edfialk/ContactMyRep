@@ -6,8 +6,8 @@
 <div class='alert'>No results for that query</div>
 @endif
 
-@if (isset($location))
-	{{ $location[0] }},{{ $location[1] }}
+@if (isset($gps))
+	{{ $gps[0] }},{{ $gps[1] }}
 @endif
 
 @foreach ($reps as $rep)
