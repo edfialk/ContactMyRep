@@ -48,8 +48,10 @@ class Representative
 		'url' => 'website',
 		'leg_id' => 'openstates_id',
 		'office' => 'address',
-		'+capitol_address' => 'capitol_address',
-		'+district_address' => 'district_address'
+		'+capitol_address' => 'address',
+		'+district_address' => 'district_address',
+		'+phone' => 'phone',
+		'+district_phone' => 'district_phone'
 	];
 
     public function __construct($data)
@@ -57,13 +59,13 @@ class Representative
     	foreach ($data as $key=>$value){
     		if (empty($value)) continue;
     		if ($key == 'state') $value = strtoupper($value);
-    		// if (in_array($key, $this->fields)){
-  				$this->$key = $value;
-    		// }
-			// if (in_array($key, array_keys($this->rename))){
-			// 	$new_key = $this->rename[$key];
-			// 	$this->$new_key = $value;
-			// }
+
+			if (in_array($key, array_keys($this->rename))){
+				$new_key = $this->rename[$key];
+				$this->$new_key = $value;
+			}else{
+				$this->$key = $value;
+			}
     	}
 
     	if (isset($this->chamber)){
@@ -72,6 +74,22 @@ class Representative
     		}else if ($this->chamber == 'lower' || $this->chamber == 'house'){
     			$this->title = 'Representative';
     		}
+    	}
+
+    	if (!isset($this->address)){
+    		isset($this->capitol_address) ? $this->address = $this->capitol_address :
+    		isset($this->district_address) ? $this->address = $this->district_address : $this->address = '';
+    	}
+
+    	$this->address = preg_replace_callback('#(Senate|House) Office Building#',
+    		function($m) {
+    			return $m[0][0].'OB, Washington, D.C.';
+    		},
+    		$this->address
+    	);
+
+    	if (isset($this->level) && $this->level == 'state' || isset($this->openstates_id)){
+    		$this->title = 'State '.$this->title;
     	}
 
     }

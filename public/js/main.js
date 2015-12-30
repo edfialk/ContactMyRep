@@ -1,4 +1,4 @@
-$('#fm').on('submit', function(e){
+$('form').on('submit', function(e){
 	e.preventDefault();
-	window.location = window.location + $('#zipcode').val();
+	window.location = '/' + $('#input').val();
 });

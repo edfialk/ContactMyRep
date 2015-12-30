@@ -23,7 +23,7 @@ class RepresentativeController extends Controller
 
     public function viewIndex(Request $request)
     {
-        $reps = [];
+        $data = ['reps' => []];
         $ip = $request->ip();
 
         if ($ip == '192.168.10.1') $ip = '73.157.212.42';
@@ -31,49 +31,51 @@ class RepresentativeController extends Controller
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
             $location = IPInfo::getLocation($ip);
             $gps = explode(",", $location->loc);
-            $reps = $this->repo->gps($gps[0], $gps[1]);
+            $data['reps'] = $this->repo->gps($gps[0], $gps[1]);
+            $data['location'] = $location->city.', '.$location->region;
+            $data['gps'] = $location->loc;
         }
 
-        $data = ['reps' => $reps];
+        foreach($data['reps'] as $rep){
+            if (!empty($rep->district)){
+                $data['district'] = $rep->district;
+                $data['location'] .= ' - District '.$rep->district;
+                break;
+            }
+        }
 
-        if (isset($gps)) $data['gps'] = $gps;
 
-        return view('pages.results', $data);
+        return view('pages.home', $data);
     }
 
     public function viewDistrict($state, $district)
     {
-        $reps = $this->repo->district($state, $district);
-
-        return view('pages.results', [
-            'reps' => $reps
+        return view('pages.home', [
+            'reps' => $this->repo->district($state, $district),
+            'location' => strtoupper($state).' - District '.$district
         ]);
     }
 
     public function viewGPS($lat, $lng)
     {
-        $reps = $this->repo->gps($lat, $lng);
-
-        return view('pages.results', [
-            'reps' => $reps
+        return view('pages.home', [
+            'reps' => $this->repo->gps($lat, $lng)
         ]);
     }
 
     public function viewZipcode($zip)
     {
-
-        $reps = $this->repo->zip($zip);
-
-        return view('pages.results', [
-            'reps' => $reps
+        return view('pages.home', [
+            'reps' => $this->repo->zip($zip),
+            'location' => $zip
         ]);
     }
 
     public function jsonDistrict($state, $district)
     {
-        $reps = $this->repo->district($state, $district);
-
-        return response()->json($reps);
+        return response()->json(
+            $this->repo->district($state, $district)
+        );
     }
 
     public function jsonZipcode($zipcode)
@@ -81,16 +83,16 @@ class RepresentativeController extends Controller
         //not set up for 9 digit zip yet - i.e. OpenAPI doesn't use it
         if (strlen($zipcode) > 5) $zipcode = substr($zipcode, 0, 5);
 
-        $reps = $this->repo->zip($zipcode);
-
-        return response()->json($reps);
+        return response()->json(
+            $this->repo->zip($zipcode)
+        );
     }
 
     public function jsonGPS($lat, $lng)
     {
-        $reps = $this->repo->gps($lat, $lng);
-
-        return response()->json($reps);
+        return response()->json(
+            $this->repo->gps($lat, $lng)
+        );
     }
 
 }
