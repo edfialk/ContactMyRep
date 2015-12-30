@@ -8,12 +8,12 @@
 	</div>
 
 	<div class="row search">
-		<form class="col s10 offset-s1 l8 offset-l2">
+		<form class="col s12 m10 offset-m1">
 			<div class="row">
-				<div class="input-field col s9">
-					<input type='text' id='input' placeholder='Zip code, address, or district'>
+				<div class="input-field col s12 m10">
+					<input type='text' id='input' placeholder='Zip code, address, or state + district'>
 				</div>
-				<div class="input-field col s1">
+				<div class="input-field col s12 m2">
 					<input type="submit" class="waves-effect waves-light btn" value="Search">
 				</div>
 			</div>
@@ -24,10 +24,10 @@
 		@include('pages.location')
 	@endif
 
+	<hr>
+
 	@if (count($reps) > 0)
-		<div class="row results">
-			@include('pages.results')
-		</div>
+		@include('pages.results')
 	@endif
 
 </div>
@@ -37,5 +37,7 @@
 @section('scripts.body')
 
 	<script src="{{ URL::asset('js/main.js') }}"></script>
-
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBD-WBhPqQZUEuGI8HBFOiVXtT6q9Xt5qc&amp;callback=initMap">
+    </script>
 @stop

@@ -1,3 +1,52 @@
+@import "resources/assets/materialize-src/sass/materialize";
+
 .logo {
 	height: 200px;
+}
+.map-container {
+	height: 200px;
+}
+#map {
+	height: 100%;
+	width: 100%;
+}
+.results {
+	@media only screen and (max-width: 600px){
+		td {
+			display: block;
+			padding: 5px 0;
+		}
+		tr+tr {
+			border-top: 1px solid #CCC;
+		}
+		td:first-child {
+			font-size: 1.5em;
+			padding-top:10px;
+		}
+		td:nth-child(2):after {
+			content: "-";
+			margin-left: 5px;
+			margin-right: 5px;
+		}
+		td:nth-child(2), td:nth-child(3) {
+			display:inline-block;
+		}
+		td:last-child {
+			font-size: 2em;
+			padding-bottom:10px;
+		}
+		td:empty {
+			display: none;
+		}
+	}
+}
+.enable-geo {
+	cursor: pointer;
+	@extend .blue-text, .text-lighten-4;
+	font-size: 1.1em;
+}
+@media only screen and (min-width: 993px) {
+	.container {
+		width: 80%;
+	}
 }

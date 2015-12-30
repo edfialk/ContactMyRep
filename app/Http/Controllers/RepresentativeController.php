@@ -36,11 +36,10 @@ class RepresentativeController extends Controller
             $data['gps'] = $location->loc;
         }
 
+        $data['districts'] = [];
         foreach($data['reps'] as $rep){
-            if (!empty($rep->district)){
-                $data['district'] = $rep->district;
-                $data['location'] .= ' - District '.$rep->district;
-                break;
+            if (!empty($rep->district) && !in_array($rep->district, $data['districts'])){
+                array_push($data['districts'], $rep->district);
             }
         }
 
