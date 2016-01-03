@@ -32,18 +32,14 @@ class RepresentativeController extends Controller
             $location = IPInfo::getLocation($ip);
             $gps = explode(",", $location->loc);
             $data['reps'] = $this->repo->gps($gps[0], $gps[1]);
-            $data['location'] = $location->city.', '.$location->region;
-            $data['gps'] = $location->loc;
+            $data['location'] = [
+                'state' => $location->region,
+                'city' => $location->city,
+                'gps' => $location->loc
+            ];
         }
 
-        $data['districts'] = [];
-        foreach($data['reps'] as $rep){
-            if (!empty($rep->district) && !in_array($rep->district, $data['districts'])){
-                array_push($data['districts'], $rep->district);
-            }
-        }
-
-
+        $data['districts'] = $this->getDistricts($data['reps']);
         return view('pages.home', $data);
     }
 
@@ -51,7 +47,10 @@ class RepresentativeController extends Controller
     {
         return view('pages.home', [
             'reps' => $this->repo->district($state, $district),
-            'location' => strtoupper($state).' - District '.$district
+            'location' => [
+                'state' => strtoupper($state)
+            ],
+            'districts' => [$district]
         ]);
     }
 
@@ -64,10 +63,14 @@ class RepresentativeController extends Controller
 
     public function viewZipcode($zip)
     {
-        return view('pages.home', [
-            'reps' => $this->repo->zip($zip),
-            'location' => $zip
-        ]);
+        $data = [];
+        $data['reps'] = $this->repo->zip($zip);
+        $data['districts'] = $this->getDistricts($data['reps']);
+        $data['location'] = [
+            'zip' => $zip,
+            'state' => $this->getState($data['reps'])
+        ];
+        return view('pages.home', $data);
     }
 
     public function jsonDistrict($state, $district)
@@ -92,6 +95,29 @@ class RepresentativeController extends Controller
         return response()->json(
             $this->repo->gps($lat, $lng)
         );
+    }
+
+    public function getDistricts($reps)
+    {
+        $districts = [];
+        foreach($reps as $rep){
+            if (!empty($rep->district) && !in_array($rep->district, $districts)){
+                array_push($districts, $rep->district);
+            }
+        }
+        return $districts;
+    }
+
+    public function getState($reps)
+    {
+        $state;
+        foreach($reps as $rep){
+            if (!empty($rep->state)){
+                $state = $rep->state;
+                break;
+            }
+        }
+        return $state;
     }
 
 }
