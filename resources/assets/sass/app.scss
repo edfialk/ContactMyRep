@@ -40,11 +40,7 @@
 		}
 	}
 }
-.enable-geo {
-	cursor: pointer;
-	@extend .blue-text, .text-lighten-4;
-	font-size: 1.1em;
-}
+
 @media only screen and (min-width: 993px) {
 	.container {
 		width: 80%;

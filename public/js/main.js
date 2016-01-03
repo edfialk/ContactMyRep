@@ -1,17 +1,7 @@
-$('form').on('submit', function(e){
-	e.preventDefault();
-	window.location = '/' + $('#input').val();
-});
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+//browserify entry
+"use strict";
 
-function initMap(){
-	var gps = $('#my-gps').val().split(',');
-	var map = new google.maps.Map(document.getElementById('map'), {
-	    center: {lat: parseFloat(gps[0]), lng: parseFloat(gps[1])},
-    	zoom: 15
-  	});
-  	var marker = new google.maps.Marker({
-    	position: {lat: parseFloat(gps[0]), lng: parseFloat(gps[1])},
-    	map: map,
-    	title: 'Drag Me'
-  	});
-}
+},{}]},{},[1]);
+
+//# sourceMappingURL=main.js.map
