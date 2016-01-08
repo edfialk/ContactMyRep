@@ -12,9 +12,10 @@
 */
 
 Route::get('/', 'RepresentativeController@viewIndex');
-Route::get('/{zipcode}', 'RepresentativeController@viewZipcode');
-Route::get('/{state}/{district}', 'RepresentativeController@viewDistrict');
-Route::get('/{lat}/{lng}', 'RepresentativeController@viewGPS');
+Route::get('/{zipcode}', 'RepresentativeController@view');
+Route::get('/{address}', 'RepresentativeController@view');
+Route::get('/{state}/{district}', 'RepresentativeController@view');
+Route::get('/{lat}/{lng}', 'RepresentativeController@view');
 
 Route::group(['prefix' => 'api'], function(){
 	Route::group(['prefix' => 'v1'], function(){

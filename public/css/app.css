@@ -8608,6 +8608,12 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   height: 100%;
   width: 100%; }
 
+.status {
+  padding: 10px 20px; }
+
+.status-wrapper {
+  margin: 15px 0; }
+
 @media only screen and (max-width: 600px) {
   .results td {
     display: block;

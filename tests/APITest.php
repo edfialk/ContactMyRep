@@ -19,4 +19,12 @@ class APITest extends TestCase
     	$state = $faker->stateAbbr();
         $this->get('/api/v1/'.$state.'/1')->seeJson();
     }
+
+    public function testGPS()
+    {
+        $faker = \Faker\Factory::create();
+        $lat = $faker->latitude();
+        $lng = $faker->longitude();
+        $this->get('/api/v1/'.$lat.'/'.$lng)->seeJson();
+    }
 }

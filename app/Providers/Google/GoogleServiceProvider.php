@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Providers\Sunlight;
+namespace App\Providers\Google;
 
 use Illuminate\Support\ServiceProvider;
-use App\Providers\Sunlight\CongressAPI;
-use App\Providers\Sunlight\StateAPI;
 
-class SunlightServiceProvider extends ServiceProvider
+use GoogleAPI;
+
+class GoogleServiceProvider extends ServiceProvider
 {
 
     protected $defer = true;
@@ -30,19 +30,15 @@ class SunlightServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(CongressAPI::class, function($app){
-            return new CongressAPI();
-        });
-        $this->app->singleton(StateAPI::class, function($app){
-            return new StateAPI();
+        $this->app->singleton(GoogleAPI::class, function($app){
+            return new GoogleAPI();
         });
     }
 
     public function provides()
     {
         return [
-            SunlightAPI::class,
-            StateAPI::class
+            GoogleAPI::class
         ];
     }
 }

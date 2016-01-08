@@ -10,6 +10,12 @@
 	height: 100%;
 	width: 100%;
 }
+.status {
+	padding: 10px 20px;
+}
+.status-wrapper {
+	margin: 15px 0;
+}
 .results {
 	@media only screen and (max-width: 600px){
 		td {

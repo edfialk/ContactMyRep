@@ -4,21 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
+//use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use GuzzleHttp\Promise;
 
 use App\Representative;
-use App\Repositories\RepRepository;
 use App\Providers\IPInfo\IPInfo;
+
+use GoogleAPI;
+use CongressAPI;
+use StateAPI;
 
 class RepresentativeController extends Controller
 {
 
-    protected $repo;
-
-    public function __construct(RepRepository $repo)
+    public function view()
     {
-        $this->repo = $repo;
+        return view('pages.home');
     }
 
     public function viewIndex(Request $request)
@@ -29,95 +31,114 @@ class RepresentativeController extends Controller
         if ($ip == '192.168.10.1') $ip = '73.157.212.42';
 
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
-            $location = IPInfo::getLocation($ip);
-            $gps = explode(",", $location->loc);
-            $data['reps'] = $this->repo->gps($gps[0], $gps[1]);
-            $data['location'] = [
-                'state' => $location->region,
-                'city' => $location->city,
-                'gps' => $location->loc
-            ];
+            $data['location'] = IPInfo::getLocation($ip);
         }
 
-        $data['districts'] = $this->getDistricts($data['reps']);
         return view('pages.home', $data);
     }
 
-    public function viewDistrict($state, $district)
-    {
-        return view('pages.home', [
-            'reps' => $this->repo->district($state, $district),
-            'location' => [
-                'state' => strtoupper($state)
-            ],
-            'districts' => [$district]
-        ]);
-    }
-
-    public function viewGPS($lat, $lng)
-    {
-        return view('pages.home', [
-            'reps' => $this->repo->gps($lat, $lng)
-        ]);
-    }
-
-    public function viewZipcode($zip)
-    {
-        $data = [];
-        $data['reps'] = $this->repo->zip($zip);
-        $data['districts'] = $this->getDistricts($data['reps']);
-        $data['location'] = [
-            'zip' => $zip,
-            'state' => $this->getState($data['reps'])
-        ];
-        return view('pages.home', $data);
-    }
 
     public function jsonDistrict($state, $district)
     {
-        return response()->json(
-            $this->repo->district($state, $district)
-        );
+        $googReq = GoogleAPI::districtAsync($state, $district);
+        $congReq = CongressAPI::districtAsync($state, $district);
+        $results = Promise\unwrap([$googReq, $congReq]);
+
+        if (isset($results[0]->status) && $results[0]->status == 'error'){
+            return response()->json($results[0]);
+        }
+
+        $resp = $this->buildResponse($results[0], $results[1]);
+
+        return response()->json($resp);
     }
 
     public function jsonZipcode($zipcode)
     {
-        //not set up for 9 digit zip yet - i.e. OpenAPI doesn't use it
-        if (strlen($zipcode) > 5) $zipcode = substr($zipcode, 0, 5);
+        $googReq = GoogleAPI::async($zipcode);
+        $congReq = CongressAPI::asyncLocate('zip='.$zipcode);
 
-        return response()->json(
-            $this->repo->zip($zipcode)
-        );
+        $results = Promise\unwrap([$googReq, $congReq]);
+
+        if (isset($results[0]->error)){
+            return response()->json($results[0]);
+        }
+
+        $resp = $this->buildResponse($results[0], $results[1]);
+
+        return response()->json($resp);
     }
 
     public function jsonGPS($lat, $lng)
     {
-        return response()->json(
-            $this->repo->gps($lat, $lng)
-        );
-    }
+        $googReq = GoogleAPI::async($lat.','.$lng);
+        $congReq = CongressAPI::asyncLocate('latitude='.$lat.'&longitude='.$lng);
 
-    public function getDistricts($reps)
-    {
-        $districts = [];
-        foreach($reps as $rep){
-            if (!empty($rep->district) && !in_array($rep->district, $districts)){
-                array_push($districts, $rep->district);
-            }
+        $results = Promise\unwrap([$googReq, $congReq]);
+
+        if (isset($results[0]->error)){
+            return response()->json($results[0]);
         }
-        return $districts;
+
+        $resp = $this->buildResponse($results[0], $results[1]);
+        return response()->json($resp);
     }
 
-    public function getState($reps)
+    public function rankSort($a, $b)
     {
-        $state;
-        foreach($reps as $rep){
-            if (!empty($rep->state)){
-                $state = $rep->state;
-                break;
-            }
-        }
-        return $state;
+        return strlen($a->division_id) > strlen($b->division_id);
     }
 
+    public function buildResponse($google, $congress)
+    {
+        $resp = ['reps' => []];
+
+        if (isset($google['location'])){
+            $resp['location'] = $google['location'];
+        }
+
+        $congressReps = array_map(function($i){
+            return $i->aliases;
+        }, $congress);
+
+        foreach($google['reps'] as $gdata){
+            $rep = new Representative($gdata);
+            $c = count($congressReps);
+            for ($i = 0; $i < $c; $i++){
+                if (array_search($rep->name, $congressReps[$i]) !== false){
+                    $rep->load($congress[$i]);
+                    unset($congress[$i]);
+                    unset($congressReps[$i]);
+                }
+            }
+            $resp['reps'][] = $rep;
+            $congressReps = array_values($congressReps);
+            $congress = array_values($congress);
+        }
+
+        foreach($congress as $cdata){
+            $resp['reps'][] = new Representative($cdata);
+        }
+
+        $ranks = [
+            'President',
+            'Vice-President',
+            'Senate',
+            'House of Representatives',
+            'Governor',
+            'Mayor'
+        ];
+
+        usort($resp['reps'], function($a, $b) use ($ranks){
+            $ia = array_search($a->office, $ranks);
+            $ib = array_search($b->office, $ranks);
+
+            if ($ia === false) $ia = 6;
+            if ($ib === false) $ib = 6;
+
+            return $ia > $ib;
+        });
+
+        return $resp;
+    }
 }
