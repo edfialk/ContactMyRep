@@ -95,6 +95,7 @@ var vm = new Vue({
 				    	lat: position.coords.latitude,
 				    	lng: position.coords.longitude
 			  		};
+			  		history.pushState({}, '', '/');
 				}, () => {
 					this.status = 'You must accept location permissions to use your current location.';
 				});

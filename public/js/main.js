@@ -11632,6 +11632,7 @@ var vm = new _vue2.default({
 						lat: position.coords.latitude,
 						lng: position.coords.longitude
 					};
+					history.pushState({}, '', '/');
 				}, function () {
 					_this2.status = 'You must accept location permissions to use your current location.';
 				});
