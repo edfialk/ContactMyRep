@@ -1,5 +1,6 @@
 <template>
 	<tr>
+		<td class="center-align"><img v-if="item.photo" src="{{ item.photo }}"></td>
 		<td><a href='#'>{{ item.name }} {{ party }}</a></td>
 		<td>{{ item.office }}</td>
 		<td>{{ item.phone ? item.phone : '' }}</td>
@@ -49,3 +50,9 @@
 		}
 	};
 </script>
+
+<style>
+	img {
+		max-width: 100px;
+	}
+</style>

@@ -11463,6 +11463,27 @@ function format (id) {
 },{}],8:[function(require,module,exports){
 arguments[4][1][0].apply(exports,arguments)
 },{"_process":4,"dup":1}],9:[function(require,module,exports){
+var inserted = exports.cache = {}
+
+exports.insert = function (css) {
+  if (inserted[css]) return
+  inserted[css] = true
+
+  var elem = document.createElement('style')
+  elem.setAttribute('type', 'text/css')
+
+  if ('textContent' in elem) {
+    elem.textContent = css
+  } else {
+    elem.styleSheet.cssText = css
+  }
+
+  document.getElementsByTagName('head')[0].appendChild(elem)
+  return elem
+}
+
+},{}],10:[function(require,module,exports){
+var __vueify_style__ = require("vueify-insert-css").insert("\n\timg {\n\t\tmax-width: 100px;\n\t}\n")
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11505,19 +11526,23 @@ exports.default = {
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<tr>\n\t\t<td><a href=\"#\">{{ item.name }} {{ party }}</a></td>\n\t\t<td>{{ item.office }}</td>\n\t\t<td>{{ item.phone ? item.phone : '' }}</td>\n\t\t<td>{{{ address }}}</td>\n\t\t<td>\n\t\t\t<a v-if=\"item.website\" href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i></a>\n\t\t\t<a v-if=\"item.contact_form\" href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.email\" href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.facebook_id\" href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i></a>\n\t\t\t<a v-if=\"item.twitter_id\" href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i></a>\n\t\t\t<a v-if=\"item.google_id\" href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i></a>\n\t\t\t<a v-if=\"item.youtube_id\" href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i></a>\n\t\t</td>\n\t</tr>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<tr>\n\t\t<td class=\"center-align\"><img v-if=\"item.photo\" src=\"{{ item.photo }}\"></td>\n\t\t<td><a href=\"#\">{{ item.name }} {{ party }}</a></td>\n\t\t<td>{{ item.office }}</td>\n\t\t<td>{{ item.phone ? item.phone : '' }}</td>\n\t\t<td>{{{ address }}}</td>\n\t\t<td>\n\t\t\t<a v-if=\"item.website\" href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i></a>\n\t\t\t<a v-if=\"item.contact_form\" href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.email\" href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.facebook_id\" href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i></a>\n\t\t\t<a v-if=\"item.twitter_id\" href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i></a>\n\t\t\t<a v-if=\"item.google_id\" href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i></a>\n\t\t\t<a v-if=\"item.youtube_id\" href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i></a>\n\t\t</td>\n\t</tr>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   var id = "E:\\GreatWorks\\homestead\\ContactMyReps\\resources\\assets\\js\\components\\item.vue"
+  module.hot.dispose(function () {
+    require("vueify-insert-css").cache["\n\timg {\n\t\tmax-width: 100px;\n\t}\n"] = false
+    document.head.removeChild(__vueify_style__)
+  })
   if (!module.hot.data) {
     hotAPI.createRecord(id, module.exports)
   } else {
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../store":11,"vue":8,"vue-hot-reload-api":7}],10:[function(require,module,exports){
+},{"../store":12,"vue":8,"vue-hot-reload-api":7,"vueify-insert-css":9}],11:[function(require,module,exports){
 'use strict';
 
 var _vue = require('vue');
@@ -11646,7 +11671,7 @@ var vm = new _vue2.default({
 	}
 });
 
-},{"./components/item.vue":9,"superagent":6,"vue":8}],11:[function(require,module,exports){
+},{"./components/item.vue":10,"superagent":6,"vue":8}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11694,6 +11719,6 @@ store.setQuery = function (query) {
 	this.state.query = query;
 };
 
-},{"Vue":1,"events":3,"superagent":6}]},{},[10]);
+},{"Vue":1,"events":3,"superagent":6}]},{},[11]);
 
 //# sourceMappingURL=main.js.map
