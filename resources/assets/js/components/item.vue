@@ -18,8 +18,6 @@
 </template>
 
 <script>
-	import store from '../store';
-
 	export default {
 		name: 'Item',
 		props: {
@@ -30,8 +28,7 @@
 				return this.item.district ? 'District ' + this.item.district : '';
 			},
 			party() {
-				if (!this.item.party) return '';
-				return '[' + this.item.party[0] + ']';
+				return this.item.party ? '[' + this.item.party[0] + ']' : '';
 			},
 			address() {
 				if (!this.item.address) return '';
