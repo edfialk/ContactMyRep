@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('/', 'RepresentativeController@viewIndex');
+Route::get('/', 'RepresentativeController@index');
 Route::get('/{zipcode}', 'RepresentativeController@view');
 Route::get('/{address}', 'RepresentativeController@view');
 Route::get('/{state}/{district}', 'RepresentativeController@view');

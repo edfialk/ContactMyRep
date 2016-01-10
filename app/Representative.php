@@ -7,19 +7,8 @@ use App\Repositories\RepRepository;
 class Representative
 {
 
-/*	protected $rename = [
-		'url' => 'website',
-		'leg_id' => 'openstates_id',
-		'office' => 'address',
-		'+capitol_address' => 'address',
-		'+district_address' => 'district_address',
-		'+phone' => 'phone',
-		'+district_phone' => 'district_phone'
-	];*/
-
     public function __construct($data = [])
     {
-    	// $renames = array_keys($this->rename);
     	foreach ($data as $key=>$value){
     		if (empty($value)) continue;
 
@@ -27,18 +16,6 @@ class Representative
 
 			$this->$key = $value;
     	}
-
-/*    	$this->address = preg_replace_callback('#(Senate|House) Office Building#',
-    		function($m) {
-    			return $m[0][0].'OB, Washington, D.C.';
-    		},
-    		$this->address
-    	);*/
-
-/*    	if (isset($this->level) && $this->level == 'state' || isset($this->openstates_id)){
-    		$this->title = 'State '.$this->title;
-    	}*/
-
     }
 
     public function load($data)

@@ -23,7 +23,7 @@ class RepresentativeController extends Controller
         return view('pages.home');
     }
 
-    public function viewIndex(Request $request)
+    public function index(Request $request)
     {
         $data = ['reps' => []];
         $ip = $request->ip();
@@ -84,11 +84,6 @@ class RepresentativeController extends Controller
         return response()->json($resp);
     }
 
-    public function rankSort($a, $b)
-    {
-        return strlen($a->division_id) > strlen($b->division_id);
-    }
-
     public function buildResponse($google, $congress)
     {
         $resp = ['reps' => []];
@@ -97,22 +92,22 @@ class RepresentativeController extends Controller
             $resp['location'] = $google['location'];
         }
 
-        $congressReps = array_map(function($i){
+        $congressNames = array_map(function($i){
             return $i->aliases;
         }, $congress);
 
         foreach($google['reps'] as $gdata){
             $rep = new Representative($gdata);
-            $c = count($congressReps);
+            $c = count($congressNames);
             for ($i = 0; $i < $c; $i++){
-                if (array_search($rep->name, $congressReps[$i]) !== false){
+                if (array_search($rep->name, $congressNames[$i]) !== false){
                     $rep->load($congress[$i]);
                     unset($congress[$i]);
-                    unset($congressReps[$i]);
+                    unset($congressNames[$i]);
                 }
             }
             $resp['reps'][] = $rep;
-            $congressReps = array_values($congressReps);
+            $congressNames = array_values($congressNames);
             $congress = array_values($congress);
         }
 

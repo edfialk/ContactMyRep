@@ -5,8 +5,6 @@ import Item from './components/item.vue';
 
 Vue.config.debug = true;
 
-var gpsRegex = /^[-+]?([1-8]?\d(.\d+)?|90(.0+)?)[,\/]\s*[-+]?(180(.0+)?|((1[0-7]\d)|([1-9]?\d))(.\d+)?)$/;
-
 Vue.filter('search', {
 	read: function(val){
 		return '';
@@ -15,15 +13,6 @@ Vue.filter('search', {
 		return val;
 	}
 });
-/*		if (val.match(gpsRegex) != null){
-			if (val.indexOf(',') != -1){
-				val = val.split(',');
-			}else{
-				val = val.split('/');
-			}
-			return val[0] + ', ' + val[1];
-		}
-		return val;*/
 
 var vm = new Vue({
 	el: '.container',
@@ -52,34 +41,36 @@ var vm = new Vue({
 				this.query = val.lat+'/'+val.lng;
 				this.fetch();
 			}
-		},
-		'status': function(val){
-/*			setTimeout(function(vm){
-				console.log('status watch: ' + status);
-				vm.status = '';
-			}, 5000, this);*/
 		}
 	},
 	created() {
-		var path = window.location.pathname;
-		if (path.length > 1){ //root is '/'
-			this.query = path.substr(1);
-			this.fetch();
-		}else{
-			var gps = document.getElementById('gps');
-			if (gps){
-				gps = gps.value.split(',');
-				this.gps.lat = gps[0];
-				this.gps.lng = gps[1];
-				this.query = this.gps.lat + '/' + this.gps.lng;
-				this.fetch();
-			}
-		}
+		window.onpopstate = function(e){
+			this.init();
+		}.bind(this);
+		this.init();
 	},
 	methods: {
+		init() {
+			if (this.getUrlQuery().length > 1){ //root is '/'
+				this.query = this.getUrlQuery()
+				this.fetch();
+			}else{
+				var gps = document.getElementById('gps');
+				if (gps){
+					gps = gps.value.split(',');
+					this.gps.lat = gps[0];
+					this.gps.lng = gps[1];
+					this.query = this.gps.lat + '/' + this.gps.lng;
+					this.gpsFetch = true;
+					this.fetch();
+				}
+			}
+		},
 		search(event) {
 			event.preventDefault();
+			this.gpsFetch = false;
 			this.fetch();
+			history.pushState({}, '', '/'+this.query);
 		},
 		fetch() {
 			this.status = '';
@@ -111,6 +102,9 @@ var vm = new Vue({
 				this.status = 'Your browser does not support geolocation';
 			}
 		},
+		getUrlQuery() {
+			return window.location.pathname.substr(1);
+		}
 	},
 });
 
