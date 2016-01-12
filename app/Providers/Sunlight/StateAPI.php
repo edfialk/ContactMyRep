@@ -3,7 +3,10 @@
 namespace App\Providers\Sunlight;
 
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
 
+use App\Representative;
 /**
 *
 */
@@ -41,13 +44,66 @@ class StateAPI
 
 	public function gps($lat, $lng)
 	{
-		$resp = $this->client->get('legislators/geo/', [
-			'query' => [
-				'lat' => $lat,
-				'long' => $lng
-			]
-		]);
-		return json_decode($resp->getBody());
+		return $this->client->getAsync('legislators/geo/?lat='.$lat.'&long='.$lng)->then(
+	        function(ResponseInterface $res){
+	            return $this->validate(json_decode($res->getBody()));
+	        },
+	        function (RequestException $e){
+	            echo $e->getMessage();
+	        }
+		);
+	}
+
+	public function validate($array)
+	{
+		$keys = [
+			'full_name' => 'name',
+			'district',
+			'state',
+			'boundary_id' => 'division_id',
+			'email',
+			'party',
+			'photo_url' => 'photo',
+			'url' => 'website'
+		];
+
+		return array_map(function($data) use ($keys){
+			$rep = new Representative();
+			$rep->aliases($data);
+			foreach($keys as $key=>$val){
+				if (is_string($key) && isset($data->$key)){
+					$rep->$val = $data->$key;
+				}else if (isset($data->$val)){
+					$rep->$val = $data->$val;
+				}
+			}
+
+			if (isset($data->offices) && count($data->offices) > 0){
+				$office = $data->offices[0];
+				foreach($data->offices as $d){
+					if ($d->type == 'capitol'){
+						$office = $d;
+						break;
+					}
+				}
+				$rep->phone = $office->phone ?? null;
+				$rep->fax = $office->fax ?? null;
+				$rep->address = $office->address ?? null;
+				$rep->email = $office->email ?? null;
+			}
+
+	    	if (isset($data->chamber)){
+	    		if ($data->chamber == 'upper' || $data->chamber == 'senate'){
+	    			$rep->title = 'State Senator';
+	    			$rep->office = 'State Senate';
+	    		}else if ($data->chamber == 'lower' || $data->chamber == 'house'){
+	    			$rep->title = 'State Representative';
+	    			$rep->office = 'State House';
+	    		}
+	    	}
+
+			return $rep;
+		}, $array);
 	}
 
 }

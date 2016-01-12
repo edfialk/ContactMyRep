@@ -30,10 +30,9 @@ class RepresentativeController extends Controller
 
         if ($ip == '192.168.10.1') $ip = '73.157.212.42';
 
-        $agent = $request->header('User-Agent');
         if (
             filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) &&
-            stripos($agent, 'mobi') === false
+            stripos($request->header('User-Agent'), 'mobi') === false
         ){
             $data['location'] = IPInfo::getLocation($ip);
         }
@@ -59,59 +58,61 @@ class RepresentativeController extends Controller
 
     public function jsonZipcode($zipcode)
     {
-        $googReq = GoogleAPI::async($zipcode);
-        $congReq = CongressAPI::asyncLocate('zip='.$zipcode);
+        $googReq = GoogleAPI::zip($zipcode);
+        $congReq = CongressAPI::zip($zipcode);
 
         $results = Promise\unwrap([$googReq, $congReq]);
 
-        if (isset($results[0]->error)){
+        if (isset($results[0]->status) && $results[0]->status == 'error'){
             return response()->json($results[0]);
         }
 
-        $resp = $this->buildResponse($results[0], $results[1]);
-
+        $resp = $this->buildResponse($results);
         return response()->json($resp);
     }
 
     public function jsonGPS($lat, $lng)
     {
-        $googReq = GoogleAPI::async($lat.','.$lng);
-        $congReq = CongressAPI::asyncLocate('latitude='.$lat.'&longitude='.$lng);
+        $googReq = GoogleAPI::gps($lat, $lng);
+        $congReq = CongressAPI::gps($lat, $lng);
+        $stateReq = StateAPI::gps($lat, $lng);
 
-        $results = Promise\unwrap([$googReq, $congReq]);
-
-        if (isset($results[0]->error)){
+        $results = Promise\unwrap([$googReq, $congReq, $stateReq]);
+        if (isset($results[0]->status) && $results[0]->status == 'error'){
             return response()->json($results[0]);
         }
+        if (isset($results[0]->error)){
+            return response()->json((object)['status' => 'error', 'message' => $results[0]->error]);
+        }
 
-        $resp = $this->buildResponse($results[0], $results[1]);
+        $resp = $this->buildResponse($results);
         return response()->json($resp);
     }
 
-    public function buildResponse($google, $congress)
+    public function buildResponse($data)
     {
-        $resp = ['reps' => []];
-
-        if (isset($google['location'])){
-            $resp['location'] = $google['location'];
-        }
-
-        foreach($google['reps'] as $gdata){
-            $rep = new Representative($gdata);
+        $response = (object)$data[0];
+        $congress = $data[1];
+        foreach($response->reps as &$rep){
             $congressIndex = $rep->isIn($congress);
             if ($congressIndex !== false){
                 $rep->load($congress[$congressIndex]);
                 unset($congress[$congressIndex]);
             }
-            $resp['reps'][] = $rep;
             $congress = array_values($congress);
         }
 
         foreach($congress as $cdata){
-            $resp['reps'][] = new Representative($cdata);
+            $response->reps[] = $cdata;
         }
 
-        usort($resp['reps'], function($a, $b){
+        if (isset($data[2])){
+            foreach($data[2] as $state){
+                $response->reps[] = $state;
+            }
+        }
+
+        usort($response->reps, function($a, $b){
             $ia = array_search($a->office, Representative::ranks);
             $ib = array_search($b->office, Representative::ranks);
 
@@ -121,6 +122,6 @@ class RepresentativeController extends Controller
             return $ia > $ib;
         });
 
-        return $resp;
+        return $response;
     }
 }

@@ -10,6 +10,8 @@ class Representative
 	const ranks = [
 	    'Senate',
 	    'House of Representatives',
+	    'State Senate',
+	    'State House',
 	    'Mayor',
 	    'Governor',
 	    'President'
@@ -47,7 +49,7 @@ class Representative
         	return $i->twitter_id;
         }, $data);
         $facebooks = array_map(function($i){
-        	return $i->facebook_id;
+        	return $i->facebook_id ?? null;
         }, $data);
 
         $c = count($names);
@@ -75,6 +77,29 @@ class Representative
 
         return false;
     }
+
+	public function aliases($data)
+	{
+		$aliases = [
+			['nickname','last_name'],
+			['nickname','middle_name','last_name'],
+			['nickname','middle_name','last_name','name_suffix'],
+			['first_name','last_name'],
+			['first_name','middle_name','last_name'],
+			['first_name','middle_name','last_name','name_suffix']
+		];
+		$this->aliases = [];
+		foreach($aliases as $a){
+			$parts = [];
+			foreach($a as $key){
+				if (empty($data->$key)){
+					continue 2;
+				}
+				array_push($parts, $data->$key);
+			}
+			$this->aliases[] = implode(" ", $parts);
+		}
+	}
 
     public static function fromArray($data){
     	$reps = [];

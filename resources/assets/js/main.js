@@ -76,10 +76,16 @@ var vm = new Vue({
 		    this.status = '';
 		    this.loading = true;
 		    console.log('fetching: ' + this.query);
-		    request.get(this.apiroot + this.query).end((req, resp) => {
-		        document.getElementById('input').value = '';
+		    request(this.apiroot + this.query, (err, res) => {
 		        this.loading = false;
-		        var body = resp.body;
+
+		    	if (err){
+		    		this.status = err.message;
+		    		return;
+		    	}
+
+		        document.getElementById('input').value = '';
+		        var body = res.body;
 		        this.reps = body.reps;
 		        if (body.location) {
 		            this.zip = body.location.zip;

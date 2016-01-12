@@ -11213,7 +11213,7 @@ exports.default = {
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<tr>\n\t\t<td class=\"center-align\"><img v-if=\"item.photo\" src=\"{{ item.photo }}\"></td>\n\t\t<td><a href=\"#\">{{ item.name }} {{ party }}</a></td>\n\t\t<td>{{ item.office }}</td>\n\t\t<td>{{ item.phone ? item.phone : '' }}</td>\n\t\t<td>{{{ address }}}</td>\n\t\t<td>\n\t\t\t<a v-if=\"item.website\" href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i></a>\n\t\t\t<a v-if=\"item.contact_form\" href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.email\" href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.facebook_id\" href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i></a>\n\t\t\t<a v-if=\"item.twitter_id\" href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i></a>\n\t\t\t<a v-if=\"item.google_id\" href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i></a>\n\t\t\t<a v-if=\"item.youtube_id\" href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i></a>\n\t\t</td>\n\t</tr>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<tr>\n\t\t<td class=\"center-align\"><img v-if=\"item.photo\" v-bind:src=\"item.photo\"></td>\n\t\t<td><a href=\"#\">{{ item.name }} {{ party }}</a></td>\n\t\t<td>{{ item.office }}</td>\n\t\t<td>{{ item.phone ? item.phone : '' }}</td>\n\t\t<td>{{{ address }}}</td>\n\t\t<td>\n\t\t\t<a v-if=\"item.website\" href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i></a>\n\t\t\t<a v-if=\"item.contact_form\" href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.email\" href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.facebook_id\" href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i></a>\n\t\t\t<a v-if=\"item.twitter_id\" href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i></a>\n\t\t\t<a v-if=\"item.google_id\" href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i></a>\n\t\t\t<a v-if=\"item.youtube_id\" href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i></a>\n\t\t</td>\n\t</tr>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -11323,10 +11323,16 @@ var vm = new _vue2.default({
 			this.status = '';
 			this.loading = true;
 			console.log('fetching: ' + this.query);
-			_superagent2.default.get(this.apiroot + this.query).end(function (req, resp) {
-				document.getElementById('input').value = '';
+			(0, _superagent2.default)(this.apiroot + this.query, function (err, res) {
 				_this.loading = false;
-				var body = resp.body;
+
+				if (err) {
+					_this.status = err.message;
+					return;
+				}
+
+				document.getElementById('input').value = '';
+				var body = res.body;
 				_this.reps = body.reps;
 				if (body.location) {
 					_this.zip = body.location.zip;

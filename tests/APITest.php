@@ -13,13 +13,6 @@ class APITest extends TestCase
         $this->get('/api/v1/'.$zip)->seeJson();
     }
 
-    public function testDistrict()
-    {
-    	$faker = \Faker\Factory::create();
-    	$state = $faker->stateAbbr();
-        $this->get('/api/v1/'.$state.'/1')->seeJson();
-    }
-
     public function testGPS()
     {
         $faker = \Faker\Factory::create();

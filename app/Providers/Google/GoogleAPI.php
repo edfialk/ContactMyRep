@@ -31,8 +31,9 @@ class GoogleAPI
 		]);
 	}
 
-	public function async($query){
-		$url = 'representatives?address='.$query.'&key='.$this->api_key;
+	public function async($url){
+		$url .= stripos($url, '?') !== false ? '&' : '?';
+		$url .= 'key='.$this->api_key;
 		return $this->client->getAsync($url)->then(
 	        function(ResponseInterface $res){
 	            return $this->validate(json_decode($res->getBody()));
@@ -46,48 +47,28 @@ class GoogleAPI
 		);
 	}
 
-	private function request($query){
-		$url = 'representatives?address='.$query.'&key='.$this->api_key;
-		$req = $this->client->get($url);
-		//todo: error check
-		$data = json_decode($req->getBody());
-		return $data;
+	public function zip($zip)
+	{
+		return $this->async('representatives?address='.$zip);
 	}
 
-
-	public function district($state, $district)
+	public function gps($lat, $lng)
 	{
-		$state = strtolower($state);
-		$resp = $this->request('ocd-division/country:us/state:'.$state.'/cd:'.$district);
-		return $this->response($resp);
-	}
-
-	/**
-	 * [districtAsync description]
-	 * @param  string $state    2 digit state abbrev - must be LOWERCASE before request
-	 * @param  [type] $district [description]
-	 * @return [type]           [description]
-	 */
-	public function districtAsync($state, $district)
-	{
-		$state = strtolower($state);
-		$url = 'representatives/'.urlencode('ocd-division/country:us/state:'.$state.'/cd:'.$district).'?key='.$this->api_key;
-		return $this->client->getAsync($url)->then(
-	        function(ResponseInterface $res){
-	            return $this->validate(json_decode($res->getBody()));
-	        },
-	        function (RequestException $e){
-	            echo $e->getMessage();
-	        }
-		);
+		return $this->async('representatives?address='.$lat.','.$lng);
 	}
 
 	public function validate($data)
 	{
 
 		if (!isset($data->offices)){
-			return (object) ['error' => (object) ['message' => 'No Results.']];
+			return (object) ['status' => 'error', 'message' => 'No Results.'];
 		}
+
+		$keys = [
+			'name',
+			'photoUrl' => 'photo',
+			'party'
+		];
 
 		$response = ['reps' => []];
 
@@ -103,49 +84,49 @@ class GoogleAPI
 		foreach($data->offices as $office){
 			foreach($office->officialIndices as $i){
 				$d = $data->officials[$i];
-				$rep = [
-					'name' => $d->name,
+				$rep = new Representative([
 					'office' => $office->name,
 					'division_id' => $office->divisionId
-				];
-				$rep['office'] = str_replace(" of the United States", "", $rep['office']);
-				$rep['office'] = str_replace("United States ", "", $rep['office']);
-				if (stripos($rep['office'], 'House of Representatives') !== false){
-					$rep['office'] = 'House of Representatives';
+				]);
+				foreach($keys as $key=>$val){
+					if (is_string($key) && isset($d->$key)){
+						$rep->$val = $d->$key;
+					}else if (isset($d->$val)){
+						$rep->$val = $d->$val;
+					}
 				}
 
-				if (!in_array($rep['office'], Representative::ranks)){
+				$rep->office = str_replace(" of the United States", "", $rep->office);
+				$rep->office = str_replace("United States ", "", $rep->office);
+				if (stripos($rep->office, 'House of Representatives') !== false){
+					$rep->office = 'House of Representatives'; //remove district
+				}
+
+				if (!in_array($rep->office, Representative::ranks)){
 					continue;
 				}
 
-				if (isset($d->photoUrl)){
-					$rep['photo'] = $d->photoUrl;
-				}
-				if (isset($d->address)){
-					$rep['address'] = (array) $d->address[0];
-				}
-				if (isset($d->party) && $d->party != 'Unknown'){
-					$rep['party'] = $d->party;
+				if (isset($d->address) && count($d->address) == 1){
+					$rep->address = $d->address[0];
 				}
 				if (isset($d->phones) && count($d->phones) == 1){
-					$rep['phone'] = $d->phones[0];
-					$rep['phone'] = str_replace('(', '', $rep['phone']);
-					$rep['phone'] = str_replace(') ', '-', $rep['phone']);
+					$rep->phone = str_replace(['(', ') '], ['', '-'], $d->phones[0]);
 				}
 				if (isset($d->urls) && count($d->urls) == 1){
-					$rep['website'] = $d->urls[0];
+					$rep->website = $d->urls[0];
 				}
 				if (isset($d->emails) && count($d->emails) == 1){
-					$rep['emails'] = $d->emails[0];
+					$rep->emails = $d->emails[0];
 				}
 
 				if (isset($d->channels)){
 					foreach($d->channels as $c){
-						$rep[strtolower($c->type).'_id'] = $c->id;
+						$key = strtolower($c->type).'_id';
+						$rep->$key = $c->id;
 					}
 				}
 
-				array_push($response['reps'], $rep);
+				$response['reps'][] = $rep;
 			}
 		}
 		return $response;
