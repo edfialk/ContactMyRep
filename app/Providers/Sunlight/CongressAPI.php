@@ -122,7 +122,7 @@ class CongressAPI
 	    		}
 	    	}
 
-	    	if (count($rep->aliases) == 0 && !isset($rep->name)){
+	    	if (count($rep->aliases) > 0 && !isset($rep->name)){
 	    		$rep->name = $rep->aliases[0];
 	    	}
 	    	return $rep;

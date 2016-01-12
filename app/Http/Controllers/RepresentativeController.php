@@ -91,8 +91,9 @@ class RepresentativeController extends Controller
 
     public function buildResponse($data)
     {
-        $response = (object)$data[0];
+        $response = (object) $data[0];
         $congress = $data[1];
+
         foreach($response->reps as &$rep){
             $congressIndex = $rep->isIn($congress);
             if ($congressIndex !== false){
