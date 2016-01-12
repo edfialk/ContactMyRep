@@ -92,22 +92,14 @@ class RepresentativeController extends Controller
             $resp['location'] = $google['location'];
         }
 
-        $congressNames = array_map(function($i){
-            return $i->aliases;
-        }, $congress);
-
         foreach($google['reps'] as $gdata){
             $rep = new Representative($gdata);
-            $c = count($congressNames);
-            for ($i = 0; $i < $c; $i++){
-                if (array_search($rep->name, $congressNames[$i]) !== false){
-                    $rep->load($congress[$i]);
-                    unset($congress[$i]);
-                    unset($congressNames[$i]);
-                }
+            $congressIndex = $rep->isIn($congress);
+            if ($congressIndex !== false){
+                $rep->load($congress[$congressIndex]);
+                unset($congress[$congressIndex]);
             }
             $resp['reps'][] = $rep;
-            $congressNames = array_values($congressNames);
             $congress = array_values($congress);
         }
 
@@ -115,18 +107,9 @@ class RepresentativeController extends Controller
             $resp['reps'][] = new Representative($cdata);
         }
 
-        $ranks = [
-            'President',
-            'Vice-President',
-            'Senate',
-            'House of Representatives',
-            'Governor',
-            'Mayor'
-        ];
-
-        usort($resp['reps'], function($a, $b) use ($ranks){
-            $ia = array_search($a->office, $ranks);
-            $ib = array_search($b->office, $ranks);
+        usort($resp['reps'], function($a, $b){
+            $ia = array_search($a->office, Representative::ranks);
+            $ib = array_search($b->office, Representative::ranks);
 
             if ($ia === false) $ia = 6;
             if ($ib === false) $ib = 6;

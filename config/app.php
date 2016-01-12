@@ -146,7 +146,8 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         App\Providers\Sunlight\SunlightServiceProvider::class,
-        App\Providers\Google\GoogleServiceProvider::class
+        App\Providers\Google\GoogleServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
     ],
 
     /*
@@ -197,7 +198,8 @@ return [
 
         'StateAPI' => App\Providers\Sunlight\StateAPIFacade::class,
         'CongressAPI' => App\Providers\Sunlight\CongressAPIFacade::class,
-        'GoogleAPI' => App\Providers\Google\GoogleAPIFacade::class
+        'GoogleAPI' => App\Providers\Google\GoogleAPIFacade::class,
+        'Image' => Intervention\Image\Facades\Image::class
 
     ],
 

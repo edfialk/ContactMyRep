@@ -114,6 +114,10 @@ class GoogleAPI
 					$rep['office'] = 'House of Representatives';
 				}
 
+				if (!in_array($rep['office'], Representative::ranks)){
+					continue;
+				}
+
 				if (isset($d->photoUrl)){
 					$rep['photo'] = $d->photoUrl;
 				}

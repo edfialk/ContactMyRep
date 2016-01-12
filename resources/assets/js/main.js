@@ -73,20 +73,20 @@ var vm = new Vue({
 			history.pushState({}, '', '/'+this.query);
 		},
 		fetch() {
-			this.status = '';
-			this.loading = true;
-			console.log('fetching: ' + this.query);
-			request.get(this.apiroot+this.query).end((req, resp) => {
-				document.getElementById('input').value = '';
-				this.loading = false;
-				var body = resp.body;
-				this.reps = body.reps;
-				if (body.location){
-					this.zip = body.location.zip;
-					this.city = body.location.city;
-					this.state = body.location.state;
-				}
-			});
+		    this.status = '';
+		    this.loading = true;
+		    console.log('fetching: ' + this.query);
+		    request.get(this.apiroot + this.query).end((req, resp) => {
+		        document.getElementById('input').value = '';
+		        this.loading = false;
+		        var body = resp.body;
+		        this.reps = body.reps;
+		        if (body.location) {
+		            this.zip = body.location.zip;
+		            this.city = body.location.city;
+		            this.state = body.location.state;
+		        }
+		    });
 		},
 		locate() {
 			if (navigator.geolocation) {

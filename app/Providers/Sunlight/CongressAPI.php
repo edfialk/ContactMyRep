@@ -125,7 +125,6 @@ class CongressAPI
 				$rep->name .= ' '.$rep->name_suffix;
 			}
 
-
 			if (isset($rep->office)){
 				$rep->address = $rep->office;
 				unset($rep->office);
@@ -143,6 +142,7 @@ class CongressAPI
 	    			$rep->office = 'House of Representatives';
 	    		}
 	    	}
+
 			unset($rep->first_name);
 			unset($rep->middle_name);
 			unset($rep->last_name);
