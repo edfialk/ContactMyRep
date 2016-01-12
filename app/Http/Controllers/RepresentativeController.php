@@ -30,7 +30,11 @@ class RepresentativeController extends Controller
 
         if ($ip == '192.168.10.1') $ip = '73.157.212.42';
 
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)){
+        $agent = $request->header('User-Agent');
+        if (
+            filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) &&
+            stripos($agent, 'mobi') === false
+        ){
             $data['location'] = IPInfo::getLocation($ip);
         }
 
