@@ -21,8 +21,8 @@ Route::get('images/{key}', 'ImageController@show');
 
 Route::group(['prefix' => 'api'], function(){
 	Route::group(['prefix' => 'v1'], function(){
-		Route::get('/{zipcode}', 'RepresentativeController@jsonZipcode');
-		Route::get('/{state}/{district}', 'RepresentativeController@jsonDistrict');
-		Route::get('/{lat}/{lng}', 'RepresentativeController@jsonGPS');
+		Route::get('/{zipcode}', 'RepresentativeController@zipcode');
+		Route::get('/{state}/{district}', 'RepresentativeController@district');
+		Route::get('/{lat}/{lng}', 'RepresentativeController@gps');
 	});
 });

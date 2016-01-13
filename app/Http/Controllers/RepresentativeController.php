@@ -41,7 +41,7 @@ class RepresentativeController extends Controller
     }
 
 
-    public function jsonDistrict($state, $district)
+    public function district($state, $district)
     {
         $googReq = GoogleAPI::districtAsync($state, $district);
         $congReq = CongressAPI::districtAsync($state, $district);
@@ -51,12 +51,10 @@ class RepresentativeController extends Controller
             return response()->json($results[0]);
         }
 
-        $resp = $this->buildResponse($results[0], $results[1]);
-
-        return response()->json($resp);
+        return $this->respond($results[0], $results[1]);
     }
 
-    public function jsonZipcode($zipcode)
+    public function zipcode($zipcode)
     {
         $googReq = GoogleAPI::zip($zipcode);
         $congReq = CongressAPI::zip($zipcode);
@@ -66,12 +64,30 @@ class RepresentativeController extends Controller
         if (isset($results[0]->status) && $results[0]->status == 'error'){
             return response()->json($results[0]);
         }
+        if (isset($results[0]->error)){
+            return response()->json(
+                (object) [
+                    'status' => 'error',
+                    'message' => $results[0]->error
+                ]
+            );
+        }
 
-        $resp = $this->buildResponse($results);
-        return response()->json($resp);
+        foreach($results[1] as $rep){
+            if (isset($rep->district) && isset($rep->state)){
+                $states = StateAPI::district($rep->state, $rep->district);
+                $states->then(function($data) use (&$results){
+                    $results[] = $data;
+                });
+                $states->wait();
+                break;
+            }
+        }
+
+        return $this->respond($results);
     }
 
-    public function jsonGPS($lat, $lng)
+    public function gps($lat, $lng)
     {
         $googReq = GoogleAPI::gps($lat, $lng);
         $congReq = CongressAPI::gps($lat, $lng);
@@ -85,11 +101,10 @@ class RepresentativeController extends Controller
             return response()->json((object)['status' => 'error', 'message' => $results[0]->error]);
         }
 
-        $resp = $this->buildResponse($results);
-        return response()->json($resp);
+        return $this->respond($results);
     }
 
-    public function buildResponse($data)
+    public function respond($data)
     {
         $response = (object) $data[0];
         $congress = $data[1];
@@ -114,6 +129,11 @@ class RepresentativeController extends Controller
         }
 
         usort($response->reps, function($a, $b){
+            if (!isset($a->office) || !isset($b->office)){
+                var_dump($a);
+                var_dump($b);
+                die();
+            }
             $ia = array_search($a->office, Representative::ranks);
             $ib = array_search($b->office, Representative::ranks);
 
@@ -123,6 +143,6 @@ class RepresentativeController extends Controller
             return $ia > $ib;
         });
 
-        return $response;
+        return response()->json($response);
     }
 }

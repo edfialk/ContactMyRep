@@ -70,11 +70,11 @@ class GoogleAPI
 			'party'
 		];
 
-		$response = ['reps' => []];
+		$response = (object) ['reps' => []];
 
 		if (isset($data->normalizedInput)){
 			$l = $data->normalizedInput;
-			$response['location'] = (object)array(
+			$response->location = (object)array(
 				'city' => ucfirst($l->city),
 				'state' => $l->state,
 				'zip' => $l->zip
@@ -126,7 +126,7 @@ class GoogleAPI
 					}
 				}
 
-				$response['reps'][] = $rep;
+				$response->reps[] = $rep;
 			}
 		}
 		return $response;

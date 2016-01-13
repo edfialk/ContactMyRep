@@ -31,27 +31,26 @@ class StateAPI
 		]);
 	}
 
+	public function async($url)
+	{
+		return $this->client->getAsync($url)->then(
+			function(ResponseInterface $res){
+				return $this->validate(json_decode($res->getBody()));
+			},
+			function(RequestException $e){
+				echo $e->getMessage();
+			}
+		);
+	}
+
 	public function district($state, $district)
 	{
-		$resp = $this->client->get('legislators', [
-			'query' => [
-				'district' => $district,
-				'state' => $state
-			]
-		]);
-		return json_decode($resp->getBody());
+		return $this->async('legislators?district='.$district.'&state='.$state);
 	}
 
 	public function gps($lat, $lng)
 	{
-		return $this->client->getAsync('legislators/geo/?lat='.$lat.'&long='.$lng)->then(
-	        function(ResponseInterface $res){
-	            return $this->validate(json_decode($res->getBody()));
-	        },
-	        function (RequestException $e){
-	            echo $e->getMessage();
-	        }
-		);
+		return $this->async('legislators/geo/?lat='.$lat.'&long='.$lng);
 	}
 
 	public function validate($array)
