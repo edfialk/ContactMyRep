@@ -8,7 +8,7 @@
 		<form v-on:submit="search" class="col s12 m10 offset-m1">
 			<div class="row">
 				<div class="input-field col s12">
-					<input type="text" id="input" v-model="query | search" lazy placeholder="Zip code, address, or state + district">
+					<input type="text" id="input" v-model="query | search" lazy placeholder="Zip code or address">
 				</div>
 				<div class="status-wrapper col s12 center-align" v-show="status.length > 0" transition="fade" style="display: none;">
 					<span class="status red accent-1 z-depth-1" v-text="status"></span>
@@ -56,7 +56,6 @@
 		@if (isset($location->postal))
 			<input type='hidden' id='zip' value='{{ $location->postal }}' v-model="zip">
 		@endif
-
 	@endif
 
 </div>

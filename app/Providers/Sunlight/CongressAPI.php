@@ -56,25 +56,22 @@ class CongressAPI
 		return $this->async('/legislators/locate?latitude='.$lat.'&longitude='.$lng);
 	}
 
-	/**
-	 * Return API data for single district
-	 * @param  string $state    2 digit state abbreviation - must be CAPS before request
-	 * @param  string $district district number
-	 * @return array            OpenCongress API response
-	 */
+	public function address($address)
+	{
+		
+	}
+
 	public function district($state, $district)
 	{
 		return $this->async('/legislators?state='.$state)->then(
-	        function(ResponseInterface $res) use ($district){
-	        	$data = json_decode($res->getBody());
-	        	$c = count($data->results);
+	        function($data) use ($district){
+	        	$c = count($data);
 	        	for($i = 0; $i < $c; $i++){
-					if (!empty($data->results[$i]->district) && $data->results[$i]->district != $district){
-						unset($data->results[$i]); //unset keeps index
+					if (!empty($data[$i]->district) && $data[$i]->district != $district){
+						unset($data[$i]);
 					}
 	        	}
-	        	$data->results = array_values($data->results);
-	            return $this->validate($data);
+	        	return array_values($data);
 	        },
 	        function (RequestException $e){
 	            echo $e->getMessage();
@@ -88,7 +85,9 @@ class CongressAPI
 			'contact_form',
 			'district',
 			'facebook_id',
+			'first_name',
 			'fax',
+			'last_name',
 			'ocd_id' => 'division_id',
 			'office' => 'address',
 			'party',
@@ -104,13 +103,7 @@ class CongressAPI
 		return array_map(function($data) use ($keys){
 			$rep = new Representative();
 			$rep->aliases($data);
-			foreach($keys as $key=>$value){
-				if (is_string($key) && isset($data->$key)){
-					$rep->$value = $data->$key;
-				}else if (isset($data->$value)){
-					$rep->$value = $data->$value;
-				}
-			}
+			$rep->load($data, $keys);
 
 	    	if (isset($data->chamber)){
 	    		if ($data->chamber == 'upper' || $data->chamber == 'senate'){

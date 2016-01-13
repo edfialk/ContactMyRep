@@ -23,59 +23,61 @@ class Representative
     		if (empty($value)) continue;
 
     		if ($key == 'state' && strlen($value) == 2) $value = strtoupper($value);
+    		if ($key == 'office') $value = self::office($value);
 
 			$this->$key = $value;
     	}
     }
 
-    public function load($data)
+    public function load($data, $keys = null)
     {
-    	foreach($data as $key=>$value){
-    		if (!isset($this->$key)){
-    			$this->$key = $value;
-    		}
-    	}
+    	if (is_null($keys)){
+	    	foreach($data as $key=>$value){
+	    		if (empty($this->$key))
+	    			$this->$key = $value;
+	    	}
+	    }else{
+			foreach($keys as $key=>$value){
+				if (is_string($key) && isset($data->$key))
+					$this->$value = $data->$key;
+				else if (isset($data->$value))
+					$this->$value = $data->$value;
+			}
+	    }
     }
 
     public function isIn(array $data)
     {
-        $names = array_map(function($i){
-            return $i->aliases;
-        }, $data);
-        $websites = array_map(function($i){
-            return $i->website;
-        }, $data);
-        $twitters = array_map(function($i){
-        	return $i->twitter_id;
-        }, $data);
-        $facebooks = array_map(function($i){
-        	return $i->facebook_id ?? null;
-        }, $data);
 
-        $c = count($names);
-        for ($i = 0; $i < $c; $i++){
-        	if (array_search($this->name, $names[$i]) !== false){
-        		return $i;
-        	}
-        }
-
-        if (isset($this->website)){
-	        if (($i = array_search($this->website, $websites)) !== false){
-	        	return $i;
+        if (isset($this->name)){
+	        $aliases = array_map(function($i){
+	            return $i->aliases ?? null;
+	        }, $data);
+	        $c = count($aliases);
+	        for ($i = 0; $i < $c; $i++){
+	        	if (array_search($this->name, $aliases[$i]) !== false){
+	        		return $i;
+	        	}
 	        }
 	    }
-        if (isset($this->twitter_id)){
-	        if (($i = array_search($this->twitter_id, $twitters)) !== false){
-	        	return $i;
-	        }
-        }
-        if (isset($this->facebook_id)){
-	        if (($i = array_search($this->facebook_id, $facebooks)) !== false){
-	        	return $i;
-	        }
-        }
 
-        return false;
+	    return $this->search([
+	    	'website', 'twitter_id', 'facebook_id'
+	    ], $data);
+    }
+
+    public function search(array $keys, $data)
+    {
+    	foreach($keys as $k){
+    		if (!isset($this->$k)) continue;
+	        $haystack = array_map(function($i) use ($k){
+	        	return $i->$k ?? null;
+	        }, $data);
+	        if (($i = array_search($this->$k, $haystack)) !== false){
+	        	return $i;
+	        }
+    	}
+    	return false;
     }
 
 	public function aliases($data)
@@ -101,11 +103,28 @@ class Representative
 		}
 	}
 
-    public static function fromArray($data){
-    	$reps = [];
-    	foreach($data as $repData){
-        	array_push($reps, new Representative($repData));
-    	}
-    	return $reps;
+	public function imgFileName()
+	{
+		$dir = '/images/reps/';
+		$ext = '.jpg';
+		if (isset($this->first_name) && isset($this->last_name)){
+			return $dir.$this->last_name.'-'.$this->first_name.$ext;
+		}
+		return $dir.'fail.jpg';
+	}
+
+	public static function office($name)
+	{
+		if (stripos($name, 'House of Representatives') !== false){
+			return 'House of Representatives'; //remove district
+		}
+		return str_replace(["United States ", " of the United States"], "", $name);
+	}
+
+    public static function isValidOffice($office)
+    {
+    	$office = self::office($office);
+    	return array_search($office, self::ranks) !== false;
     }
+
 }

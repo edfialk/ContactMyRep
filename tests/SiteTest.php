@@ -23,13 +23,6 @@ class SiteTest extends TestCase
         $this->get($zip)->assertResponseOk();
     }
 
-    public function testDistrict()
-    {
-    	$faker = \Faker\Factory::create();
-    	$state = $faker->stateAbbr();
-        $this->get($state.'/1')->assertResponseOk();
-    }
-
     public function testGPS()
     {
         $faker = \Faker\Factory::create();

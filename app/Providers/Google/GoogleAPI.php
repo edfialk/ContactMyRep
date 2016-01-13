@@ -39,22 +39,22 @@ class GoogleAPI
 	            return $this->validate(json_decode($res->getBody()));
 	        },
 	        function (RequestException $e){
-	        	$b = json_decode($e->getResponse()->getBody());
-	            return (object)array(
-	            	'error' => $b->error->message
-	            );
+	        	return (object)[
+	        		'status' => 'error',
+	        		'message' => $e->getResponse()->getReasonPhrase()
+	        	];
 	        }
 		);
 	}
 
-	public function zip($zip)
+	public function address($address)
 	{
-		return $this->async('representatives?address='.$zip);
+		return $this->async('representatives?address='.urlencode($address));
 	}
 
-	public function gps($lat, $lng)
+	public function district($state, $district)
 	{
-		return $this->async('representatives?address='.$lat.','.$lng);
+		return $this->async('representatives/'.urlencode('ocd-division/country:us/state:'.$state.'/cd:'.$district));
 	}
 
 	public function validate($data)
@@ -66,6 +66,8 @@ class GoogleAPI
 
 		$keys = [
 			'name',
+			'first_name',
+			'last_name',
 			'photoUrl' => 'photo',
 			'party'
 		];
@@ -75,36 +77,24 @@ class GoogleAPI
 		if (isset($data->normalizedInput)){
 			$l = $data->normalizedInput;
 			$response->location = (object)array(
-				'city' => ucfirst($l->city),
+				'city' => ucwords($l->city),
 				'state' => $l->state,
 				'zip' => $l->zip
 			);
 		}
 
 		foreach($data->offices as $office){
+			if (!Representative::isValidOffice($office->name))
+				continue;
+
 			foreach($office->officialIndices as $i){
 				$d = $data->officials[$i];
+
 				$rep = new Representative([
-					'office' => $office->name,
-					'division_id' => $office->divisionId
+					'division_id' => $office->divisionId,
+					'office' => $office->name
 				]);
-				foreach($keys as $key=>$val){
-					if (is_string($key) && isset($d->$key)){
-						$rep->$val = $d->$key;
-					}else if (isset($d->$val)){
-						$rep->$val = $d->$val;
-					}
-				}
-
-				$rep->office = str_replace(" of the United States", "", $rep->office);
-				$rep->office = str_replace("United States ", "", $rep->office);
-				if (stripos($rep->office, 'House of Representatives') !== false){
-					$rep->office = 'House of Representatives'; //remove district
-				}
-
-				if (!in_array($rep->office, Representative::ranks)){
-					continue;
-				}
+				$rep->load($d, $keys);
 
 				if (isset($d->address) && count($d->address) == 1){
 					$rep->address = $d->address[0];
@@ -116,7 +106,7 @@ class GoogleAPI
 					$rep->website = $d->urls[0];
 				}
 				if (isset($d->emails) && count($d->emails) == 1){
-					$rep->emails = $d->emails[0];
+					$rep->email = $d->emails[0];
 				}
 
 				if (isset($d->channels)){

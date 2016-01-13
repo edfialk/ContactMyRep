@@ -3,14 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
-//use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Promise;
-
 use App\Representative;
 use App\Providers\IPInfo\IPInfo;
-
 use GoogleAPI;
 use CongressAPI;
 use StateAPI;
@@ -25,86 +21,84 @@ class RepresentativeController extends Controller
 
     public function index(Request $request)
     {
-        $data = ['reps' => []];
         $ip = $request->ip();
 
-        if ($ip == '192.168.10.1') $ip = '73.157.212.42';
-
         if (
-            filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) &&
-            stripos($request->header('User-Agent'), 'mobi') === false
+            filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)
+            && stripos($request->header('User-Agent'), 'mobi') === false
         ){
-            $data['location'] = IPInfo::getLocation($ip);
+            return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
         }
 
-        return view('pages.home', $data);
+        return view('pages.home');
     }
 
 
     public function district($state, $district)
     {
-        $googReq = GoogleAPI::districtAsync($state, $district);
-        $congReq = CongressAPI::districtAsync($state, $district);
-        $results = Promise\unwrap([$googReq, $congReq]);
+        $googReq = GoogleAPI::district($state, $district);
+        $congReq = CongressAPI::district($state, $district);
+        $stateReq = StateAPI::district($state, $district);
+        $results = Promise\unwrap([$googReq, $congReq, $stateReq]);
 
-        if (isset($results[0]->status) && $results[0]->status == 'error'){
-            return response()->json($results[0]);
-        }
+        if (!$this->valid($results))
+            return $this->error($results);
 
-        return $this->respond($results[0], $results[1]);
+        return $this->success($results);
     }
 
     public function zipcode($zipcode)
     {
-        $googReq = GoogleAPI::zip($zipcode);
+        $googReq = GoogleAPI::address($zipcode);
         $congReq = CongressAPI::zip($zipcode);
-
         $results = Promise\unwrap([$googReq, $congReq]);
 
-        if (isset($results[0]->status) && $results[0]->status == 'error'){
-            return response()->json($results[0]);
-        }
-        if (isset($results[0]->error)){
-            return response()->json(
-                (object) [
-                    'status' => 'error',
-                    'message' => $results[0]->error
-                ]
-            );
+        if (!$this->valid($results)){
+            return $this->error($results);
         }
 
-        foreach($results[1] as $rep){
-            if (isset($rep->district) && isset($rep->state)){
-                $states = StateAPI::district($rep->state, $rep->district);
-                $states->then(function($data) use (&$results){
-                    $results[] = $data;
-                });
-                $states->wait();
-                break;
-            }
+        //stateapi has no zip search, have to use district
+        $rep = array_first($results[1], function($key, $val){
+            return isset($val->district) && isset($val->state);
+        });
+        if (!is_null($rep)){
+            $states = StateAPI::district($rep->state, $rep->district);
+            $states->then(function($data) use (&$results){
+                $results[] = $data;
+            });
+            $states->wait();
         }
 
-        return $this->respond($results);
+        return $this->success($results);
     }
 
     public function gps($lat, $lng)
     {
-        $googReq = GoogleAPI::gps($lat, $lng);
+        $googReq = GoogleAPI::address($lat.','.$lng);
         $congReq = CongressAPI::gps($lat, $lng);
         $stateReq = StateAPI::gps($lat, $lng);
-
         $results = Promise\unwrap([$googReq, $congReq, $stateReq]);
-        if (isset($results[0]->status) && $results[0]->status == 'error'){
-            return response()->json($results[0]);
-        }
-        if (isset($results[0]->error)){
-            return response()->json((object)['status' => 'error', 'message' => $results[0]->error]);
-        }
 
-        return $this->respond($results);
+        if (!$this->valid($results))
+            return $this->error($results);
+
+        return $this->success($results);
     }
 
-    public function respond($data)
+    public function address($address)
+    {
+        $googReq = GoogleAPI::address($address);
+        $congReq = CongressAPI::gps($lat, $lng);
+        $stateReq = StateAPI::gps($lat, $lng);
+        $results = Promise\unwrap([$googReq, $congReq, $stateReq]);
+
+        if (!$this->valid($results))
+            return $this->error($results);
+
+        return $this->success($results);
+    }
+
+    public function success($data)
     {
         $response = (object) $data[0];
         $congress = $data[1];
@@ -122,18 +116,11 @@ class RepresentativeController extends Controller
             $response->reps[] = $cdata;
         }
 
-        if (isset($data[2])){
-            foreach($data[2] as $state){
-                $response->reps[] = $state;
-            }
+        if (!empty($data[2])){
+            $response->reps = array_merge($response->reps, $data[2]);
         }
 
         usort($response->reps, function($a, $b){
-            if (!isset($a->office) || !isset($b->office)){
-                var_dump($a);
-                var_dump($b);
-                die();
-            }
             $ia = array_search($a->office, Representative::ranks);
             $ib = array_search($b->office, Representative::ranks);
 
@@ -143,6 +130,41 @@ class RepresentativeController extends Controller
             return $ia > $ib;
         });
 
+        $response->reps = array_map(function($rep){
+            if (empty($rep->photo)){
+                $filename = $rep->imgFileName();
+                if (\File::exists(public_path().$filename))
+                    $rep->photo = $filename;
+            }
+            return $rep;
+        }, $response->reps);
+
         return response()->json($response);
+    }
+
+    public function valid($results)
+    {
+        if (isset($results[0]->status) && $results[0]->status == 'error')
+            return false;
+        if (isset($results[0]->error))
+            return false;
+        return true;
+    }
+
+    public function error($results)
+    {
+        if (isset($results[0]->status) && $results[0]->status == 'error'){
+            return response()->json($results[0]);
+        }
+        if (isset($results[0]->error)){
+            return response()->json(
+                (object) [
+                    'status' => 'error',
+                    'message' => $results[0]->error
+                ]
+            );
+        }
+        return response()->json(['status' => 'error']);
+
     }
 }
