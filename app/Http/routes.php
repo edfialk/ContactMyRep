@@ -20,3 +20,6 @@ Route::group(['prefix' => 'api'], function(){
 		Route::get('/{lat}/{lng}', 'RepresentativeController@gps');
 	});
 });
+
+
+Route::get('test', 'WikiAPI@representatives');

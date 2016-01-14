@@ -117,11 +117,9 @@ class RepresentativeController extends Controller
         });
 
         $response->reps = array_map(function($rep){
-            if (empty($rep->photo)){
-                $filename = $rep->imgFileName();
-                if (\File::exists(public_path().$filename))
-                    $rep->photo = $filename;
-            }
+            $filename = $rep->imgFileName();
+            if (\File::exists(public_path().$filename))
+                $rep->photo = $filename;
             return $rep;
         }, $response->reps);
 

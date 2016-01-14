@@ -1,6 +1,6 @@
 <template>
 	<tr>
-		<td class="center-align"><img v-if="item.photo" v-bind:src="item.photo"></td>
+		<td><img v-if="item.photo" v-bind:src="item.photo"></td>
 		<td><a href='#'>{{ item.name }} {{ party }}</a></td>
 		<td>{{ item.office }}</td>
 		<td>{{ item.phone ? item.phone : '' }}</td>
