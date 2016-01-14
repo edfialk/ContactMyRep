@@ -85,24 +85,10 @@ class RepresentativeController extends Controller
         return $this->success($results);
     }
 
-    public function address($address)
-    {
-        $googReq = GoogleAPI::address($address);
-        $congReq = CongressAPI::gps($lat, $lng);
-        $stateReq = StateAPI::gps($lat, $lng);
-        $results = Promise\unwrap([$googReq, $congReq, $stateReq]);
-
-        if (!$this->valid($results))
-            return $this->error($results);
-
-        return $this->success($results);
-    }
-
     public function success($data)
     {
         $response = (object) $data[0];
         $congress = $data[1];
-
         foreach($response->reps as &$rep){
             $congressIndex = $rep->isIn($congress);
             if ($congressIndex !== false){
