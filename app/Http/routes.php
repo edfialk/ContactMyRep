@@ -9,7 +9,7 @@
 
 Route::get('', 'RepresentativeController@index');
 Route::get('{zipcode}', 'RepresentativeController@view');
-Route::get('{zipcode}/{address}', 'RepresentativeController@view');
+Route::get('{address}', 'RepresentativeController@view');
 Route::get('{lat}/{lng}', 'RepresentativeController@view');
 
 Route::group(['prefix' => 'api'], function(){

@@ -109,8 +109,17 @@ class Representative
 		$ext = '.jpg';
 		if (isset($this->first_name) && isset($this->last_name)){
 			return $dir.$this->last_name.'-'.$this->first_name.$ext;
+		}else if (isset($this->name) && stripos($this->name, " ")){
+			$names = explode(" ", $this->name);
+			return $dir.$names[1].'-'.$names[0].$ext;
 		}
 		return $dir.'fail.jpg';
+	}
+
+	public function isStateLevel()
+	{
+		return $this->office == 'Senate'
+				|| $this->office == 'Governor';
 	}
 
 	public static function office($name)

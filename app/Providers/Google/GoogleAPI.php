@@ -122,4 +122,10 @@ class GoogleAPI
 		return $response;
 	}
 
+	public function geocode($string)
+	{
+		$string = urlencode($string);
+		$json = file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=".$string);
+		return json_decode($json);
+	}
 }

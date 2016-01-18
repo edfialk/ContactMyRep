@@ -85,21 +85,56 @@ class RepresentativeController extends Controller
         return $this->success($results);
     }
 
+    public function address($address)
+    {
+        // $googReq = GoogleAPI::address($address);
+        $geo = GoogleAPI::geocode($address);
+        $gps = $geo->results[0]->geometry->location;
+        //if its a street address, we can get district reps, otherwise just state reps
+        foreach($geo->results[0]->types as $type){
+            if ($type == 'street_address'){
+                return $this->gps($gps->lat, $gps->lng);
+            }
+            if ($type == 'administrative_area_level_1'){
+                $googReq = GoogleAPI::address($address);
+                $congReq = CongressAPI::gps($gps->lat, $gps->lng);
+                $results = Promise\unwrap([$googReq, $congReq]);
+
+                if (!$this->valid($results))
+                    return $this->error($results);
+
+                $c = count($results[1]);
+                for ($i = 0; $i < $c; $i++){
+                    $rep = $results[1][$i];
+                    if (!$rep->isStateLevel()){
+                        unset($results[1][$i]);
+                    }
+                }
+                $results[1] = array_values($results[1]);
+                return $this->success($results);
+            }
+        }
+
+    }
+
     public function success($data)
     {
         $response = (object) $data[0];
-        $congress = $data[1];
-        foreach($response->reps as &$rep){
-            $congressIndex = $rep->isIn($congress);
-            if ($congressIndex !== false){
-                $rep->load($congress[$congressIndex]);
-                unset($congress[$congressIndex]);
-            }
-            $congress = array_values($congress);
-        }
 
-        foreach($congress as $cdata){
-            $response->reps[] = $cdata;
+        if (!empty($data[1])){
+            $congress = $data[1];
+            foreach($response->reps as &$rep){
+                $congressIndex = $rep->isIn($congress);
+                if ($congressIndex !== false){
+                    $rep->load($congress[$congressIndex]);
+                    unset($congress[$congressIndex]);
+                }
+                $congress = array_values($congress);
+            }
+
+            foreach($congress as $cdata){
+                $response->reps[] = $cdata;
+            }
         }
 
         if (!empty($data[2])){
