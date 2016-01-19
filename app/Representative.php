@@ -107,7 +107,9 @@ class Representative
 	{
 		$dir = '/images/reps/';
 		$ext = '.jpg';
-		if (isset($this->first_name) && isset($this->last_name)){
+		if (isset($this->nickname) && isset($this->last_name)){
+			return $dir.$this->last_name.'-'.$this->nickname.$ext;
+		}else if (isset($this->first_name) && isset($this->last_name)){
 			return $dir.$this->last_name.'-'.$this->first_name.$ext;
 		}else if (isset($this->name) && stripos($this->name, " ")){
 			$names = explode(" ", $this->name);
