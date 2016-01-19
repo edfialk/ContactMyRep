@@ -71,9 +71,9 @@ class Representative
     	foreach($keys as $k){
     		if (!isset($this->$k)) continue;
 	        $haystack = array_map(function($i) use ($k){
-	        	return $i->$k ?? null;
+	        	return $i->$k ? strtolower($i->$k) : null;
 	        }, $data);
-	        if (($i = array_search($this->$k, $haystack)) !== false){
+	        if (($i = array_search(strtolower($this->$k), $haystack)) !== false){
 	        	return $i;
 	        }
     	}
@@ -122,8 +122,7 @@ class Representative
 
 	public function isStateLevel()
 	{
-		return $this->office == 'Senate'
-				|| $this->office == 'Governor';
+		return $this->office == 'Senate' || $this->office == 'Governor';
 	}
 
 	public static function office($name)

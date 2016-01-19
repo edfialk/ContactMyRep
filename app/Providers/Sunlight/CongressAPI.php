@@ -88,6 +88,8 @@ class CongressAPI
 			'first_name',
 			'fax',
 			'last_name',
+			'middle_name',
+			'nickname',
 			'ocd_id' => 'division_id',
 			'office' => 'address',
 			'party',
