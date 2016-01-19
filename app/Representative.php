@@ -71,7 +71,7 @@ class Representative
     	foreach($keys as $k){
     		if (!isset($this->$k)) continue;
 	        $haystack = array_map(function($i) use ($k){
-	        	return $i->$k ? strtolower($i->$k) : null;
+	        	return isset($i->$k) ? strtolower($i->$k) : null;
 	        }, $data);
 	        if (($i = array_search(strtolower($this->$k), $haystack)) !== false){
 	        	return $i;
