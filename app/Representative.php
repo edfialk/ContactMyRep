@@ -111,7 +111,11 @@ class Representative
 			return $dir.$this->last_name.'-'.$this->first_name.$ext;
 		}else if (isset($this->name) && stripos($this->name, " ")){
 			$names = explode(" ", $this->name);
-			return $dir.$names[1].'-'.$names[0].$ext;
+			$first = $names[0];
+			$last = $names[count($names) - 1];
+			if (count($names) > 2 && (stripos($last, 'jr') !== false || stripos($last, 'sr') !== false))
+				$last = $names[count($names) - 2];
+			return $dir.$last.'-'.$first.$ext;
 		}
 		return $dir.'fail.jpg';
 	}
