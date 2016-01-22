@@ -5,13 +5,12 @@ namespace App\Providers\Google;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
-
 use App\Representative;
-
 use InvalidArgumentException;
 
 /**
-*
+* Google Civic Information API wrapper
+* For more info see: https://developers.google.com/civic-information/docs/v2/
 */
 class GoogleAPI
 {
@@ -22,18 +21,24 @@ class GoogleAPI
 	{
 		$this->api_key = env('GOOGLE_KEY', null);
 
-		if (is_null($this->api_key)){
+		if (is_null($this->api_key))
 			abort(500, 'Missing Google API key');
-		}
 
 		$this->client = new Client([
 			'base_uri' => 'https://www.googleapis.com/civicinfo/v2/'
 		]);
 	}
 
-	public function async($url){
+	/**
+	 * create asynchronous request to google's civic information api
+	 * @param  string $url  api endpoint and any query params
+	 * @return promise      request promise
+	 */
+	public function async($url)
+	{
 		$url .= stripos($url, '?') !== false ? '&' : '?';
 		$url .= 'key='.$this->api_key;
+
 		return $this->client->getAsync($url)->then(
 	        function(ResponseInterface $res){
 	            return $this->validate(json_decode($res->getBody()));
@@ -47,16 +52,32 @@ class GoogleAPI
 		);
 	}
 
+	/**
+	 * query api by address
+	 * @param  string $address  query
+	 * @return promise          request promise
+	 */
 	public function address($address)
 	{
 		return $this->async('representatives?address='.urlencode($address));
 	}
 
+	/**
+	 * query api by district
+	 * @param  string  	$state     	2 letter state abbreviation
+	 * @param  integer 	$district  	district number
+	 * @return promise				request promise
+	 */
 	public function district($state, $district)
 	{
 		return $this->async('representatives/'.urlencode('ocd-division/country:us/state:'.$state.'/cd:'.$district));
 	}
 
+	/**
+	 * convert api data to contact my reps data format
+	 * @param  object $data google response data
+	 * @return object       contact my reps api response
+	 */
 	public function validate($data)
 	{
 
@@ -120,6 +141,11 @@ class GoogleAPI
 		return $response;
 	}
 
+	/**
+	 * geocode a string (address, zipcode, state, etc.)
+	 * @param  string $string query
+	 * @return object         google geolocate data
+	 */
 	public function geocode($string)
 	{
 		$string = urlencode($string);

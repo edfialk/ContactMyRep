@@ -5,10 +5,11 @@ namespace App\Providers\Sunlight;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
-
 use App\Representative;
+
 /**
-*
+* Sunlight Foundation Open States API wrapper
+* For more information see https://sunlightlabs.github.io/openstates-api
 */
 class StateAPI
 {
@@ -31,6 +32,11 @@ class StateAPI
 		]);
 	}
 
+	/**
+	 * create asynchronous request to open states api
+	 * @param  string $url  api endpoint and any query params
+	 * @return promise      request promise
+	 */
 	public function async($url)
 	{
 		return $this->client->getAsync($url)->then(
@@ -43,16 +49,33 @@ class StateAPI
 		);
 	}
 
+	/**
+	 * query api by district
+	 * @param  string  $state    2 letter state abbreviation
+	 * @param  integer $district district number
+	 * @return promise           request promise
+	 */
 	public function district($state, $district)
 	{
 		return $this->async('legislators?district='.$district.'&state='.$state);
 	}
 
+	/**
+	 * query api by gps coordinates
+	 * @param  float $lat   latitude
+	 * @param  float $lng   longitude
+	 * @return promise      request promise
+	 */
 	public function gps($lat, $lng)
 	{
 		return $this->async('legislators/geo/?lat='.$lat.'&long='.$lng);
 	}
 
+	/**
+	 * convert api data to contact my reps data format
+	 * @param  array $array Open States API response
+	 * @return array        validated representatives
+	 */
 	public function validate($array)
 	{
 		$keys = [

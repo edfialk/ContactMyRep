@@ -33,9 +33,15 @@ class Representative extends Eloquent
     {
     	parent::__construct();
     	$this->load($data, $keys);
-    	$this->setAliases();
     }
 
+    /**
+     * copy info from data - warning overwrites present info!
+     * @param  array $data input
+     * @param  array $keys string names of fields to copy from data.
+     *                     If entry is a key=>value, data->key will be copied to this->value
+     * @return null
+     */
     public function load($data, $keys = null)
     {
     	if (is_null($keys)){
@@ -50,8 +56,14 @@ class Representative extends Eloquent
 					$this->$value = $data->$value;
 			}
 	    }
+    	$this->setAliases();
     }
 
+    /**
+     * attempt to determine if this rep is present in data
+     * @param  array   $data a validated api response
+     * @return index if found or false if not found
+     */
     public function isIn(array $data)
     {
 
@@ -72,6 +84,12 @@ class Representative extends Eloquent
 	    ], $data);
     }
 
+    /**
+     * search keys of data to find a match for this
+     * @param  array  $keys string fields to search
+     * @param  array $data validated api response
+     * @return index if found else false
+     */
     public function search(array $keys, $data)
     {
     	foreach($keys as $k){
@@ -86,6 +104,9 @@ class Representative extends Eloquent
     	return false;
     }
 
+    /**
+     * populate name aliases for this rep
+     */
     public function setAliases()
     {
 		$results = [];
@@ -107,52 +128,32 @@ class Representative extends Eloquent
 		}
     }
 
-	public function loadAliases($data)
-	{
-
-		$results = [];
-		foreach(self::aliases as $a){
-			$parts = [];
-			foreach($a as $key){
-				if (empty($data->$key)){
-					continue 2;
-				}
-				array_push($parts, $data->$key);
-			}
-			$results[] = implode(" ", $parts);
-		}
-		$this->aliases = $results;
-	}
-
-	public function imgFileName()
-	{
-		$dir = '/images/reps/';
-		$ext = '.jpg';
-		if (isset($this->nickname) && isset($this->last_name)){
-			return $dir.$this->last_name.'-'.$this->nickname.$ext;
-		}else if (isset($this->first_name) && isset($this->last_name)){
-			return $dir.$this->last_name.'-'.$this->first_name.$ext;
-		}else if (isset($this->name) && stripos($this->name, " ")){
-			$names = explode(" ", $this->name);
-			$first = $names[0];
-			$last = $names[count($names) - 1];
-			if (count($names) > 2 && (stripos($last, 'jr') !== false || stripos($last, 'sr') !== false))
-				$last = $names[count($names) - 2];
-			return $dir.$last.'-'.$first.$ext;
-		}
-		return $dir.'fail.jpg';
-	}
-
+	/**
+	 * check if representative is at state level
+	 * @return boolean
+	 */
 	public function isStateLevel()
 	{
 		return $this->office == 'Senate' || $this->office == 'Governor';
 	}
 
+	/**
+	 * ensure state abbreviation is always 2 digit caps
+	 * @param string $val state abbreviation
+	 */
 	public function setStateAttribute($val)
 	{
-		$this->attributes['state'] = strtoupper($val);
+		if (strlen($val) == 2){
+			$this->attributes['state'] = strtoupper($val);
+		}else{
+			$this->attributes['state_name'] = $val;
+		}
 	}
 
+	/**
+	 * ensure office is one of accepted values
+	 * @param string $name office name
+	 */
 	public function setOfficeAttribute($name)
 	{
 		if (stripos($name, 'House of Representatives') !== false){
@@ -161,6 +162,11 @@ class Representative extends Eloquent
 		$this->attributes['office'] = str_replace(["United States ", " of the United States"], "", $name);
 	}
 
+	/**
+	 * check if supplied office is on our approved list
+	 * @param  string  $office
+	 * @return boolean
+	 */
     public static function isValidOffice($office)
     {
     	$temp = new Representative(['office' => $office]);

@@ -5,13 +5,12 @@ namespace App\Providers\Sunlight;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
-
 use App\Representative;
-
 use InvalidArgumentException;
 
 /**
-*
+* Sunlight Foundation Open Congress API wrapper
+* For more information see https://sunlightlabs.github.io/congress/
 */
 class CongressAPI
 {
@@ -34,6 +33,11 @@ class CongressAPI
 		]);
 	}
 
+	/**
+	 * create asynchronous request to Open Congress API
+	 * @param  string $url api endpoint and any query params
+	 * @return promise      request promise
+	 */
 	public function async($url)
 	{
 		return $this->client->getAsync($url)->then(
@@ -46,21 +50,33 @@ class CongressAPI
 		);
 	}
 
+	/**
+	 * query api by zip
+	 * @param  string $zip zipcode
+	 * @return promise      request promise
+	 */
 	public function zip($zip)
 	{
 		return $this->async('/legislators/locate?zip='.$zip);
 	}
 
+	/**
+	 * query api by gps
+	 * @param  string $lat latitude
+	 * @param  string $lng longitude
+	 * @return promise      request promise
+	 */
 	public function gps($lat, $lng)
 	{
 		return $this->async('/legislators/locate?latitude='.$lat.'&longitude='.$lng);
 	}
 
-	public function address($address)
-	{
-		
-	}
-
+	/**
+	 * query api by district
+	 * @param  string $state    2 digit state abbreviation
+	 * @param  number $district district number
+	 * @return promise           request promise
+	 */
 	public function district($state, $district)
 	{
 		return $this->async('/legislators?state='.$state)->then(
@@ -79,6 +95,11 @@ class CongressAPI
 		);
 	}
 
+	/**
+	 * convert api data to contact my reps data format
+	 * @param  array $data Congress API response
+	 * @return array       validated representatives
+	 */
 	public function validate($data)
 	{
 		$keys = [
