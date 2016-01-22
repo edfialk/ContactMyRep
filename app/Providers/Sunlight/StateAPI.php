@@ -67,15 +67,7 @@ class StateAPI
 		];
 
 		return array_map(function($data) use ($keys){
-			$rep = new Representative();
-			$rep->aliases($data);
-			foreach($keys as $key=>$val){
-				if (is_string($key) && isset($data->$key)){
-					$rep->$val = $data->$key;
-				}else if (isset($data->$val)){
-					$rep->$val = $data->$val;
-				}
-			}
+			$rep = new Representative($data, $keys);
 
 			if (isset($data->offices) && count($data->offices) > 0){
 				$office = $data->offices[0];

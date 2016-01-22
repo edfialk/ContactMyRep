@@ -89,6 +89,7 @@ class CongressAPI
 			'fax',
 			'last_name',
 			'middle_name',
+			'name_suffix',
 			'nickname',
 			'ocd_id' => 'division_id',
 			'office' => 'address',
@@ -103,9 +104,7 @@ class CongressAPI
 		];
 
 		return array_map(function($data) use ($keys){
-			$rep = new Representative();
-			$rep->aliases($data);
-			$rep->load($data, $keys);
+			$rep = new Representative($data, $keys);
 
 	    	if (isset($data->chamber)){
 	    		if ($data->chamber == 'upper' || $data->chamber == 'senate'){

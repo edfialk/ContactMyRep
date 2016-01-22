@@ -148,6 +148,7 @@ return [
         App\Providers\Sunlight\SunlightServiceProvider::class,
         App\Providers\Google\GoogleServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        Jenssegers\Mongodb\MongodbServiceProvider::class,
     ],
 
     /*
@@ -199,7 +200,8 @@ return [
         'StateAPI' => App\Providers\Sunlight\StateAPIFacade::class,
         'CongressAPI' => App\Providers\Sunlight\CongressAPIFacade::class,
         'GoogleAPI' => App\Providers\Google\GoogleAPIFacade::class,
-        'Image' => Intervention\Image\Facades\Image::class
+        'Image' => Intervention\Image\Facades\Image::class,
+        'Moloquent' => Jenssegers\Mongodb\Model::class,
 
     ],
 

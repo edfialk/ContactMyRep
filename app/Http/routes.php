@@ -1,11 +1,19 @@
 <?php
 
+use App\Representative;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
 |--------------------------------------------------------------------------
 |
 */
+
+Route::get('test', function(){
+	// return DB::collection('rep')->get();
+	return Representative::where('name','Barack Obama')->get();
+});
+
 
 Route::get('', 'RepresentativeController@index');
 Route::get('{zipcode}', 'RepresentativeController@view');
@@ -20,6 +28,3 @@ Route::group(['prefix' => 'api'], function(){
 		Route::get('/{lat}/{lng}', 'RepresentativeController@gps');
 	});
 });
-
-
-Route::get('test', 'WikiAPI@representatives');

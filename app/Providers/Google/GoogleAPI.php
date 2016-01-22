@@ -90,11 +90,9 @@ class GoogleAPI
 			foreach($office->officialIndices as $i){
 				$d = $data->officials[$i];
 
-				$rep = new Representative([
-					'division_id' => $office->divisionId,
-					'office' => $office->name
-				]);
-				$rep->load($d, $keys);
+				$rep = new Representative($d, $keys);
+				$rep->division_id = $office->divisionId;
+				$rep->office = $office->name;
 
 				if (isset($d->address) && count($d->address) == 1){
 					$rep->address = $d->address[0];

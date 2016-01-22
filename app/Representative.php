@@ -3,9 +3,12 @@
 namespace App;
 
 use App\Repositories\RepRepository;
+use Jenssegers\Mongodb\Model as Eloquent;
 
-class Representative
+class Representative extends Eloquent
 {
+
+	protected $collection = 'reps';
 
 	const ranks = [
 	    'Senate',
@@ -17,24 +20,27 @@ class Representative
 	    'President'
 	];
 
-    public function __construct($data = [])
+	const aliases = [
+		['nickname','last_name'],
+		['nickname','middle_name','last_name'],
+		['nickname','middle_name','last_name','name_suffix'],
+		['first_name','last_name'],
+		['first_name','middle_name','last_name'],
+		['first_name','middle_name','last_name','name_suffix']
+	];
+
+    public function __construct($data = [], $keys = null)
     {
-    	foreach ($data as $key=>$value){
-    		if (empty($value)) continue;
-
-    		if ($key == 'state' && strlen($value) == 2) $value = strtoupper($value);
-    		if ($key == 'office') $value = self::office($value);
-
-			$this->$key = $value;
-    	}
+    	parent::__construct();
+    	$this->load($data, $keys);
+    	$this->setAliases();
     }
 
     public function load($data, $keys = null)
     {
     	if (is_null($keys)){
 	    	foreach($data as $key=>$value){
-	    		if (empty($this->$key))
-	    			$this->$key = $value;
+   				$this->$key = $value;
 	    	}
 	    }else{
 			foreach($keys as $key=>$value){
@@ -51,7 +57,7 @@ class Representative
 
         if (isset($this->name)){
 	        $aliases = array_map(function($i){
-	            return $i->aliases ?? null;
+	            return $i->aliases ?? [$i->name];
 	        }, $data);
 	        $c = count($aliases);
 	        for ($i = 0; $i < $c; $i++){
@@ -80,18 +86,32 @@ class Representative
     	return false;
     }
 
-	public function aliases($data)
+    public function setAliases()
+    {
+		$results = [];
+		foreach(self::aliases as $a){
+			$parts = [];
+			foreach($a as $key){
+				if (empty($this->$key)){
+					continue 2;
+				}
+				array_push($parts, $this->$key);
+			}
+			$results[] = implode(" ", $parts);
+		}
+		if (count($results) == 1)
+			$this->name = $results[0];
+		if (count($results) > 1){
+			$this->name = $results[0];
+			$this->aliases = $results;
+		}
+    }
+
+	public function loadAliases($data)
 	{
-		$aliases = [
-			['nickname','last_name'],
-			['nickname','middle_name','last_name'],
-			['nickname','middle_name','last_name','name_suffix'],
-			['first_name','last_name'],
-			['first_name','middle_name','last_name'],
-			['first_name','middle_name','last_name','name_suffix']
-		];
-		$this->aliases = [];
-		foreach($aliases as $a){
+
+		$results = [];
+		foreach(self::aliases as $a){
 			$parts = [];
 			foreach($a as $key){
 				if (empty($data->$key)){
@@ -99,8 +119,9 @@ class Representative
 				}
 				array_push($parts, $data->$key);
 			}
-			$this->aliases[] = implode(" ", $parts);
+			$results[] = implode(" ", $parts);
 		}
+		$this->aliases = $results;
 	}
 
 	public function imgFileName()
@@ -127,18 +148,23 @@ class Representative
 		return $this->office == 'Senate' || $this->office == 'Governor';
 	}
 
-	public static function office($name)
+	public function setStateAttribute($val)
+	{
+		$this->attributes['state'] = strtoupper($val);
+	}
+
+	public function setOfficeAttribute($name)
 	{
 		if (stripos($name, 'House of Representatives') !== false){
-			return 'House of Representatives'; //remove district
+			$this->attributes['office'] = 'House of Representatives'; //remove district
 		}
-		return str_replace(["United States ", " of the United States"], "", $name);
+		$this->attributes['office'] = str_replace(["United States ", " of the United States"], "", $name);
 	}
 
     public static function isValidOffice($office)
     {
-    	$office = self::office($office);
-    	return array_search($office, self::ranks) !== false;
+    	$temp = new Representative(['office' => $office]);
+    	return array_search($temp->office, self::ranks) !== false;
     }
 
 }

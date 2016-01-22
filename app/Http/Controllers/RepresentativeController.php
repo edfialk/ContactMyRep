@@ -87,7 +87,6 @@ class RepresentativeController extends Controller
 
     public function address($address)
     {
-        // $googReq = GoogleAPI::address($address);
         $geo = GoogleAPI::geocode($address);
         $gps = $geo->results[0]->geometry->location;
         //if its a street address, we can get district reps, otherwise just state reps
@@ -114,13 +113,11 @@ class RepresentativeController extends Controller
                 return $this->success($results);
             }
         }
-
     }
 
     public function success($data)
     {
         $response = (object) $data[0];
-
         if (!empty($data[1])){
             $congress = $data[1];
             foreach($response->reps as &$rep){
@@ -155,7 +152,14 @@ class RepresentativeController extends Controller
             $filename = $rep->imgFileName();
             if (\File::exists(public_path().$filename))
                 $rep->photo = $filename;
+
+            $db = Representative::where('name', $rep->name)->where('division_id', $rep->division_id)->get();
+            if (count($db) == 1){
+                $rep->load($db->first()->toArray());
+            }
+
             return $rep;
+
         }, $response->reps);
 
         return response()->json($response);
