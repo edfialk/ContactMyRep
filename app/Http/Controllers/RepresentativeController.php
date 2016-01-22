@@ -149,6 +149,20 @@ class RepresentativeController extends Controller
     }
 
     /**
+     * check if api response has an error
+     * @param  array  $results api response
+     * @return boolean
+     */
+    public function isValid($results)
+    {
+        if (isset($results[0]->status) && $results[0]->status == 'error')
+            return false;
+        if (isset($results[0]->error))
+            return false;
+        return true;
+    }
+
+    /**
      * Convert api results to json
      * @param  array $data api results
      * @return json
@@ -208,20 +222,6 @@ class RepresentativeController extends Controller
         }, $response->reps);
 
         return response()->json($response);
-    }
-
-    /**
-     * check if api response has an error
-     * @param  array  $results api response
-     * @return boolean
-     */
-    public function isValid($results)
-    {
-        if (isset($results[0]->status) && $results[0]->status == 'error')
-            return false;
-        if (isset($results[0]->error))
-            return false;
-        return true;
     }
 
     /**
