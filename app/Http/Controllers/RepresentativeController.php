@@ -120,6 +120,11 @@ class RepresentativeController extends Controller
         $geo = GoogleAPI::geocode($address);
         $gps = $geo->results[0]->geometry->location;
 
+        if ($gps->lat && $gps->lng){
+            return $this->gps($gps->lat, $gps->lng);
+        }
+
+
         //if its a street address, gps will be valid, otherwise we can only get state reps
         foreach($geo->results[0]->types as $type){
 

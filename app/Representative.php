@@ -113,9 +113,8 @@ class Representative extends Eloquent
 		foreach(self::aliases as $a){
 			$parts = [];
 			foreach($a as $key){
-				if (empty($this->$key)){
+				if (empty($this->$key))
 					continue 2;
-				}
 				array_push($parts, $this->$key);
 			}
 			$results[] = implode(" ", $parts);
