@@ -2,6 +2,7 @@
 
 namespace App\Providers\Sunlight;
 
+use Log;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -76,10 +77,16 @@ class StateAPI
 	 * @param  array $array Open States API response
 	 * @return array        validated representatives
 	 */
-	public function validate($array)
+	public static function validate($array)
 	{
 		$keys = [
 			'full_name' => 'name',
+			'first_name',
+			'middle_name',
+			'last_name',
+			'suffixes',
+			'nickname',
+			'chamber',
 			'district',
 			'state',
 			'boundary_id' => 'division_id',
@@ -89,7 +96,14 @@ class StateAPI
 			'url' => 'website'
 		];
 
-		return array_map(function($data) use ($keys){
+		$c = count($array);
+		for ($i = 0; $i < $c; $i++){
+			$data = (object) $array[$i];
+			if ($data->active == "False"){
+				unset($array[$i]);
+				continue;
+			}
+
 			$rep = new Representative($data, $keys);
 
 			if (isset($data->offices) && count($data->offices) > 0){
@@ -116,8 +130,63 @@ class StateAPI
 	    		}
 	    	}
 
-			return $rep;
-		}, $array);
+			$array[$i] = $rep;
+		}
+
+		return $array;
+
 	}
+
+    /**
+     * download csv data from http://openstates.org/downloads/
+     */
+    public static function download()
+    {
+    	Log::info('downloading state api data');
+		libxml_use_internal_errors(true);
+		$data_path = "resources/assets/data/";
+		$ht = file_get_contents("http://openstates.org/downloads/");
+		$doc = new DOMDocument();
+		$doc->loadHTML($ht);
+		$x = new DOMXpath($doc);
+
+		$table = $x->query('//table[@id="download_list"]')[0];
+		$rows = $x->query('.//tr', $table);
+
+		//state, json, csv - first row is header
+		// 51 total for district of columbia
+		for ($i = 1; $i <= 52; $i++){
+			$state = $x->query('.//td[1]', $rows->item($i))[0];
+			$state = $state->textContent;
+
+			$zip_path = $data_path."temp/zips/".$state.".zip";
+			$unzip_path = $data_path."states/".$state;
+
+			$url = $x->query('.//td[3]/a', $rows->item($i))[0];
+			$url = $url->getAttribute('href');
+
+			$file = file_get_contents($url);
+			if ($file === FALSE){
+				Log::error("failed to download $state data at $url");
+			}
+
+			$status = file_put_contents($zip_path, $file);
+			if ($status === FALSE){
+				Log::error("failed to write temp data to $zip_path");
+				continue;
+			}
+
+			$zip = new \ZipArchive;
+			$res = $zip->open($zip_path);
+			if ($res !== TRUE){
+				Log::error("failed to open zip at $path");
+			}
+
+			$zip->extractTo($unzip_path);
+			$zip->close();
+		}
+ 		Log::info('finished downloading state api data');
+    }
+
 
 }

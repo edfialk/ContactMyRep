@@ -124,7 +124,6 @@ class RepresentativeController extends Controller
             return $this->gps($gps->lat, $gps->lng);
         }
 
-
         //if its a street address, gps will be valid, otherwise we can only get state reps
         foreach($geo->results[0]->types as $type){
 

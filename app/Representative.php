@@ -9,6 +9,10 @@ class Representative extends Eloquent
 {
 
 	protected $collection = 'reps';
+	protected $primaryKey = '_id';
+
+	public $timestamps = false;
+
 
 	const ranks = [
 	    'Senate',
@@ -21,12 +25,12 @@ class Representative extends Eloquent
 	];
 
 	const aliases = [
-		['nickname','last_name'],
-		['nickname','middle_name','last_name'],
-		['nickname','middle_name','last_name','name_suffix'],
-		['first_name','last_name'],
-		['first_name','middle_name','last_name'],
-		['first_name','middle_name','last_name','name_suffix']
+		['nickname','lastname'],
+		['nickname','middlename','lastname'],
+		['nickname','middlename','lastname','name_suffix'],
+		['firstname','lastname'],
+		['firstname','middlename','lastname'],
+		['firstname','middlename','lastname','name_suffix']
 	];
 
     public function __construct($data = [], $keys = null)
