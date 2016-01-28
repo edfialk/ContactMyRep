@@ -17,6 +17,29 @@ class StateAPI
 
 	protected $client;
 
+	const keys = [
+		'full_name' => 'name',
+		'first_name',
+		'middle_name',
+		'last_name',
+		'suffixes',
+		'nickname',
+		'chamber',
+		'district',
+		'state',
+		'photo_url' => 'photo',
+		'title',
+		'office',
+		'phone',
+		'votesmart_id',
+		'email',
+		'party',
+		'url' => 'website',
+		'phone',
+		'fax',
+		'address'
+	];
+
 	public function __construct()
 	{
 		$this->api_key = env('SUNLIGHT_KEY', null);
@@ -42,7 +65,25 @@ class StateAPI
 	{
 		return $this->client->getAsync($url)->then(
 			function(ResponseInterface $res){
-				return $this->validate(json_decode($res->getBody()));
+				return $this->validate(json_decode($res->getBody(), true));
+			},
+			function(RequestException $e){
+				echo $e->getMessage();
+			}
+		);
+	}
+
+	public function divisions($lat, $lng)
+	{
+		return $this->client->getAsync('legislators/geo/?lat='.$lat.'&long='.$lng.'&fields=boundary_id')->then(
+			function(ResponseInterface $res){
+				$data = json_decode($res->getBody());
+				foreach($data as $d){
+					$d->division = $d->boundary_id;
+					unset($d->boundary_id);
+					unset($d->id);
+				}
+				return $data;
 			},
 			function(RequestException $e){
 				echo $e->getMessage();
@@ -73,67 +114,67 @@ class StateAPI
 	}
 
 	/**
-	 * convert api data to contact my reps data format
+	 * convert Open States data to ContactMyReps data format
 	 * @param  array $array Open States API response
 	 * @return array        validated representatives
 	 */
 	public static function validate($array)
 	{
-		$keys = [
-			'full_name' => 'name',
-			'first_name',
-			'middle_name',
-			'last_name',
-			'suffixes',
-			'nickname',
-			'chamber',
-			'district',
-			'state',
-			'boundary_id' => 'division_id',
-			'email',
-			'party',
-			'photo_url' => 'photo',
-			'url' => 'website'
-		];
-
+		$divisions = [];
 		$c = count($array);
 		for ($i = 0; $i < $c; $i++){
-			$data = (object) $array[$i];
-			if ($data->active == "False"){
+			$data = $array[$i];
+
+/*			if ($data['active'] == 'False'){
 				unset($array[$i]);
 				continue;
 			}
+*/
 
-			$rep = new Representative($data, $keys);
+	    	if (isset($data['boundary_id']) && !in_array($data['boundary_id'], $divisions))
+	    		array_push($divisions, $data['boundary_id']);
 
-			if (isset($data->offices) && count($data->offices) > 0){
-				$office = $data->offices[0];
-				foreach($data->offices as $d){
-					if ($d->type == 'capitol'){
+			if (isset($data['offices']) && count($data['offices']) > 0){
+				$office = $data['offices'][0];
+				foreach($data['offices'] as $d){
+					if ($d['type'] == 'capitol'){
 						$office = $d;
 						break;
 					}
 				}
-				$rep->phone = $office->phone ?? null;
-				$rep->fax = $office->fax ?? null;
-				$rep->address = $office->address ?? null;
-				$rep->email = $office->email ?? null;
+
+				$data['phone'] = $office['phone'] ?? null;
+				$data['fax'] = $office['fax'] ?? null;
+				$data['address'] = $office['address'] ?? null;
+				$data['email'] = $office['email'] ?? null;
 			}
 
-	    	if (isset($data->chamber)){
-	    		if ($data->chamber == 'upper' || $data->chamber == 'senate'){
-	    			$rep->title = 'State Senator';
-	    			$rep->office = 'State Senate';
-	    		}else if ($data->chamber == 'lower' || $data->chamber == 'house'){
-	    			$rep->title = 'State Representative';
-	    			$rep->office = 'State House';
+	    	if (isset($data['chamber'])){
+	    		if ($data['chamber'] == 'upper' || $data['chamber'] == 'senate'){
+	    			$data['title'] = 'State Senator';
+	    			$data['office'] = 'State Senate';
+	    		}else if ($data['chamber'] == 'lower' || $data['chamber'] == 'house'){
+	    			$data['title'] = 'State Representative';
+	    			$data['office'] = 'State House';
 	    		}
 	    	}
 
-			$array[$i] = $rep;
+	    	$res = [];
+
+	    	foreach(self::keys as $key=>$value){
+	    		if (is_string($key) && isset($data[$key]))
+	    			$res[$value] = $data[$key];
+	    		else if (isset($data[$value]))
+	    			$res[$value] = $data[$value];
+	    	}
+
+	    	$array[$i] = $res;
 		}
 
-		return $array;
+		return (object) [
+			'reps' => $array,
+			'divisions' => $divisions
+		];
 
 	}
 

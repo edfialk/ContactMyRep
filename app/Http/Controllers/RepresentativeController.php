@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use GuzzleHttp\Promise;
+use App\Location;
 use App\Representative;
 use App\Providers\IPInfo\IPInfo;
 use GoogleAPI;
@@ -68,27 +69,20 @@ class RepresentativeController extends Controller
      */
     public function zipcode($zipcode)
     {
-        $googReq = GoogleAPI::address($zipcode);
-        $congReq = CongressAPI::zip($zipcode);
-        $results = Promise\unwrap([$googReq, $congReq]);
+        $resp = new \stdClass();
+        $resp->reps = [];
 
-        if (!$this->isValid($results)){
-            return $this->error($results);
+        $l = Location::where('zip', intval($zipcode))->first();
+        if (is_null($l)){
+            return [
+                'status' => 'error',
+                'message' => 'zipcode not found'
+            ];
         }
+        $resp->reps = Representative::location($l);
+        $resp->location = $l;
 
-        //stateapi has no zip search, have to use district
-        $rep = array_first($results[1], function($key, $val){
-            return isset($val->district) && isset($val->state);
-        });
-        if (!is_null($rep)){
-            $states = StateAPI::district($rep->state, $rep->district);
-            $states->then(function($data) use (&$results){
-                $results[] = $data;
-            });
-            $states->wait();
-        }
-
-        return $this->success($results);
+        return response()->json($resp);
     }
 
     /**
@@ -100,14 +94,32 @@ class RepresentativeController extends Controller
     public function gps($lat, $lng)
     {
         $googReq = GoogleAPI::address($lat.','.$lng);
-        $congReq = CongressAPI::gps($lat, $lng);
         $stateReq = StateAPI::gps($lat, $lng);
-        $results = Promise\unwrap([$googReq, $congReq, $stateReq]);
+        $resp = new \StdClass();
+        $resp->reps = [];
+        $results = Promise\unwrap([$googReq, $stateReq]);
 
         if (!$this->isValid($results))
             return $this->error($results);
 
-        return $this->success($results);
+        if (isset($results[0]->reps)){
+            // Representative::sync($results[0]->reps);
+        }
+        if (isset($results[1]->reps)){
+            Representative::sync($results[1]->reps);
+        }
+
+        foreach($results[0]->divisions as $division){
+            $resp->reps = array_merge(Representative::where('division',$division)->get()->all(), $resp->reps);
+        }
+
+        foreach($results[1]->divisions as $district){
+            $resp->reps = array_merge(Representative::where('division', $district)->get()->all(), $resp->reps);
+        }
+
+        Representative::sortByRank($resp->reps);
+
+        return response()->json($resp);
     }
 
     /**

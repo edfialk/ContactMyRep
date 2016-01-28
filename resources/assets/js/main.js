@@ -84,14 +84,22 @@ var vm = new Vue({
 		    		return;
 		    	}
 
-		        document.getElementById('input').value = '';
 		        var body = res.body;
+		    	if (body.status == "error"){
+		    		this.status = body.message;
+		    	}
+
 		        this.reps = body.reps;
 		        if (body.location) {
 		            this.zip = body.location.zip;
 		            this.city = body.location.city;
 		            this.state = body.location.state;
+		        }else{
+		        	this.zip = null;
+		        	this.city = null;
+		        	this.state = null;
 		        }
+		        document.getElementById('input').value = '';
 		    });
 		},
 		locate() {

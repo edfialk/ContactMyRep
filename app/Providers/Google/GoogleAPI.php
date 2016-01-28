@@ -52,6 +52,12 @@ class GoogleAPI
 		);
 	}
 
+	public function divisions($query)
+	{
+		$fields = 'divisions';
+		return $this->async('representatives?address='.urlencode($query).'&fields='.urlencode($fields));
+	}
+
 	/**
 	 * query api by address
 	 * @param  string $address  query
@@ -59,7 +65,8 @@ class GoogleAPI
 	 */
 	public function address($address)
 	{
-		return $this->async('representatives?address='.urlencode($address));
+		$fields = 'divisions,normalizedInput,offices,officials';
+		return $this->async('representatives?address='.urlencode($address).'&fields='.urlencode($fields));
 	}
 
 	/**
@@ -81,10 +88,6 @@ class GoogleAPI
 	public function validate($data)
 	{
 
-		if (!isset($data->offices)){
-			return (object) ['status' => 'error', 'message' => 'No Results.'];
-		}
-
 		$keys = [
 			'name',
 			'first_name',
@@ -93,7 +96,10 @@ class GoogleAPI
 			'party'
 		];
 
-		$response = (object) ['reps' => []];
+		$response = (object) [
+			'reps' => [],
+			'divisions' => []
+		];
 
 		if (isset($data->normalizedInput)){
 			$l = $data->normalizedInput;
@@ -104,16 +110,26 @@ class GoogleAPI
 			);
 		}
 
+		foreach($data->divisions as $k=>$v){
+			$response->divisions[] = $k;
+		}
+
+		if (!isset($data->offices)) return $response;
+
 		foreach($data->offices as $office){
 			if (!Representative::isValidOffice($office->name))
 				continue;
 
+			$divisionId = $office->divisionId;
+
 			foreach($office->officialIndices as $i){
 				$d = $data->officials[$i];
 
-				$rep = new Representative($d, $keys);
-				$rep->division_id = $office->divisionId;
+				$rep = Representative::fromData($d, $keys);
+
 				$rep->office = $office->name;
+				$rep->division = $office->divisionId;
+				$rep->state = $l->state;
 
 				if (isset($d->address) && count($d->address) == 1){
 					$rep->address = $d->address[0];
@@ -127,7 +143,6 @@ class GoogleAPI
 				if (isset($d->emails) && count($d->emails) == 1){
 					$rep->email = $d->emails[0];
 				}
-
 				if (isset($d->channels)){
 					foreach($d->channels as $c){
 						$key = strtolower($c->type).'_id';
@@ -138,7 +153,9 @@ class GoogleAPI
 				$response->reps[] = $rep;
 			}
 		}
+
 		return $response;
+
 	}
 
 	/**

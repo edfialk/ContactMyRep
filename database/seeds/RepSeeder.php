@@ -2,10 +2,12 @@
 
 use Illuminate\Database\Seeder;
 
+use App\Location;
 use App\Representative;
 
 use App\Providers\Sunlight\StateAPI;
 use App\Providers\Sunlight\CongressAPI;
+use App\Providers\Google\GoogleAPI;
 
 class RepSeeder extends Seeder
 {
@@ -16,73 +18,82 @@ class RepSeeder extends Seeder
      */
     public function run()
     {
-    	// $this->seedCongress();
     	// UNCOMMENT BELOW LINE TO RE-DOWNLOAD DATA
     	// $this->downloadStates();
-    	$this->seedStates();
+
+    	// $this->congress();
+    	// $this->states();
+    	$this->google();
     }
 
-    public function seedStates()
+    public function google()
     {
-		$keys = [
-			'full_name' => 'name',
-			'first_name',
-			'middle_name',
-			'last_name',
-			'suffixes',
-			'nickname',
-			'chamber',
-			'district',
-			'state',
-			'photo_url' => 'photo'
-		];
+    	$google = new GoogleAPI();
+    	$states = Location::states;
+    	$donePresident = false;
 
+    	foreach($states as $state_abbrev => $state_name){
+    		echo "state: ".$state_name."\n";
+    		$req = $google->address($state_name)->then(function($data) use ($donePresident){
+    			if (empty($data->reps)){
+    				return;
+    			}
+    			foreach($data->reps as $rep){
+    				if (Representative::exists($rep)){
+    					$old = Representative::find($rep);
+    					foreach($rep->getAttributes() as $k=>$v){
+    						if (!empty($v)) $old->$k = $v;
+    					}
+    					$old->save();
+    					Log::info('merged rep: '.$rep->name);
+    				}else{
+	    				if ($rep->office == 'President' && !$donePresident){
+	    					unset($rep->state);
+	    					$rep->save();
+	    					$donePresident = true;
+	    				}
+	    				if ($rep->office == 'Governor'){
+	    					$rep->save();
+	    					Log::info('found governor: '.$rep->name);
+	    				}
+    				}
+    			}
+    		});
+    		$req->wait();
+    	}
+    }
+
+    public function states()
+    {
 		$dir = 'resources/assets/data/';
 		$di = new RecursiveDirectoryIterator($dir);
 		foreach (new RecursiveIteratorIterator($di) as $filename => $file) {
 			if (stripos($filename, 'legislators.csv') === false)
 				continue;
 
-			$data = $this->csvToArray($path, $keys);
-		    $reps = StateAPI::validate($csv);
-		    $this->save($reps);
+			$data = $this->csvToArray($filename);
+		    $data = StateAPI::validate($data);
+		    foreach($data as $d){
+		    	$rep = Representative::fromData($d);
+		    	if (! Representative::exists($rep) )
+		    		$rep->save();
+		    }
 		}
     }
 
-    public function seedCongress()
+    public function congress()
     {
-		$congressAPIKeys = [
-			'bioguide_id',
-			'district',
-			'facebook_id',
-			'firstname',
-			'fax',
-			'lastname',
-			'middlename',
-			'name_suffix',
-			'nickname',
-			'ocd_id' => 'division_id',
-			'congress_office' => 'address',
-			'party',
-			'phone',
-			'state',
-			'state_name',
-			'title',
-			'twitter_id',
-			'website',
-			'webform' => 'contact_form',
-			'votesmart_id'
-
-		];
-
-		$path = 'resources/assets/data/congress.csv';
-		$data = $this->csvToArray($path, $keys);
-	    $reps = CongressAPI::validate($data);
-
-	    $this->save($reps);
+ 		$path = 'resources/assets/data/congress.csv';
+		$data = $this->csvToArray($path);
+	    $data = CongressAPI::validate($data);
+	    foreach($data as $d){
+	    	$rep = Representative::fromData($d, CongressAPI::keys);
+	    	if (! Representative::exists($rep) )
+	    		$rep->save();
+	    }
     }
 
-    public function csvToArray($path, $keys, $removeHeader = true)
+    public function csvToArray($path, $removeHeader = true)
     {
     	echo "\nreading file: $path ... \n";
     	$csv = array_map('str_getcsv', file($path));
@@ -95,10 +106,14 @@ class RepSeeder extends Seeder
 	    return $csv;
 	}
 
-	public function save($reps)
+	public function save(array $reps)
 	{
 	    foreach($reps as $rep){
-        	if ( Representative::where('name', $rep->name)->where('state', $rep->state)->where('district', $rep->district)->count() == 0 ){
+        	if ( Representative::where('name', $rep->name)
+        		->where('state', $rep->state)
+        		->where('district', $rep->district)
+        		->count() == 0
+        	){
         		$rep->save();
         	}
 	    }

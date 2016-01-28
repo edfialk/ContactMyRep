@@ -17,6 +17,30 @@ class CongressAPI
 
 	protected $client;
 
+	const keys = [
+		'bioguide_id',
+		'district',
+		'facebook_id',
+		'firstname' => 'first_name',
+		'fax',
+		'lastname' => 'last_name',
+		'middlename' => 'middle_name',
+		'name_suffix',
+		'nickname',
+		'ocd_id' => 'division_id',
+		'congress_office' => 'address',
+		'office',
+		'party',
+		'phone',
+		'state',
+		'state_name',
+		'title',
+		'twitter_id',
+		'website',
+		'webform' => 'contact_form',
+		'votesmart_id'
+	];
+
 	public function __construct()
 	{
 		$this->api_key = env('SUNLIGHT_KEY', null);
@@ -100,48 +124,28 @@ class CongressAPI
 	 * @param  array $data Congress API response
 	 * @return array       validated representatives
 	 */
-	public function validate($data)
+	public static function validate($array)
 	{
-		$keys = [
-			'contact_form',
-			'district',
-			'facebook_id',
-			'first_name',
-			'fax',
-			'last_name',
-			'middle_name',
-			'name_suffix',
-			'nickname',
-			'ocd_id' => 'division_id',
-			'office' => 'address',
-			'party',
-			'phone',
-			'state',
-			'state_name',
-			'title',
-			'twitter_id',
-			'website',
-			'youtube_id'
-		];
 
-		return array_map(function($data) use ($keys){
-			$rep = new Representative($data, $keys);
+		$c = count($array);
+		for ($i = 0; $i < $c; $i++){
+			$data = $array[$i];
+			if ($data['in_office'] !== '1'){
+				unset($array[$i]);
+				continue;
+			}
 
-	    	if (isset($data->chamber)){
-	    		if ($data->chamber == 'upper' || $data->chamber == 'senate'){
-	    			$rep->title = 'Senator';
-	    			$rep->office = 'Senate';
-	    		}else if ($data->chamber == 'lower' || $data->chamber == 'house'){
-	    			$rep->title = 'Representative';
-	    			$rep->office = 'House of Representatives';
-	    		}
-	    	}
+			if (intval($data['district']) === 0){
+				$data['title'] = 'Senator';
+				$data['office'] = 'Senate';
+			}else{
+				$data['title'] = 'Representative';
+				$data['office'] = 'House of Representatives';
+			}
+			$array[$i] = $data;
+		}
 
-	    	if (count($rep->aliases) > 0 && !isset($rep->name)){
-	    		$rep->name = $rep->aliases[0];
-	    	}
-	    	return $rep;
+		return array_values($array);
 
-		}, $data->results);
 	}
 }

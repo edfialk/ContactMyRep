@@ -11218,7 +11218,7 @@ if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
-  var id = "E:\\GreatWorks\\homestead\\ContactMyReps\\resources\\assets\\js\\components\\item.vue"
+  var id = "/home/vagrant/Code/ContactMyReps/resources/assets/js/components/item.vue"
   module.hot.dispose(function () {
     require("vueify-insert-css").cache["\n\timg {\n\t\tmax-width: 100px;\n\t}\n"] = false
     document.head.removeChild(__vueify_style__)
@@ -11331,14 +11331,22 @@ var vm = new _vue2.default({
 					return;
 				}
 
-				document.getElementById('input').value = '';
 				var body = res.body;
+				if (body.status == "error") {
+					_this.status = body.message;
+				}
+
 				_this.reps = body.reps;
 				if (body.location) {
 					_this.zip = body.location.zip;
 					_this.city = body.location.city;
 					_this.state = body.location.state;
+				} else {
+					_this.zip = null;
+					_this.city = null;
+					_this.state = null;
 				}
+				document.getElementById('input').value = '';
 			});
 		},
 		locate: function locate() {
