@@ -174,6 +174,17 @@ class GoogleAPI
 				if (empty($rep->photo) && isset($d->photoUrl))
 					$rep->photo = $d->photoUrl;
 
+				if (isset($d->address)){
+					$new = [];
+					$a = $d->address;
+					if (isset($a->line1)) $new[] = $a->line1;
+					if (isset($a->line2)) $new[] = $a->line2;
+					if (isset($a->line3)) $new[] = $a->line3;
+					if (isset($a->city) && isset($a->state) && isset($a->zip))
+						$new[] = $a->ciyt.', '.$a->state.' '.$a->zip;
+					$rep->address = $new;
+				}
+
 				if (isset($d->phones) && count($d->phones) > 0){
 					$phones = $rep->phones ?? [];
 					foreach($d->phones as &$p){
