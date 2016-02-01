@@ -45,9 +45,11 @@ class GoogleAPI
 	            return $this->validate(json_decode($res->getBody()));
 	        },
 	        function (RequestException $e){
+	        	$msg = $e->getResponse();
+	        	$msg = is_null($msg) ? "Google Error" : $msg->getReasonPhrase();
 	        	return (object)[
 	        		'status' => 'error',
-	        		'message' => $e->getResponse()->getReasonPhrase()
+	        		'message' => $msg
 	        	];
 	        }
 		);
