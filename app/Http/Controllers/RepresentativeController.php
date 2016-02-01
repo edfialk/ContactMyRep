@@ -102,13 +102,13 @@ class RepresentativeController extends Controller
         if (isset($results[0]->status) && $results[0]->status == "error")
             return $this->error($results[0]->message);
 
-        $reps = array_unique(array_merge($results[0]->reps, $results[1]));
+        // $reps = array_unique(array_merge($results[0]->reps, $results[1]));
 
-        // $divisions1 = $results[0]->divisions;
-        // $divisions2 = array_pluck($results[1], 'division');
-        // $divisions = array_unique(array_merge($divisions1, $divisions2));
+        $divisions1 = $results[0]->divisions;
+        $divisions2 = array_pluck($results[1], 'division');
+        $divisions = array_unique(array_merge($divisions1, $divisions2));
 
-        // $reps = Representative::whereIn('division', $divisions)->get()->all();
+        $reps = Representative::whereIn('division', $divisions)->get()->all();
 
         usort($reps, 'rankSort');
 
