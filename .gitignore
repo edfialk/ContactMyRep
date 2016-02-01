@@ -5,5 +5,4 @@ Homestead.json
 .env
 project.sublime*
 resources/assets/data/temp
-resources/assets/data/states/*
-!resources/assets/data/states/*/*_legislators.csv
+resources/assets/data/states
