@@ -137,7 +137,7 @@ class Representative extends Eloquent
 
 		if (count($results) > 0){
 			$this->aliases = $results;
-			$this->name = $results[0];
+            if (empty($this->name)) $this->name = $results[0];
 		}
     }
 
