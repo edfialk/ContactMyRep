@@ -69,8 +69,12 @@ class RepresentativeController extends Controller
             in_array('google', $rep->sources) ? array_push($keeps, $rep) : array_push($updates, $rep);
         }
 
-        if (count($updates) > 0)
-            $updates = GoogleAPI::update($updates);
+        if (count($updates) > 0){
+            GoogleAPI::update($updates);
+            foreach($updates as &$u){
+                $u = Representative::where('_id', $u->_id)->first(); //refresh from db, ->fresh() should work but doesnt
+            }
+        }
 
         $reps = array_merge($updates, $keeps);
 
@@ -100,9 +104,9 @@ class RepresentativeController extends Controller
 
         $reps = array_unique(array_merge($results[0]->reps, $results[1]));
 
-        $divisions1 = $results[0]->divisions;
-        $divisions2 = array_pluck($results[1], 'division');
-        $divisions = array_unique(array_merge($divisions1, $divisions2));
+        // $divisions1 = $results[0]->divisions;
+        // $divisions2 = array_pluck($results[1], 'division');
+        // $divisions = array_unique(array_merge($divisions1, $divisions2));
 
         // $reps = Representative::whereIn('division', $divisions)->get()->all();
 
@@ -162,6 +166,7 @@ class RepresentativeController extends Controller
     public function edit($id)
     {
         $q = Representative::where('_id',$id)->first();
+        // dd($q->getAttributes());
         return view('pages.edit', ['rep' => $q] );
     }
 

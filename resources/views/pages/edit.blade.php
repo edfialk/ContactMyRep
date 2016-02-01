@@ -80,7 +80,7 @@
 					<div class="form-group">
 						<label for="address" class="col-sm-2 control-label">Address</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][0] ?? $rep['address'] }}">
+							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][0] ?? '' }}">
 							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][1] ?? '' }}">
 							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][2] ?? '' }}">
 						</div>
