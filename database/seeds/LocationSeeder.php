@@ -18,7 +18,7 @@ class LocationSeeder extends Seeder
      */
     public function run()
     {
-    	// $this->stateDistricts();
+    	$this->stateDistricts();
     	$this->congressionalDistricts();
     }
 
@@ -52,6 +52,9 @@ class LocationSeeder extends Seeder
     	echo "num saved: $count \n";
     }
 
+    /**
+     * I really should've saved these to local
+     */
     public function stateDistricts()
     {
     	$this->download(self::baseurl."cdsld14/", 0); //newest first will not get overwritten

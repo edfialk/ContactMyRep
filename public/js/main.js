@@ -11187,7 +11187,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
 	name: 'Item',
 	props: {
-		item: Object
+		item: Object,
+		role: Boolean
 	},
 	computed: {
 		district: function district() {
@@ -11199,26 +11200,24 @@ exports.default = {
 		address: function address() {
 			if (!this.item.address) return '';
 			if (typeof this.item.address == "string") return this.item.address;
-			var pieces = [];
-			if (this.item.address.line1) pieces.push(this.item.address.line1);
-			if (this.item.address.line2) pieces.push(this.item.address.line2);
-			if (this.item.address.line3) pieces.push(this.item.address.line3);
-			var street = pieces.join('<br>');
-			var city = this.item.address.city.toLowerCase().replace(/\b\w/g, function (m) {
-				return m.toUpperCase();
-			});
-
-			return street + '<br>' + city + ', ' + this.item.address.state + ' ' + this.item.address.zip;
+			return this.item.address.join('<br>');
+		},
+		phone: function phone() {
+			var phone = '';
+			if (Array.isArray(this.item.phones)) phone = this.item.phones[0];else if (typeof this.item.phone == "string") phone = this.item.phone;
+			phone = phone.replace('(', '');
+			phone = phone.replace(') ', '-');
+			return phone;
 		}
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<tr>\n\t\t<td><img v-if=\"item.photo\" v-bind:src=\"item.photo\"></td>\n\t\t<td><a href=\"#\">{{ item.name }} {{ party }}</a></td>\n\t\t<td>{{ item.office }}</td>\n\t\t<td>{{ item.phone ? item.phone : '' }}</td>\n\t\t<td>{{{ address }}}</td>\n\t\t<td>\n\t\t\t<a v-if=\"item.website\" href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i></a>\n\t\t\t<a v-if=\"item.contact_form\" href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.email\" href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.facebook_id\" href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i></a>\n\t\t\t<a v-if=\"item.twitter_id\" href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i></a>\n\t\t\t<a v-if=\"item.google_id\" href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i></a>\n\t\t\t<a v-if=\"item.youtube_id\" href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i></a>\n\t\t</td>\n\t</tr>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<tr>\n\t\t<td><img v-if=\"item.photo\" v-bind:src=\"item.photo\"></td>\n\t\t<td><a href=\"/rep/{{ item._id }}\">{{ item.name }} {{ party }}</a></td>\n\t\t<td>{{ item.office }}</td>\n\t\t<td>{{ phone }}</td>\n\t\t<td>{{{ address }}}</td>\n\t\t<td>\n\t\t\t<a v-if=\"item.website\" href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i></a>\n\t\t\t<a v-if=\"item.contact_form\" href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.email\" href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.facebook_id\" href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i></a>\n\t\t\t<a v-if=\"item.twitter_id\" href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i></a>\n\t\t\t<a v-if=\"item.google_id\" href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i></a>\n\t\t\t<a v-if=\"item.youtube_id\" href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i></a>\n\t\t\t<a v-if=\"role\" href=\"/edit/{{ item._id }}\"><i class=\"fa fa-flag\"></i></a>\n\t\t</td>\n\t</tr>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
-  var id = "/home/vagrant/Code/ContactMyReps/resources/assets/js/components/item.vue"
+  var id = "E:\\GreatWorks\\homestead\\ContactMyReps\\resources\\assets\\js\\components\\item.vue"
   module.hot.dispose(function () {
     require("vueify-insert-css").cache["\n\timg {\n\t\tmax-width: 100px;\n\t}\n"] = false
     document.head.removeChild(__vueify_style__)
@@ -11275,11 +11274,11 @@ var vm = new _vue2.default({
 		reps: [],
 		districts: [],
 		status: '',
-		apiroot: '/api/v1/'
+		apiroot: '/api/v1/',
+		role: null
 	},
 	watch: {
 		'gps': function gps(val, oldVal) {
-			console.log('gps watch');
 			if (val.lat && val.lng) {
 				this.query = val.lat + '/' + val.lng;
 				this.fetch();
@@ -11310,6 +11309,7 @@ var vm = new _vue2.default({
 					this.fetch();
 				}
 			}
+			this.role = document.getElementById('role') !== null;
 		},
 		search: function search(event) {
 			event.preventDefault();
@@ -11346,7 +11346,6 @@ var vm = new _vue2.default({
 					_this.city = null;
 					_this.state = null;
 				}
-				document.getElementById('input').value = '';
 			});
 		},
 		locate: function locate() {

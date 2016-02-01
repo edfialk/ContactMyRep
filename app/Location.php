@@ -69,16 +69,9 @@ class Location extends Eloquent
 
     public $timestamps = false;
 
-
-    public static function byZip($zip)
-    {
-    	return self::where('zip',$zip)->get();
-    }
-
     public static function state_name($abbrev)
     {
     	return isset(self::states[$abbrev]) ? self::states[$abbrev] : null;
     }
-
 
 }

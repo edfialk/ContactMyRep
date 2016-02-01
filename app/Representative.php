@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Repositories\RepRepository;
 use Jenssegers\Mongodb\Model as Eloquent;
 
 class Representative extends Eloquent
@@ -19,19 +18,52 @@ class Representative extends Eloquent
 	];
 	const aliases = [
 		['nickname','last_name'],
+		['nickname','last_name','name_suffix'],
+		['first_name','nickname','last_name'],
+		['first_name','nickname','last_name','name_suffix'],
 		['nickname','middle_name','last_name'],
 		['nickname','middle_name','last_name','name_suffix'],
 		['first_name','last_name'],
+		['first_name','last_name','name_suffix'],
 		['first_name','middle_name','last_name'],
 		['first_name','middle_name','last_name','name_suffix']
 	];
 
-	protected $collection = 'reps';
-	protected $primaryKey = '_id';
-    protected $hidden = ['_id'];
-    protected $fillable = ['office'];
+	//defaults
+	protected $attributes = [
+		'sources' => [],
+		'phones' => [],
+		'addresses' => [],
+		'aliases' => [],
+		'urls' => [],
+		'emails' => [],
+	];
 
-	public $timestamps = false;
+    protected $fillable = [
+    	'name',
+    	'first_name',
+    	'middle_name',
+    	'last_name',
+    	'name_suffix',
+    	'office',
+    	'sources',
+    	'title',
+    	'division',
+    ];
+
+	protected $collection = 'reps'; //mongo table name
+	protected $primaryKey = '_id';
+    // protected $hidden = ['_id'];
+
+    public $timestamps = false;
+
+    public function __construct($data = [])
+    {
+    	parent::__construct($data);
+    	$this->setAliases();
+    	$this->setDivision();
+    	$this->setPhoto();
+    }
 
     public static function fromData($data, $keys = null)
     {
@@ -46,8 +78,17 @@ class Representative extends Eloquent
     	return $rep;
     }
 
+    public function save(array $options = array())
+    {
+    	$this->setAliases();
+    	$this->setDivision();
+    	$this->setPhoto();
+
+    	parent::save();
+    }
+
     /**
-     * copy info from data -  overwrites present info!
+     * copy info from data - overwrites present info!
      * @param  array $data input
      * @param  array $keys string names of fields to copy from data.
      *                     If entry is a key=>value, data->key will be copied to this->value
@@ -55,19 +96,27 @@ class Representative extends Eloquent
      */
     public function load($data, $keys = null)
     {
-    	if (is_array($data)) $data = (object) $data;
     	if (is_null($keys)){
 	    	foreach($data as $key=>$value){
    				$this->$key = $value;
 	    	}
 	    }else{
 			foreach($keys as $key=>$value){
-				if (is_string($key) && isset($data->$key))
-					$this->$value = $data->$key;
-				else if (isset($data->$value))
-					$this->$value = $data->$value;
+				if (is_string($key) && isset($data[$key]))
+					$this->$value = $data[$key];
+				else if (isset($data[$value]))
+					$this->$value = $data[$value];
 			}
 	    }
+
+    	if (stripos($this->first_name, " ") !== false && empty($this->middle_name)){
+    		$p = explode(" ", $this->first_name);
+    		$this->first_name = $p[0];
+    		$this->middle_name = $p[1];
+    	}
+    	if (strlen($this->middle_name) == 1){
+    		$this->middle_name = $this->middle_name.'.';
+    	}
     }
 
     /**
@@ -85,16 +134,16 @@ class Representative extends Eloquent
 			}
 			$results[] = implode(" ", $parts);
 		}
-		if (count($results) == 1)
-			$this->name = $results[0];
-		if (count($results) > 1){
-			$this->name = $results[0];
+
+		if (count($results) > 0){
 			$this->aliases = $results;
+			$this->name = $results[0];
 		}
     }
 
     public function setDivision()
     {
+    	if (isset($this->division)) return;
     	if (isset($this->office)){
     		$division = self::offices[$this->office];
     		$pattern = '/\$([a-z]+)/i';
@@ -104,42 +153,6 @@ class Representative extends Eloquent
     			return str_replace(" ", "_", strtolower($v));
     		}, $division);
     	}
-    }
-
-	/**
-	 * ensure state abbreviation is always 2 digit caps
-	 * @param string $val state abbreviation
-	 */
-	public function setStateAttribute($val)
-	{
-		if (strlen($val) == 2){
-			$this->attributes['state'] = strtoupper($val);
-		}else{
-			$this->attributes['state_name'] = $val;
-		}
-	}
-
-	/**
-	 * ensure office is one of accepted values
-	 * @param string $name office name
-	 */
-	public function setOfficeAttribute($name)
-	{
-		if (stripos($name, 'House of Representatives') !== false){
-			$this->attributes['office'] = 'House of Representatives'; //remove district
-		}
-		$this->attributes['office'] = str_replace(["United States ", " of the United States"], "", $name);
-	}
-
-	/**
-	 * check if supplied office is on our approved list
-	 * @param  string  $office
-	 * @return boolean
-	 */
-    public static function isValidOffice($office)
-    {
-    	$temp = new Representative(['office' => $office]);
-    	return array_search($temp->office, array_keys(self::offices)) !== false;
     }
 
     /**
@@ -167,76 +180,113 @@ class Representative extends Eloquent
         }
     }
 
+	/**
+	 * ensure state abbreviation is always 2 digit caps
+	 * @param string $val state abbreviation
+	 */
+	public function setStateAttribute($val)
+	{
+		if (strlen($val) == 2)
+			$this->attributes['state'] = strtoupper($val);
+		else
+			$this->attributes['state_name'] = $val;
+	}
+
+	/**
+	 * ensure office is one of accepted values
+	 * @param string $name office name
+	 */
+	public function setOfficeAttribute($name)
+	{
+		if (stripos($name, 'house of representatives') !== false){
+			$this->attributes['office'] = 'House of Representatives'; //remove district
+		}else if (stripos($name, 'state house') !== false){
+			$this->attributes['office'] = 'State House';
+		}else if (stripos($name, 'state senate') !== false){
+			$this->attributes['office'] = 'State Senate';
+		}else if (stripos($name, 'state assembly') !== false){
+			$this->attributes['office'] = 'State House';
+		}else{
+			$this->attributes['office'] = str_replace(["United States ", " of the United States"], "", $name);
+		}
+	}
+
+	public function addSource($src)
+	{
+		if (!in_array($src, $this->sources)){
+			$srcs = $this->sources;
+			array_push($srcs, $src);
+			$this->sources = $srcs;
+		}
+	}
+
+	/**
+	 * check if supplied office is on our approved list
+	 * @param  string  $office
+	 * @return boolean
+	 */
+    public static function isValidOffice($office)
+    {
+    	$temp = new Representative();
+    	$temp->office = $office;
+    	return array_search($temp->office, array_keys(self::offices)) !== false;
+    }
+
     public function scopeState($query, $state)
     {
-    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state));
+    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state))->get()->all();
     }
 
     public function scopesldl($query, $state, $district)
     {
-    	return $query->where('division','ocd-division/country:us/state:'.strtolower($state).'/sldl:'.$district);
+    	return $query->where('division','ocd-division/country:us/state:'.strtolower($state).'/sldl:'.$district)->get()->all();
     }
 
     public function scopesldu($query, $state, $district)
     {
-    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state).'/sldu:'.$district);
+    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state).'/sldu:'.$district)->get()->all();
     }
 
     public function scopecd($query, $state, $district)
     {
-    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state).'/cd:'.$district);
+    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state).'/cd:'.$district)->first();
     }
 
-    public function scopeLocation($query, $location)
+    public function scopeAtLocation($query, $location)
     {
     	$resp = [];
         //US house
-        foreach($location->cd as $cd){
-            foreach( self::cd($location->state, $cd)->get() as $rep){
-                $resp[] = $rep;
-            }
-        }
+        if (isset($location->cd)){
+	        foreach($location->cd as $cd){
+                $q = self::cd($location->state, $cd);
+                if (!is_null($q)) $resp[] = $q;
+	        }
+	    }
 
         //state district upper
-        foreach($location->sldu as $sldu){
-            foreach( self::sldu($location->state, $sldu)->get() as $rep){
-                $resp[] = $rep;
-            }
-        }
+        if (isset($location->sldu)){
+	        foreach($location->sldu as $sldu){
+                $q = self::sldu($location->state, $sldu);
+                if (is_array($q)) $resp = array_merge($resp, $q);
+	        }
+	    }
 
         //state district lower
-        foreach($location->sldl as $sldl){
-            foreach( self::sldl($location->state,$sldl)->get() as $rep){
-                $resp[] = $rep;
-            }
-        }
+        if (isset($location->sldl)){
+	        foreach($location->sldl as $sldl){
+                $q = self::sldl($location->state, $sldl);
+                if (is_array($q)) $resp = array_merge($resp, $q);
+	        }
+	    }
 
         //governor and US senators
-        foreach( self::state($location->state)->get() as $rep){
-            $resp[] = $rep;
-        }
+        $q = self::state($location->state);
+        if (is_array($q)) $resp = array_merge($resp, $q);
 
         //president
-        $rep = self::where('office','President')->first();
-        $resp[] = $rep;
-
-        self::sortByRank($resp);
+        array_push($resp, self::where("office", "President")->first());
 
         return $resp;
-    }
-
-    public static function sortByRank(&$reps)
-    {
-    	usort($reps, function($a, $b){
-            $ranks = array_keys(Representative::offices);
-            $ia = array_search($a->office, $ranks);
-            $ib = array_search($b->office, $ranks);
-
-            if ($ia === false) $ia = 6;
-            if ($ib === false) $ib = 6;
-
-            return $ia > $ib;
-    	});
     }
 
     public static function exists($rep)
@@ -244,36 +294,59 @@ class Representative extends Eloquent
     	return !is_null(self::find($rep));
     }
 
-    public static function find($rep)
+    public static function find($query)
     {
-    	if (isset($rep->division)){
-			return Representative::where('division', $rep->division)->where('name', $rep->name)->first();
-    	}else if (isset($rep->district)){
-    		return Representative::where('district', $rep->district)->where('state', strtoupper($rep->state))->where('name', $rep->name)->first();
+    	$reps = Representative::where('name', $query->name)->get()->all();
+    	if (count($reps) == 1){
+    		return $reps[0];
+    	}else if (count($reps) > 1){
+    		$reps = array_filter($reps, function($r) use ($query){
+    			if (isset($query->division))
+    				return $query->division == $r->division;
+    			if (isset($query->district) && isset($query->state))
+    				return $query->district == $r->district && $query->state == $r->state;
+    		});
+	    	if (count($reps) == 1){
+	    		return $reps[0];
+	    	}
     	}
+
+    	$q = Representative::whereRaw(array('aliases' => array('$in' => array($query->name))));
+    	if (isset($query->division)){
+			return $q->where('division', $query->division)->first();
+    	}else if (isset($query->district) && isset($query->state)){
+    		return $q->where('district', $query->district)->where('state', strtoupper($query->state))->first();
+    	}
+
+    	return null;
     }
 
-    public static function sync($data)
+    public static function sync($data, $src)
     {
     	if (!is_array($data)) $data = [$data];
 
-	    $sync = array_filter($data, function($rep){
-	        return isset($rep['office']) && in_array($rep['office'], ['State House', 'State Senate', 'Senate', 'Representative']);
-	    });
+    	$c = count($data);
+    	for($i = 0; $i < $c; $i++){
+    		$grep = $data[$i];
 
-	    foreach($sync as $grep){
-	    	if (is_array($grep)) $grep = (object) $grep;
-	        $rep = Representative::find($grep);
-	        if (!is_null($rep)){
-	            foreach($grep as $k=>$v){
-	                if (!empty($v) && !isset($rep->$k)){
-	                    $rep->$k = $v;
-	                }
-	            }
-	            $rep->save();
-	        }
-	    }
+        	if (method_exists($grep, 'getAttributes'))
+        		$grep = $grep->getAttributes();
+	    	if (is_array($grep))
+	    		$grep = (object) $grep;
 
+    		if (isset($grep->office) && in_array($grep->office, ['State House', 'State Senate', 'Senate', 'Representative'])){
+		        $rep = Representative::find($grep);
+		        if (!is_null($rep)){
+		            foreach($grep as $k=>$v){
+		                if (!empty($v) && !isset($rep->$k)){
+		                    $rep->$k = $v;
+		                }
+		            }
+		            $rep->addSource($src);
+		            $rep->save();
+		            $data[$i] = $rep;
+		        }
+    		}
+    	}
     }
-
 }

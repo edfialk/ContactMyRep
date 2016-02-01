@@ -1,7 +1,11 @@
-@import "resources/assets/materialize-src/sass/materialize";
+/*@import "resources/assets/materialize-src/sass/materialize";*/
 
 .logo {
 	height: 200px;
+}
+.location, .results {
+	margin-top: 20px;
+	margin-bottom: 20px;
 }
 .map-container {
 	height: 200px;
@@ -15,6 +19,10 @@
 }
 .status-wrapper {
 	margin: 15px 0;
+}
+.table>tbody>tr>td {
+	font-size: 16px;
+	vertical-align: middle;
 }
 .results {
 	@media only screen and (max-width: 600px){
@@ -51,4 +59,8 @@
 	.container {
 		width: 80%;
 	}
+}
+
+.edit .input-field {
+	margin-top: 3rem;
 }

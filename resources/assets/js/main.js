@@ -33,10 +33,10 @@ var vm = new Vue({
 		districts: [],
 		status: '',
 		apiroot: '/api/v1/',
+		role: null,
 	},
 	watch: {
 		'gps': function(val, oldVal){
-			console.log('gps watch');
 			if (val.lat && val.lng){
 				this.query = val.lat+'/'+val.lng;
 				this.fetch();
@@ -65,6 +65,7 @@ var vm = new Vue({
 					this.fetch();
 				}
 			}
+			this.role = (document.getElementById('role') !== null);
 		},
 		search(event) {
 			event.preventDefault();
@@ -99,7 +100,6 @@ var vm = new Vue({
 		        	this.city = null;
 		        	this.state = null;
 		        }
-		        document.getElementById('input').value = '';
 		    });
 		},
 		locate() {

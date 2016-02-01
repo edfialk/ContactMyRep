@@ -17,27 +17,31 @@ class StateAPI
 
 	protected $client;
 
-	const keys = [
+	//csv and api data
+	//csv: leg_id,full_name,first_name,middle_name,last_name,suffixes,nickname,active,state,chamber,district,party,transparencydata_id,photo_url,created_at,updated_at
+	const rename = [
+		'boundary_id' => 'division',
 		'full_name' => 'name',
+		'photo_url' => 'photo',
+		'url' => 'website',
+	];
+
+	const copy = [
+		'address',
 		'first_name',
 		'middle_name',
 		'last_name',
-		'suffixes',
 		'nickname',
-		'chamber',
+		'suffixes',
 		'district',
 		'state',
-		'photo_url' => 'photo',
-		'title',
-		'office',
-		'phone',
 		'votesmart_id',
-		'email',
 		'party',
-		'url' => 'website',
-		'phone',
-		'fax',
-		'address'
+		'email',
+		'leg_id',
+		'transparencydata_id',
+		'chamber',
+		'offices'
 	];
 
 	public function __construct()
@@ -54,6 +58,12 @@ class StateAPI
 				'X-APIKEY' => $this->api_key
 			]
 		]);
+
+		$fields = self::rename;
+		foreach(self::copy as $key){
+			$fields[$key] = $key;
+		}
+		$this->fields = $fields;
 	}
 
 	/**
@@ -118,64 +128,67 @@ class StateAPI
 	 * @param  array $array Open States API response
 	 * @return array        validated representatives
 	 */
-	public static function validate($array)
+	public function validate($array)
 	{
-		$divisions = [];
 		$c = count($array);
 		for ($i = 0; $i < $c; $i++){
 			$data = $array[$i];
 
-/*			if ($data['active'] == 'False'){
+			if (isset($data['active']) && $data['active'] === 'False'){
 				unset($array[$i]);
 				continue;
 			}
-*/
 
-	    	if (isset($data['boundary_id']) && !in_array($data['boundary_id'], $divisions))
-	    		array_push($divisions, $data['boundary_id']);
-
-			if (isset($data['offices']) && count($data['offices']) > 0){
-				$office = $data['offices'][0];
-				foreach($data['offices'] as $d){
-					if ($d['type'] == 'capitol'){
-						$office = $d;
-						break;
-					}
-				}
-
-				$data['phone'] = $office['phone'] ?? null;
-				$data['fax'] = $office['fax'] ?? null;
-				$data['address'] = $office['address'] ?? null;
-				$data['email'] = $office['email'] ?? null;
+			$valid = new \stdClass();
+			foreach($this->fields as $key=>$value){
+				if (isset($data[$key])) $valid->$value = $data[$key];
 			}
+
+	    	$rep = Representative::find($valid);
+	    	// if (is_null($rep)) $rep = new Representative($valid);
+	    	if (is_null($rep)) continue; //for now no new reps
+
+	    	if (in_array('openstates', $rep->sources)){
+	    		$array[$i] = $rep;
+	    		continue;
+	    	}
 
 	    	if (isset($data['chamber'])){
 	    		if ($data['chamber'] == 'upper' || $data['chamber'] == 'senate'){
-	    			$data['title'] = 'State Senator';
-	    			$data['office'] = 'State Senate';
+	    			$rep->title = 'State Senator';
+	    			$rep->office = 'State Senate';
 	    		}else if ($data['chamber'] == 'lower' || $data['chamber'] == 'house'){
-	    			$data['title'] = 'State Representative';
-	    			$data['office'] = 'State House';
+	    			$rep->title = 'State Representative';
+	    			$rep->office = 'State House';
 	    		}
 	    	}
 
-	    	$res = [];
+			if (isset($data['offices']) && count($data['offices']) > 0){
 
-	    	foreach(self::keys as $key=>$value){
-	    		if (is_string($key) && isset($data[$key]))
-	    			$res[$value] = $data[$key];
-	    		else if (isset($data[$value]))
-	    			$res[$value] = $data[$value];
-	    	}
+				$office = array_first($data['offices'], function($key, $value){
+					return $key == 'type' && $value == 'capitol';
+				}, $data['offices'][0]);
 
-	    	$array[$i] = $res;
+				foreach($office as $k=>$v){
+					if ( ! empty($rep->$k) || empty($v))
+						continue;
+					switch($k){
+						case 'fax';
+						case 'phone';
+						case 'address';
+						case 'email';
+							$rep->$k = $v;
+						break;
+					}
+				}
+			}
+
+			$rep->addSource('openstates');
+			$rep->save();
+	    	$array[$i] = $rep;
 		}
 
-		return (object) [
-			'reps' => $array,
-			'divisions' => $divisions
-		];
-
+		return array_values($array);
 	}
 
     /**
@@ -184,8 +197,8 @@ class StateAPI
     public static function download()
     {
     	Log::info('downloading state api data');
-		libxml_use_internal_errors(true);
 		$data_path = "resources/assets/data/";
+		libxml_use_internal_errors(true);
 		$ht = file_get_contents("http://openstates.org/downloads/");
 		$doc = new DOMDocument();
 		$doc->loadHTML($ht);

@@ -21,8 +21,8 @@ class RepSeeder extends Seeder
     	// UNCOMMENT BELOW LINE TO RE-DOWNLOAD DATA
     	// $this->downloadStates();
 
-    	// $this->congress();
-    	// $this->states();
+    	$this->congress();
+    	$this->states();
     	$this->google();
     }
 
@@ -35,27 +35,20 @@ class RepSeeder extends Seeder
     	foreach($states as $state_abbrev => $state_name){
     		echo "state: ".$state_name."\n";
     		$req = $google->address($state_name)->then(function($data) use ($donePresident){
-    			if (empty($data->reps)){
-    				return;
-    			}
     			foreach($data->reps as $rep){
-    				if (Representative::exists($rep)){
+                    if ($rep->office == 'President' && !$donePresident){
+                        unset($rep->state);
+                        $rep->save();
+                        $donePresident = true;
+                    }else if (Representative::exists($rep)){
     					$old = Representative::find($rep);
     					foreach($rep->getAttributes() as $k=>$v){
     						if (!empty($v)) $old->$k = $v;
     					}
     					$old->save();
-    					Log::info('merged rep: '.$rep->name);
     				}else{
-	    				if ($rep->office == 'President' && !$donePresident){
-	    					unset($rep->state);
+	    				if ($rep->office == 'Governor')
 	    					$rep->save();
-	    					$donePresident = true;
-	    				}
-	    				if ($rep->office == 'Governor'){
-	    					$rep->save();
-	    					Log::info('found governor: '.$rep->name);
-	    				}
     				}
     			}
     		});
@@ -65,35 +58,39 @@ class RepSeeder extends Seeder
 
     public function states()
     {
-		$dir = 'resources/assets/data/';
+		$dir = 'resources/assets/data/states/';
 		$di = new RecursiveDirectoryIterator($dir);
 		foreach (new RecursiveIteratorIterator($di) as $filename => $file) {
 			if (stripos($filename, 'legislators.csv') === false)
 				continue;
 
-			$data = $this->csvToArray($filename);
+			$data = $this->readCSV($filename);
 		    $data = StateAPI::validate($data);
 		    foreach($data as $d){
-		    	$rep = Representative::fromData($d);
-		    	if (! Representative::exists($rep) )
-		    		$rep->save();
+                $d['source'] = ['openstates'];
+                $rep = Representative::fromData($d);
+		    	if (! Representative::exists($rep) ){
+                    $rep->save();
+                }
 		    }
 		}
     }
 
     public function congress()
     {
- 		$path = 'resources/assets/data/congress.csv';
-		$data = $this->csvToArray($path);
+ 		$path = 'resources/assets/data/reps/congress.csv';
+		$data = $this->readCSV($path);
 	    $data = CongressAPI::validate($data);
 	    foreach($data as $d){
-	    	$rep = Representative::fromData($d, CongressAPI::keys);
-	    	if (! Representative::exists($rep) )
+            $d['source'] = ['opencongress'];
+	    	$rep = Representative::fromData($d);
+	    	if (! Representative::exists($rep) ){
 	    		$rep->save();
+            }
 	    }
     }
 
-    public function csvToArray($path, $removeHeader = true)
+    public function readCSV($path, $removeHeader = true)
     {
     	echo "\nreading file: $path ... \n";
     	$csv = array_map('str_getcsv', file($path));
@@ -105,22 +102,6 @@ class RepSeeder extends Seeder
 
 	    return $csv;
 	}
-
-	public function save(array $reps)
-	{
-	    foreach($reps as $rep){
-        	if ( Representative::where('name', $rep->name)
-        		->where('state', $rep->state)
-        		->where('district', $rep->district)
-        		->count() == 0
-        	){
-        		$rep->save();
-        	}
-	    }
-
-        echo "done\n";
-    }
-
 
 }
 

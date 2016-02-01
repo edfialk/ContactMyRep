@@ -38,28 +38,10 @@ class RepresentativeController extends Controller
      * Any query page view (/zip, /state, etc.)
      * @return view
      */
-    public function view()
+    public function view(Request $request)
     {
+        $request->session()->put('backUrl', $request->fullUrl());
         return view('pages.home');
-    }
-
-    /**
-     * Query by district
-     * @param  string $state    2 digit state abbrev.
-     * @param  number $district district number
-     * @return json
-     */
-    public function district($state, $district)
-    {
-        $googReq = GoogleAPI::district($state, $district);
-        $congReq = CongressAPI::district($state, $district);
-        $stateReq = StateAPI::district($state, $district);
-        $results = Promise\unwrap([$googReq, $congReq, $stateReq]);
-
-        if (!$this->isValid($results))
-            return $this->error($results);
-
-        return $this->success($results);
     }
 
     /**
@@ -70,7 +52,6 @@ class RepresentativeController extends Controller
     public function zipcode($zipcode)
     {
         $resp = new \stdClass();
-        $resp->reps = [];
 
         $l = Location::where('zip', intval($zipcode))->first();
         if (is_null($l)){
@@ -79,7 +60,23 @@ class RepresentativeController extends Controller
                 'message' => 'zipcode not found'
             ];
         }
-        $resp->reps = Representative::location($l);
+
+        $reps = Representative::atLocation($l);
+
+        $updates = [];
+        $keeps = [];
+        foreach($reps as $rep){
+            in_array('google', $rep->sources) ? array_push($keeps, $rep) : array_push($updates, $rep);
+        }
+
+        if (count($updates) > 0)
+            $updates = GoogleAPI::update($updates);
+
+        $reps = array_merge($updates, $keeps);
+
+        usort($reps, 'rankSort');
+
+        $resp->reps = $reps;
         $resp->location = $l;
 
         return response()->json($resp);
@@ -95,29 +92,25 @@ class RepresentativeController extends Controller
     {
         $googReq = GoogleAPI::address($lat.','.$lng);
         $stateReq = StateAPI::gps($lat, $lng);
-        $resp = new \StdClass();
-        $resp->reps = [];
+        $resp = new \stdClass();
         $results = Promise\unwrap([$googReq, $stateReq]);
 
-        if (!$this->isValid($results))
-            return $this->error($results);
+        if (isset($results[0]->status) && $results[0]->status == "error")
+            return $this->error($results[0]->message);
 
-        if (isset($results[0]->reps)){
-            // Representative::sync($results[0]->reps);
-        }
-        if (isset($results[1]->reps)){
-            Representative::sync($results[1]->reps);
-        }
+        $reps = array_unique(array_merge($results[0]->reps, $results[1]));
 
-        foreach($results[0]->divisions as $division){
-            $resp->reps = array_merge(Representative::where('division',$division)->get()->all(), $resp->reps);
-        }
+        $divisions1 = $results[0]->divisions;
+        $divisions2 = array_pluck($results[1], 'division');
+        $divisions = array_unique(array_merge($divisions1, $divisions2));
 
-        foreach($results[1]->divisions as $district){
-            $resp->reps = array_merge(Representative::where('division', $district)->get()->all(), $resp->reps);
-        }
+        // $reps = Representative::whereIn('division', $divisions)->get()->all();
 
-        Representative::sortByRank($resp->reps);
+        usort($reps, 'rankSort');
+
+        $resp->reps = $reps;
+        if (isset($results[0]->location))
+            $resp->location = $results[0]->location;
 
         return response()->json($resp);
     }
@@ -129,161 +122,85 @@ class RepresentativeController extends Controller
      */
     public function address($address)
     {
+        $resp = new \stdClass;
+
+        //check if address is state -> get abbreviation
+        $states = Location::states;
+        $state_names = array_map('strtolower', array_values($states));
+        $state_abbrevs = array_keys($states);
+
+        if (in_array(strtolower($address), $state_names))
+            $state = $state_abbrevs[array_search(strtolower($address), $state_names)];
+        else if (in_array(strtoupper($address), $state_abbrevs))
+            $state = strtoupper($address);
+
+        if (isset($state)){
+            $resp->reps = Representative::state($state);
+            $resp->location = (object) [
+                'state' => $state,
+                'state_name' => Location::states[$state]
+            ];
+            $resp->reps[] = Representative::where('office','President')->first();
+            usort($resp->reps, 'rankSort');
+            return response()->json($resp);
+        }
+
         $geo = GoogleAPI::geocode($address);
-        $gps = $geo->results[0]->geometry->location;
-
-        if ($gps->lat && $gps->lng){
-            return $this->gps($gps->lat, $gps->lng);
+        if (count($geo->results) == 0){
+            return $this->error('No results.');
         }
-
-        //if its a street address, gps will be valid, otherwise we can only get state reps
-        foreach($geo->results[0]->types as $type){
-
-            if ($type == 'street_address'){
-                return $this->gps($gps->lat, $gps->lng);
-            }
-
-            if ($type == 'administrative_area_level_1'){
-                $googReq = GoogleAPI::address($address);
-                $congReq = CongressAPI::gps($gps->lat, $gps->lng);
-                $results = Promise\unwrap([$googReq, $congReq]);
-
-                if (!$this->isValid($results))
-                    return $this->error($results);
-
-                $c = count($results[1]);
-                for ($i = 0; $i < $c; $i++){
-                    $rep = $results[1][$i];
-                    if (!$rep->isStateLevel()){
-                        unset($results[1][$i]);
-                    }
-                }
-                $results[1] = array_values($results[1]);
-                return $this->success($results);
-            }
-        }
+        $result = $geo->results[0]; //first is always most "accurate" says google
+        $gps = $result->geometry->location;
+        return $this->gps($gps->lat, $gps->lng);
     }
 
-    /**
-     * check if api response has an error
-     * @param  array  $results api response
-     * @return boolean
-     */
-    public function isValid($results)
+    public function show($id)
     {
-        if (isset($results[0]->status) && $results[0]->status == 'error')
-            return false;
-        if (isset($results[0]->error))
-            return false;
-        return true;
+        return Representative::where('_id',$id)->first();
     }
 
-    /**
-     * Convert api results to json
-     * @param  array $data api results
-     * @return json
-     */
-    public function success($data)
+    public function edit($id)
     {
-        $response = (object) $data[0];
-
-        if (!empty($data[1])){
-            $congress = $data[1];
-            //search Congress API response for reps
-            foreach($response->reps as &$rep){
-                $congressIndex = $rep->isIn($congress);
-                if ($congressIndex !== false){
-                    //load congress api data into google data
-                    $rep->load($congress[$congressIndex]);
-                    unset($congress[$congressIndex]);
-                }
-                $congress = array_values($congress);
-            }
-
-            //merge any congress reps that google didn't have
-            foreach($congress as $cdata){
-                $response->reps[] = $cdata;
-            }
-        }
-
-        //states api has unique data, so just copy to the end
-        if (!empty($data[2])){
-            $response->reps = array_merge($response->reps, $data[2]);
-        }
-
-        //sort by rank
-        usort($response->reps, function($a, $b){
-            $ia = array_search($a->office, Representative::ranks);
-            $ib = array_search($b->office, Representative::ranks);
-
-            if ($ia === false) $ia = 6;
-            if ($ib === false) $ib = 6;
-
-            return $ia > $ib;
-        });
-
-        //load local data
-        $response->reps = array_map(function($rep){
-
-            $filename = $this->getPhotoPath($rep);
-            if (\File::exists(public_path().$filename))
-                $rep->photo = $filename;
-
-            $db = Representative::where('name', $rep->name)->where('division_id', $rep->division_id)->get();
-            if (count($db) == 1)
-                $rep->load($db->first()->toArray());
-
-            return $rep;
-
-        }, $response->reps);
-
-        return response()->json($response);
+        $q = Representative::where('_id',$id)->first();
+        return view('pages.edit', ['rep' => $q] );
     }
 
+    public function store(Request $request, $id)
+    {
+        $q = Representative::where('_id',$id)->first();
+        if (is_null($q)){
+            return $this->error("can't find rep");
+        }
+        foreach($request->all() as $key=>$value){
+            if ($key == '_token') continue;
+            if (is_array($value)){
+                $value = array_filter($value, function($a){
+                    return !empty($a);
+                });
+            }else{
+                $value = trim($value);
+            }
+            $q->$key = $value;
+        }
+
+        $q->save();
+
+        if ($request->session()->has('backUrl'))
+            return redirect($request->session()->get('backUrl'))->with('status', 'Saved!');
+
+        return redirect('/')->with('status', 'Saved!');
+    }
     /**
      * give json error
      * @param  array $results api response data
      * @return json
      */
-    public function error($results)
+    public function error($message)
     {
-        if (isset($results[0]->status) && $results[0]->status == 'error'){
-            return response()->json($results[0]);
-        }
-        if (isset($results[0]->error) && gettype($results[0]->error) == 'string'){
-            return response()->json(
-                (object) [
-                    'status' => 'error',
-                    'message' => $results[0]->error
-                ]
-            );
-        }
-        return response()->json(['status' => 'error']);
-    }
-
-    /**
-     * get relative url for local rep photos
-     * @param  Representative $rep
-     * @return string      relative url
-     */
-    public function getPhotoPath($rep)
-    {
-        $dir = '/images/reps/';
-        $ext = '.jpg';
-
-        if (isset($rep->nickname) && isset($rep->last_name)){
-            return $dir.$rep->last_name.'-'.$rep->nickname.$ext;
-        }else if (isset($rep->first_name) && isset($rep->last_name)){
-            return $dir.$rep->last_name.'-'.$rep->first_name.$ext;
-        }else if (isset($rep->name) && stripos($rep->name, " ")){
-            $names = explode(" ", $rep->name);
-            $first = $names[0];
-            $last = $names[count($names) - 1];
-            if (count($names) > 2 && (stripos($last, 'jr') !== false || stripos($last, 'sr') !== false))
-                $last = $names[count($names) - 2];
-            return $dir.$last.'-'.$first.$ext;
-        }
-        return $dir.'fail.jpg';
+        return response()->json([
+            'status' => 'error',
+            'message' => $message
+        ]);
     }
 
 }

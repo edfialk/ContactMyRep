@@ -3,10 +3,11 @@
 namespace App\Providers\Google;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
+use App\Location;
 use App\Representative;
-use InvalidArgumentException;
 
 /**
 * Google Civic Information API wrapper
@@ -52,6 +53,33 @@ class GoogleAPI
 		);
 	}
 
+	public function division($division)
+	{
+		return $this->async('representatives/'.urlencode($division));
+	}
+
+	public function state($state)
+	{
+		$state = strtolower($state);
+		return $this->async('representatives/'.urlencode('ocd-division/country:us/state:'.$state));
+	}
+	public function cd($state, $cd)
+	{
+		$state = strtolower($state);
+		return $this->async('representatives/'.urlencode('ocd-division/country:us/state:'.$state.'/cd:'.$cd));
+	}
+	public function sldl($state, $sldl)
+	{
+		$state = strtolower($state);
+		return $this->async('representatives/'.urlencode('ocd-division/country:us/state:'.$state.'/sldl:'.$sldl));
+	}
+
+	public function sldu($state, $sldu)
+	{
+		$state = strtolower($state);
+		return $this->async('representatives/'.urlencode('ocd-division/country:us/state:'.$state.'/sldu:'.$sldu));
+	}
+
 	public function divisions($query)
 	{
 		$fields = 'divisions';
@@ -69,15 +97,22 @@ class GoogleAPI
 		return $this->async('representatives?address='.urlencode($address).'&fields='.urlencode($fields));
 	}
 
-	/**
-	 * query api by district
-	 * @param  string  	$state     	2 letter state abbreviation
-	 * @param  integer 	$district  	district number
-	 * @return promise				request promise
-	 */
-	public function district($state, $district)
+	public function update(array $reps)
 	{
-		return $this->async('representatives/'.urlencode('ocd-division/country:us/state:'.$state.'/cd:'.$district));
+		$divisions = [];
+		foreach($reps as $rep){
+			if ( ! empty($rep->division) && ! in_array($rep->division, $divisions))
+				array_push($divisions, $rep->division);
+		}
+        $requests = array_map(function($division){
+        	return GoogleAPI::division($division);
+        }, $divisions);
+        $results = Promise\unwrap($requests);
+
+        return array_collapse(array_map(function($result){
+        	if (!isset($result->reps)) dd($result);
+        	return $result->reps;
+        }, $results));
 	}
 
 	/**
@@ -87,15 +122,6 @@ class GoogleAPI
 	 */
 	public function validate($data)
 	{
-
-		$keys = [
-			'name',
-			'first_name',
-			'last_name',
-			'photoUrl' => 'photo',
-			'party'
-		];
-
 		$response = (object) [
 			'reps' => [],
 			'divisions' => []
@@ -103,12 +129,13 @@ class GoogleAPI
 
 		if (isset($data->normalizedInput)){
 			$l = $data->normalizedInput;
-			$response->location = (object)array(
+			$response->location = (object) array(
 				'city' => ucwords($l->city),
 				'state' => $l->state,
 				'zip' => $l->zip
 			);
 		}
+		if (!isset($data->divisions)) return $response;
 
 		foreach($data->divisions as $k=>$v){
 			$response->divisions[] = $k;
@@ -117,43 +144,73 @@ class GoogleAPI
 		if (!isset($data->offices)) return $response;
 
 		foreach($data->offices as $office){
-			if (!Representative::isValidOffice($office->name))
+			if ( ! Representative::isValidOffice($office->name)){
 				continue;
+			}
 
 			$divisionId = $office->divisionId;
+			$l = divisions_split([$divisionId]);
 
 			foreach($office->officialIndices as $i){
 				$d = $data->officials[$i];
 
-				$rep = Representative::fromData($d, $keys);
+				$d->office = $office->name;
+				$d->division = $divisionId;
+				if (isset($l['state'])) $d->state = $l['state'];
 
-				$rep->office = $office->name;
-				$rep->division = $office->divisionId;
-				$rep->state = $l->state;
+				$rep = Representative::find($d);
+				// if (is_null($rep)) $rep = new Representative((array) $d);
+				if (is_null($rep)) continue; //for now no new reps
 
-				if (isset($d->address) && count($d->address) == 1){
-					$rep->address = $d->address[0];
+				if (in_array('google', $rep->sources)){
+					$response->reps[] = $rep;
+					continue;
 				}
-				if (isset($d->phones) && count($d->phones) == 1){
-					$rep->phone = str_replace(['(', ') '], ['', '-'], $d->phones[0]);
+
+				if (empty($rep->name) && isset($d->name))
+					$rep->name = $d->name;
+				if (empty($rep->party) && isset($d->party))
+					$rep->party = $d->party;
+				if (empty($rep->photo) && isset($d->photoUrl))
+					$rep->photo = $d->photoUrl;
+
+				if (isset($d->phones) && count($d->phones) > 0){
+					$phones = $rep->phones ?? [];
+					foreach($d->phones as &$p){
+						$p = str_replace(['(', ') '], ['', '-'], $p);
+						if (!in_array($p, $phones)) array_push($phones, $p);
+					}
+					$rep->phones = $phones;
+					if (!isset($rep->phone)) $rep->phone = $phones[0];
 				}
-				if (isset($d->urls) && count($d->urls) == 1){
-					$rep->website = $d->urls[0];
+				if (isset($d->urls) && count($d->urls) > 0){
+					$urls = $rep->urls ?? [];
+					foreach($d->urls as $u){
+						if (!in_array($u, $urls)) array_push($urls, $u);
+					}
+					$rep->urls = $urls;
+					if (!isset($rep->website)) $rep->website = $urls[0];
 				}
-				if (isset($d->emails) && count($d->emails) == 1){
-					$rep->email = $d->emails[0];
+				if (isset($d->emails) && count($d->emails) > 0){
+					$emails = $rep->emails ?? [];
+					foreach($d->emails as $e){
+						if (!in_array($e, $emails)) array_push($emails, $e);
+					}
+					$rep->emails = $emails;
+					if (!isset($rep->email)) $rep->email = $emails[0];
 				}
 				if (isset($d->channels)){
 					foreach($d->channels as $c){
 						$key = strtolower($c->type).'_id';
-						$rep->$key = $c->id;
+						if (!isset($rep->$key)) $rep->$key = $c->id;
 					}
 				}
 
+				$rep->addSource('google');
+				$rep->save();
 				$response->reps[] = $rep;
 			}
 		}
-
 		return $response;
 
 	}

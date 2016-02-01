@@ -1,1 +1,1 @@
-{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "contactmyreps.reps", "name" : "_id_" } ] }
+{ "options" : { "flags" : 1 }, "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "contactmyreps.reps", "name" : "_id_" }, { "v" : 1, "key" : { "_fts" : "text", "_ftsx" : 1 }, "ns" : "contactmyreps.reps", "name" : "district_text_division_text_name_text", "weights" : { "district" : 1, "division" : 1, "name" : 1 }, "default_language" : "english", "language_override" : "language", "textIndexVersion" : 1 } ] }

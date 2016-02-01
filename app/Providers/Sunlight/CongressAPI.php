@@ -18,27 +18,12 @@ class CongressAPI
 	protected $client;
 
 	const keys = [
-		'bioguide_id',
-		'district',
-		'facebook_id',
 		'firstname' => 'first_name',
-		'fax',
 		'lastname' => 'last_name',
 		'middlename' => 'middle_name',
-		'name_suffix',
-		'nickname',
 		'ocd_id' => 'division_id',
 		'congress_office' => 'address',
-		'office',
-		'party',
-		'phone',
-		'state',
-		'state_name',
-		'title',
-		'twitter_id',
-		'website',
 		'webform' => 'contact_form',
-		'votesmart_id'
 	];
 
 	public function __construct()
@@ -130,22 +115,23 @@ class CongressAPI
 		$c = count($array);
 		for ($i = 0; $i < $c; $i++){
 			$data = $array[$i];
-			if ($data['in_office'] !== '1'){
+
+			if (isset($data['in_office']) && $data['in_office'] == 0){
 				unset($array[$i]);
 				continue;
 			}
 
-			if (intval($data['district']) === 0){
+			if ($data['district'] === "Junior Seat" || $data['district'] == "Senior Seat"){
 				$data['title'] = 'Senator';
 				$data['office'] = 'Senate';
 			}else{
 				$data['title'] = 'Representative';
 				$data['office'] = 'House of Representatives';
 			}
-			$array[$i] = $data;
+
+			$array[$i] = array_rename($data, self::keys);
 		}
 
 		return array_values($array);
-
 	}
 }

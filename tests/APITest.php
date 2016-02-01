@@ -13,11 +13,20 @@ class APITest extends TestCase
         $this->get('/api/v1/'.$zip)->seeJson();
     }
 
-    public function testGPS()
+    public function testAddress()
     {
         $faker = \Faker\Factory::create();
-        $lat = $faker->latitude();
-        $lng = $faker->longitude();
-        $this->get('/api/v1/'.$lat.'/'.$lng)->seeJson();
+        $add = $faker->streetAddress();
+        $zip = $faker->postcode();
+        $this->get('/api/v1/'.$add.','.$zip)->seeJson();
+    }
+
+    public function testGps()
+    {
+        $faker = \Faker\Factory::create('en_US');
+        $lat = $faker->randomFloat(4,24,51);
+        $lng = $faker->randomFloat(4,-127.62,-66.3);
+        $url = '/api/v1/'.$lat.'/'.$lng;
+        $this->get($url)->seeJson();
     }
 }

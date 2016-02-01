@@ -1,9 +1,9 @@
 <template>
 	<tr>
 		<td><img v-if="item.photo" v-bind:src="item.photo"></td>
-		<td><a href='#'>{{ item.name }} {{ party }}</a></td>
+		<td><a href='/rep/{{ item._id }}'>{{ item.name }} {{ party }}</a></td>
 		<td>{{ item.office }}</td>
-		<td>{{ item.phone ? item.phone : '' }}</td>
+		<td>{{ phone }}</td>
 		<td>{{{ address }}}</td>
 		<td>
 			<a v-if="item.website" href="{{ item.website }}"><i class="fa fa-desktop"></i></a>
@@ -13,6 +13,7 @@
 			<a v-if="item.twitter_id" href="http://twitter.com/{{ item.twitter_id }}"><i class="fa fa-twitter"></i></a>
 			<a v-if="item.google_id" href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-google-plus"></i></a>
 			<a v-if="item.youtube_id" href="http://youtube.com/{{ item.youtube_id }}"><i class="fa fa-youtube"></i></a>
+			<a v-if="role" href="/edit/{{ item._id }}"><i class="fa fa-flag"></i></a>
 		</td>
 	</tr>
 </template>
@@ -21,7 +22,8 @@
 	export default {
 		name: 'Item',
 		props: {
-			item: Object
+			item: Object,
+			role: Boolean
 		},
 		computed: {
 			district() {
@@ -31,18 +33,21 @@
 				return this.item.party ? '[' + this.item.party[0] + ']' : '';
 			},
 			address() {
-				if (!this.item.address) return '';
-				if (typeof this.item.address == "string") return this.item.address;
-				var pieces = [];
-				if (this.item.address.line1) pieces.push(this.item.address.line1);
-				if (this.item.address.line2) pieces.push(this.item.address.line2);
-				if (this.item.address.line3) pieces.push(this.item.address.line3);
-				var street = pieces.join('<br>');
-				var city = this.item.address.city.toLowerCase().replace( /\b\w/g, function (m) {
-            		return m.toUpperCase();
-        		});
-
-				return street + '<br>' + city + ', ' + this.item.address.state + ' ' + this.item.address.zip;
+				if (!this.item.address)
+					return '';
+				if (typeof this.item.address == "string")
+					return this.item.address;
+				return this.item.address.join('<br>');
+			},
+			phone() {
+				var phone = '';
+				if (Array.isArray(this.item.phones))
+					phone = this.item.phones[0];
+				else if (typeof this.item.phone == "string")
+					phone = this.item.phone;
+				phone = phone.replace('(', '');
+				phone = phone.replace(') ', '-');
+				return phone;
 			}
 		}
 	};
