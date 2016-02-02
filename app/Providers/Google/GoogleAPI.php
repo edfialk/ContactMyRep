@@ -137,7 +137,7 @@ class GoogleAPI
 			);
 			if (!empty($city) && !empty($l->zip)){
 				$location = Location::where('zip', intval($l->zip))->first();
-				if (!is_null){
+				if (!is_null($location)){
 					$location->city = $city;
 					$location->save();
 				}
