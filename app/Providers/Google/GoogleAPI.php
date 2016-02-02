@@ -129,12 +129,21 @@ class GoogleAPI
 
 		if (isset($data->normalizedInput)){
 			$l = $data->normalizedInput;
+			$city = ucwords($l->city);
 			$response->location = (object) array(
-				'city' => ucwords($l->city),
+				'city' => $city,
 				'state' => $l->state,
 				'zip' => $l->zip
 			);
+			if (!empty($city) && !empty($l->zip)){
+				$location = Location::where('zip', intval($l->zip))->first();
+				if (!is_null){
+					$location->city = $city;
+					$location->save();
+				}
+			}
 		}
+
 		if (!isset($data->divisions)) return $response;
 
 		foreach($data->divisions as $k=>$v){
@@ -177,11 +186,11 @@ class GoogleAPI
 					$new = [];
 					$a = $d->address;
 					if (is_array($a)) $a = $a[0];
-					if (!empty($a->line1)) $new[] = $a->line1;
-					if (!empty($a->line2)) $new[] = $a->line2;
-					if (!empty($a->line3)) $new[] = $a->line3;
+					if (!empty($a->line1)) $new[] = ucwords($a->line1);
+					if (!empty($a->line2)) $new[] = ucwords($a->line2);
+					if (!empty($a->line3)) $new[] = ucwords($a->line3);
 					if (!empty($a->city) && !empty($a->state) && !empty($a->zip))
-						$new[] = ucwords($a->city).', '.$a->state.' '.$a->zip;
+						$new[] = $a->city.', '.$a->state.' '.$a->zip;
 					$rep->address = $new;
 				}
 

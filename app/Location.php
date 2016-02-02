@@ -66,6 +66,7 @@ class Location extends Eloquent
     protected $collection = 'locations';
     protected $pimaryKey = '_id';
     protected $hidden = ['_id'];
+    protected $fillable = ['city','state','zip'];
 
     public $timestamps = false;
 

@@ -180,6 +180,11 @@ class Representative extends Eloquent
         }
     }
 
+    public function setAddressAttribute($val)
+    {
+        $val = is_array($val) ? array_map('ucwords', $val) : [ucwords($val)];
+        $this->attributes['address'] = $val;
+    }
 	/**
 	 * ensure state abbreviation is always 2 digit caps
 	 * @param string $val state abbreviation
