@@ -11178,7 +11178,7 @@ exports.insert = function (css) {
 }
 
 },{}],8:[function(require,module,exports){
-var __vueify_style__ = require("vueify-insert-css").insert("\n\timg {\n\t\tmax-width: 100px;\n\t}\n")
+var __vueify_style__ = require("vueify-insert-css").insert("\n\timg {\n\t\tmax-width: 100%;\n\t\tmargin: 0 auto;\n\t}\n\t.results .row {\n\t\tpadding-top: 10px;\n\t\tpadding-bottom: 10px;\n\t}\n\t.results .row:nth-of-type(odd) {\n\t\tbackground: #DEE1EA;\n\t}\n\t.name {\n\t\tfont-size: 20px;\n\t\tfont-weight: bold;\n\t\tmargin-bottom: 5px;\n\t}\n\t.office {\n\t\tfont-size: 18px;\n\t}\n")
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11212,14 +11212,14 @@ exports.default = {
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<tr>\n\t\t<td><img v-if=\"item.photo\" v-bind:src=\"item.photo\"></td>\n\t\t<td><a href=\"/rep/{{ item._id }}\">{{ item.name }} {{ party }}</a></td>\n\t\t<td>{{ item.office }}</td>\n\t\t<td>{{ phone }}</td>\n\t\t<td>{{{ address }}}</td>\n\t\t<td>\n\t\t\t<a v-if=\"item.website\" href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i></a>\n\t\t\t<a v-if=\"item.contact_form\" href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.email\" href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i></a>\n\t\t\t<a v-if=\"item.facebook_id\" href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i></a>\n\t\t\t<a v-if=\"item.twitter_id\" href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i></a>\n\t\t\t<a v-if=\"item.google_id\" href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i></a>\n\t\t\t<a v-if=\"item.youtube_id\" href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i></a>\n\t\t\t<a v-if=\"role\" href=\"/edit/{{ item._id }}\"><i class=\"fa fa-flag\"></i></a>\n\t\t</td>\n\t</tr>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<div class=\"row\">\n\t\t<div class=\"col-xs-2 text-center\">\n\t\t\t<img v-if=\"item.photo\" v-bind:src=\"item.photo\">\n\t\t</div>\n\t\t<div class=\"col-xs-4\">\n\t\t\t<p class=\"name\"><a href=\"/rep/{{ item._id }}\">{{ item.name }} {{ party }}</a></p>\n\t\t\t<p class=\"office\">{{ item.office }}</p>\n\t\t\t<p v-if=\"phone\">Office Phone: {{ phone }}</p>\n\t\t\t<address v-if=\"address\">Address:<br>{{{ address }}}</address>\n\t\t</div>\n\t\t<div class=\"col-xs-6 item-links\">\n\t\t\t<p v-if=\"item.website\"><a href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i> Homepage</a></p>\n\t\t\t<p v-if=\"item.contact_form\"><a href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i> Email</a></p>\n\t\t\t<p v-if=\"item.email\"><a href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i> Email</a></p>\n\t\t\t<p v-if=\"item.facebook_id\"><a href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i> Facebook.com/{{ item.facebook_id }}</a></p>\n\t\t\t<p v-if=\"item.twitter_id\"><a href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i> @{{ item.twitter_id }}</a></p>\n\t\t\t<p v-if=\"item.google_id\"><a href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i> {{ item.google_id }}</a></p>\n\t\t\t<p v-if=\"item.youtube_id\"><a href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i> {{ item.youtube_id }}</a></p>\n\t\t\t<p v-if=\"role\"><a href=\"/edit/{{ item._id }}\"><i class=\"fa fa-flag\"></i> Edit</a></p>\n\t\t</div>\n\t</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   var id = "E:\\GreatWorks\\homestead\\ContactMyReps\\resources\\assets\\js\\components\\item.vue"
   module.hot.dispose(function () {
-    require("vueify-insert-css").cache["\n\timg {\n\t\tmax-width: 100px;\n\t}\n"] = false
+    require("vueify-insert-css").cache["\n\timg {\n\t\tmax-width: 100%;\n\t\tmargin: 0 auto;\n\t}\n\t.results .row {\n\t\tpadding-top: 10px;\n\t\tpadding-bottom: 10px;\n\t}\n\t.results .row:nth-of-type(odd) {\n\t\tbackground: #DEE1EA;\n\t}\n\t.name {\n\t\tfont-size: 20px;\n\t\tfont-weight: bold;\n\t\tmargin-bottom: 5px;\n\t}\n\t.office {\n\t\tfont-size: 18px;\n\t}\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -11257,7 +11257,7 @@ _vue2.default.filter('search', {
 });
 
 var vm = new _vue2.default({
-	el: '.container',
+	el: '.home',
 	components: {
 		Item: _item2.default
 	},
@@ -11283,6 +11283,11 @@ var vm = new _vue2.default({
 				this.query = val.lat + '/' + val.lng;
 				this.fetch();
 			}
+		}
+	},
+	computed: {
+		hasResults: function hasResults() {
+			return this.reps.length > 0;
 		}
 	},
 	created: function created() {

@@ -146,16 +146,14 @@ class GoogleAPI
 
 		if (!isset($data->divisions)) return $response;
 
-		foreach($data->divisions as $k=>$v){
-			$response->divisions[] = $k;
-		}
+		$response->divisions = array_keys( (array) $data->divisions );
 
 		if (!isset($data->offices)) return $response;
 
 		foreach($data->offices as $office){
-			if ( ! Representative::isValidOffice($office->name)){
+			if ( ! Representative::isValidOffice($office->name))
 				continue;
-			}
+
 			$divisionId = $office->divisionId;
 			$l = divisions_split([$divisionId]);
 

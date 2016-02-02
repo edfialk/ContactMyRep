@@ -15,7 +15,7 @@ Vue.filter('search', {
 });
 
 var vm = new Vue({
-	el: '.container',
+	el: '.home',
 	components: {
 		Item,
 	},
@@ -41,6 +41,11 @@ var vm = new Vue({
 				this.query = val.lat+'/'+val.lng;
 				this.fetch();
 			}
+		}
+	},
+	computed: {
+		hasResults() {
+			return this.reps.length > 0;
 		}
 	},
 	created() {
