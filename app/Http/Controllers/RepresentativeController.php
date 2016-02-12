@@ -154,12 +154,14 @@ class RepresentativeController extends Controller
             }
         }
 
+        //search by name
         $reps = Representative::aliases($query)->orderBy('name')->get()->all();
         if (count($reps) > 0){
             $res->reps = $reps;
             return response()->json($res);
         }
 
+        //no results
         $res->reps = [];
         return response()->json($res);
 
