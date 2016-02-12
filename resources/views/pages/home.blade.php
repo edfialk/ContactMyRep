@@ -28,7 +28,7 @@
 									<input type="text" id="input" v-model="query | search" class="form-control">
 									<span class="input-group-btn"><button class="btn btn-default" type="button"><i class="fa fa-search"></i></button></span>
 								</div>
-								<p class="help-block">Popular searches: <a href='/90210'>90210</a>, <a href='/Virginia'>Virginia</a>, Niccki Haley</p>
+								<p class="help-block">Popular searches: <a href='/90210'>90210</a>, <a href='/Virginia'>Virginia</a>, <a href='/Nikki Haley'>Nikki Haley</a></p>
 							</form>
 							<div class="col-xs-4 col-md-3">
 								<span class="hidden-xs pr30">OR</span>

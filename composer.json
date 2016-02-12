@@ -9,8 +9,8 @@
         "laravel/framework": "5.1.*",
         "guzzlehttp/guzzle": "~6.0",
         "intervention/image": "dev-master",
-        "jenssegers/mongodb": "dev-pecl-mongodb",
-        "mongodb/mongodb": "^1.0.0@beta"
+        "mongodb/mongodb": "^1.0.0@beta",
+        "jenssegers/mongodb": "^3.0.0-beta"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

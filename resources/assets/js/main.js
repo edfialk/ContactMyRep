@@ -49,9 +49,7 @@ var vm = new Vue({
 		}
 	},
 	created() {
-		window.onpopstate = function(e){
-			this.init();
-		}.bind(this);
+		window.onpopstate = this.init;
 		this.init();
 	},
 	methods: {
@@ -66,7 +64,6 @@ var vm = new Vue({
 					this.gps.lat = gps[0];
 					this.gps.lng = gps[1];
 					this.query = this.gps.lat + '/' + this.gps.lng;
-					this.gpsFetch = true;
 					this.fetch();
 				}
 			}
@@ -74,7 +71,6 @@ var vm = new Vue({
 		},
 		search(event) {
 			event.preventDefault();
-			this.gpsFetch = false;
 			this.fetch();
 			history.pushState({}, '', '/'+this.query);
 		},
@@ -93,6 +89,7 @@ var vm = new Vue({
 		        var body = res.body;
 		    	if (body.status == "error"){
 		    		this.status = body.message;
+		    		return;
 		    	}
 
 		        this.reps = body.reps;

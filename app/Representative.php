@@ -2,7 +2,10 @@
 
 namespace App;
 
-use Jenssegers\Mongodb\Model as Eloquent;
+use MongoDB\Client;
+use MongoDB\BSON\Regex as MongoRegex;
+use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
+
 
 class Representative extends Eloquent
 {
@@ -237,6 +240,11 @@ class Representative extends Eloquent
     	return array_search($temp->office, array_keys(self::offices)) !== false;
     }
 
+    public function scopeAliases($query, $name)
+    {
+        $reg = new MongoRegex($name, 'gi');
+        return $query->whereIn('aliases', array($reg))->orWhere('name', 'like', '%'.$name.'%');
+    }
     public function scopeState($query, $state)
     {
     	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state))->get()->all();

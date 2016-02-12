@@ -11217,7 +11217,7 @@ if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
-  var id = "E:\\GreatWorks\\homestead\\ContactMyReps\\resources\\assets\\js\\components\\item.vue"
+  var id = "/home/vagrant/Code/ContactMyReps/resources/assets/js/components/item.vue"
   module.hot.dispose(function () {
     require("vueify-insert-css").cache["\n\timg {\n\t\tmax-width: 100%;\n\t\tmargin: 0 auto;\n\t}\n\t.results .row {\n\t\tpadding-top: 10px;\n\t\tpadding-bottom: 10px;\n\t}\n\t.results .row:nth-of-type(odd) {\n\t\tbackground: #DEE1EA;\n\t}\n\t.name {\n\t\tfont-size: 20px;\n\t\tfont-weight: bold;\n\t\tmargin-bottom: 5px;\n\t}\n\t.office {\n\t\tfont-size: 18px;\n\t}\n"] = false
     document.head.removeChild(__vueify_style__)
@@ -11291,9 +11291,7 @@ var vm = new _vue2.default({
 		}
 	},
 	created: function created() {
-		window.onpopstate = (function (e) {
-			this.init();
-		}).bind(this);
+		window.onpopstate = this.init;
 		this.init();
 	},
 
@@ -11310,7 +11308,6 @@ var vm = new _vue2.default({
 					this.gps.lat = gps[0];
 					this.gps.lng = gps[1];
 					this.query = this.gps.lat + '/' + this.gps.lng;
-					this.gpsFetch = true;
 					this.fetch();
 				}
 			}
@@ -11318,7 +11315,6 @@ var vm = new _vue2.default({
 		},
 		search: function search(event) {
 			event.preventDefault();
-			this.gpsFetch = false;
 			this.fetch();
 			history.pushState({}, '', '/' + this.query);
 		},
@@ -11339,6 +11335,7 @@ var vm = new _vue2.default({
 				var body = res.body;
 				if (body.status == "error") {
 					_this.status = body.message;
+					return;
 				}
 
 				_this.reps = body.reps;

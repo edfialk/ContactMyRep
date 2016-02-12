@@ -40,7 +40,9 @@ class RepresentativeController extends Controller
      */
     public function view(Request $request)
     {
-        $request->session()->put('backUrl', $request->fullUrl());
+        if (\Auth::check())
+            $request->session()->put('backUrl', $request->fullUrl()); //for post edit redirect
+
         return view('pages.home');
     }
 
@@ -118,6 +120,51 @@ class RepresentativeController extends Controller
         return response()->json($resp);
     }
 
+    public function query($query)
+    {
+        $res = new \stdClass();
+
+        //check if query is a state
+        $states = Location::states;
+        $state_names = array_map('strtolower', array_values($states));
+        $state_abbrevs = array_keys($states);
+
+        if (in_array(strtolower($query), $state_names)){
+            $state = $state_abbrevs[array_search(strtolower($query), $state_names)];
+        }else if (in_array(strtoupper($query), $state_abbrevs)){
+            $state = strtoupper($query);
+        }
+
+        if (isset($state)){
+            $res->reps = Representative::state($state);
+            $res->location = (object) [
+                'state' => $state,
+                'state_name' => Location::states[$state]
+            ];
+            $res->reps[] = Representative::where('office','President')->first();
+            usort($res->reps, 'rankSort');
+            return response()->json($res);
+        }
+
+        //if query has a number, try address
+        if (preg_match('/[0-9]/', $query)){
+            $address = $this->address($query);
+            if (count($address->getData()->reps) > 0){
+                return $address;
+            }
+        }
+
+        $reps = Representative::aliases($query)->orderBy('name')->get()->all();
+        if (count($reps) > 0){
+            $res->reps = $reps;
+            return response()->json($res);
+        }
+
+        $res->reps = [];
+        return response()->json($res);
+
+    }
+
     /**
      * Query by address
      * @param  string $address any google-able address (street + zip, state, zip, etc.)
@@ -157,24 +204,33 @@ class RepresentativeController extends Controller
         return $this->gps($gps->lat, $gps->lng);
     }
 
+    /**
+     * GET /{$id}
+     */
     public function show($id)
     {
         return Representative::where('_id',$id)->first();
     }
 
+    /**
+     * GET /edit/{$id}
+     */
     public function edit($id)
     {
         $q = Representative::where('_id',$id)->first();
-        // dd($q->getAttributes());
         return view('pages.edit', ['rep' => $q] );
     }
 
+    /**
+     * POST /edit/{$id}
+     */
     public function store(Request $request, $id)
     {
         $q = Representative::where('_id',$id)->first();
         if (is_null($q)){
-            return $this->error("can't find rep");
+            return $this->error("no representative with id: $id");
         }
+        //todo: validator
         foreach($request->all() as $key=>$value){
             if ($key == '_token') continue;
             if (is_array($value)){
@@ -194,6 +250,7 @@ class RepresentativeController extends Controller
 
         return redirect('/')->with('status', 'Saved!');
     }
+
     /**
      * give json error
      * @param  array $results api response data
