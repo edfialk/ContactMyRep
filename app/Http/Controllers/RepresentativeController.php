@@ -212,6 +212,9 @@ class RepresentativeController extends Controller
         //todo: validator
         foreach($request->all() as $key=>$value){
             if ($key == '_token') continue;
+            if ($key == 'clear_reports' && $value === 'yes'){
+                $q->reports()->delete();
+            }
             if (is_array($value)){
                 $value = array_filter($value, function($a){
                     return !empty($a);

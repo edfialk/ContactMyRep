@@ -196,6 +196,19 @@
 					</div>
 				</div>
 			</div>
+
+			@if ($rep->reports()->count() > 0)
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" name="clear_reports" value="yes"> This Representative has been flagged for review! Clear these flags on save?
+							</label>
+						</div>
+					</div>
+				</div>
+			@endif
+
 			<div class="form-group">
 				<div class="col-lg-12">
 					<button type="submit" class="btn btn-success btn-block">Submit</button>
