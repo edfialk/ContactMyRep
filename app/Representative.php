@@ -240,7 +240,7 @@ class Representative extends Eloquent
     	return array_search($temp->office, array_keys(self::offices)) !== false;
     }
 
-    public function scopeAliases($query, $name)
+    public function scopeName($query, $name)
     {
         $reg = new MongoRegex($name, 'gi');
         return $query->whereIn('aliases', array($reg))->orWhere('name', 'like', '%'.$name.'%');

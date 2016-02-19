@@ -154,8 +154,7 @@ class RepresentativeController extends Controller
             }
         }
 
-        //search by name
-        $reps = Representative::aliases($query)->orderBy('name')->get()->all();
+        $reps = Representative::name($query)->orderBy('name')->get()->all();
         if (count($reps) > 0){
             $res->reps = $reps;
             return response()->json($res);
@@ -174,29 +173,6 @@ class RepresentativeController extends Controller
      */
     public function address($address)
     {
-        $resp = new \stdClass;
-
-        //check if address is state -> get abbreviation
-        $states = Location::states;
-        $state_names = array_map('strtolower', array_values($states));
-        $state_abbrevs = array_keys($states);
-
-        if (in_array(strtolower($address), $state_names))
-            $state = $state_abbrevs[array_search(strtolower($address), $state_names)];
-        else if (in_array(strtoupper($address), $state_abbrevs))
-            $state = strtoupper($address);
-
-        if (isset($state)){
-            $resp->reps = Representative::state($state);
-            $resp->location = (object) [
-                'state' => $state,
-                'state_name' => Location::states[$state]
-            ];
-            $resp->reps[] = Representative::where('office','President')->first();
-            usort($resp->reps, 'rankSort');
-            return response()->json($resp);
-        }
-
         $geo = GoogleAPI::geocode($address);
         if (count($geo->results) == 0){
             return $this->error('No results.');
@@ -255,7 +231,7 @@ class RepresentativeController extends Controller
 
     /**
      * give json error
-     * @param  array $results api response data
+     * @param  string $error message
      * @return json
      */
     public function error($message)
