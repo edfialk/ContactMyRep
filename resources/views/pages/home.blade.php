@@ -40,26 +40,6 @@
 			</div>
 		</div>
 
-	<!--
-		<div class="row search">
-			<form v-on:submit="search" class="col-sm-12">
-				<div class="row form-group">
-					<input type="text" id="input" v-model="query | search" placeholder="Zip code or address" class="col-sm-12 text-center form-control">
-				</div>
-				<div class="row form-group">
-					<div class="status-wrapper col-sm-12 text-center" v-show="status.length > 0" transition="fade" style="display: none;">
-						<span class="status red accent-1 z-depth-1" v-text="status"></span>
-					</div>
-				</div>
-				<div class="row form-group">
-					<div class="input-field col-sm-12 text-center">
-						<input type="submit" class="btn btn-success btn-lg" value="Search">
-						<input type="button" class="enable-geo btn btn-success btn-lg" value="Use my location" v-on:click="locate">
-					</div>
-				</div>
-			</form>
-		</div> -->
-
 		<div class="row location">
 			<div class="col-sm-12 text-center">
 				<h4 v-show="hasResults">
@@ -70,8 +50,6 @@
 				</h4>
 			</div>
 		</div>
-<!-- 	</div>
-<div class="container"> -->
 		<div class="row results">
 		  	<div class="col-sm-6 col-sm-offset-3" v-show="loading">
 				<div class="progress progress-striped active">
