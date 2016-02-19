@@ -2,12 +2,11 @@
 
 namespace App;
 
-use MongoDB\Client;
 use MongoDB\BSON\Regex as MongoRegex;
-use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
+use Jenssegers\Mongodb\Eloquent\Model as Model;
 
 
-class Representative extends Eloquent
+class Representative extends Model
 {
 
 	const offices = [ // in display order
@@ -88,6 +87,11 @@ class Representative extends Eloquent
     	$this->setPhoto();
 
     	parent::save();
+    }
+
+    public function reports()
+    {
+        return $this->hasMany('App\Report');
     }
 
     /**

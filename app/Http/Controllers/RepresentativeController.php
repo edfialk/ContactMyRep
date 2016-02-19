@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use GuzzleHttp\Promise;
 use App\Location;
 use App\Representative;
+use App\Report;
 use App\Providers\IPInfo\IPInfo;
 use GoogleAPI;
 use CongressAPI;
@@ -229,6 +230,20 @@ class RepresentativeController extends Controller
         return redirect('/')->with('status', 'Saved!');
     }
 
+    /**
+     * GET /rep/{id}/flag
+     */
+    public function flag(Request $request, $id)
+    {
+        $rep = Representative::where('_id', $id)->first();
+        if (is_null($rep)){
+            return $this->error("no representative with id: $id");
+        }
+
+        $rep->reports()->create([
+            'text' => $request->input('text', '')
+        ]);
+    }
     /**
      * give json error
      * @param  string $error message
