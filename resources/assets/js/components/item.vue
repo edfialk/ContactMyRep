@@ -18,12 +18,14 @@
 			<p v-if="item.google_id"><a href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-google-plus"></i> {{ item.google_id }}</a></p>
 			<p v-if="item.youtube_id"><a href="http://youtube.com/{{ item.youtube_id }}"><i class="fa fa-youtube"></i> {{ item.youtube_id }}</a></p>
 			<p v-if="role"><a href="/edit/{{ item._id }}"><i class="fa fa-flag"></i> Edit</a></p>
-			<p v-else><a href="/rep/{{ item._id }}/flag"><i class="fa fa-flag"></i> Report for review</a></p>
+			<p v-else><a v-on:click="flag" href="#"><i class="fa fa-flag"></i> Report for review</a></p>
 		</div>
 	</div>
 </template>
 
 <script>
+	import request from 'superagent';
+
 	export default {
 		name: 'Item',
 		props: {
@@ -53,6 +55,13 @@
 				phone = phone.replace('(', '');
 				phone = phone.replace(') ', '-');
 				return phone;
+			}
+		},
+		methods: {
+			flag(e) {
+				e.preventDefault();
+		    	request('/rep/' + this.item._id + '/flag', (err, res) => {});
+				$(e.target).replaceWith('<p>Thanks!</p>');
 			}
 		}
 	};

@@ -11184,6 +11184,13 @@ var __vueify_style__ = require("vueify-insert-css").insert("\n\timg {\n\t\tmax-w
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+
+var _superagent = require('superagent');
+
+var _superagent2 = _interopRequireDefault(_superagent);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 exports.default = {
 	name: 'Item',
 	props: {
@@ -11209,10 +11216,17 @@ exports.default = {
 			phone = phone.replace(') ', '-');
 			return phone;
 		}
+	},
+	methods: {
+		flag: function flag(e) {
+			e.preventDefault();
+			(0, _superagent2.default)('/rep/' + this.item._id + '/flag', function (err, res) {});
+			$(e.target).replaceWith('<p>Thanks!</p>');
+		}
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<div class=\"row\">\n\t\t<div class=\"col-xs-2 text-center\">\n\t\t\t<img v-if=\"item.photo\" v-bind:src=\"item.photo\">\n\t\t</div>\n\t\t<div class=\"col-xs-4\">\n\t\t\t<p class=\"name\"><a href=\"/rep/{{ item._id }}\">{{ item.name }} {{ party }}</a></p>\n\t\t\t<p class=\"office\">{{ item.office }}</p>\n\t\t\t<p v-if=\"phone\">Office Phone: {{ phone }}</p>\n\t\t\t<address v-if=\"address\">Address:<br>{{{ address }}}</address>\n\t\t</div>\n\t\t<div class=\"col-xs-6 item-links\">\n\t\t\t<p v-if=\"item.website\"><a href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i> Homepage</a></p>\n\t\t\t<p v-if=\"item.contact_form\"><a href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i> Email</a></p>\n\t\t\t<p v-if=\"item.email\"><a href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i> Email</a></p>\n\t\t\t<p v-if=\"item.facebook_id\"><a href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i> Facebook.com/{{ item.facebook_id }}</a></p>\n\t\t\t<p v-if=\"item.twitter_id\"><a href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i> @{{ item.twitter_id }}</a></p>\n\t\t\t<p v-if=\"item.google_id\"><a href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i> {{ item.google_id }}</a></p>\n\t\t\t<p v-if=\"item.youtube_id\"><a href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i> {{ item.youtube_id }}</a></p>\n\t\t\t<p v-if=\"role\"><a href=\"/edit/{{ item._id }}\"><i class=\"fa fa-flag\"></i> Edit</a></p>\n\t\t\t<p v-else=\"\"><a href=\"/rep/{{ item._id }}/flag\"><i class=\"fa fa-flag\"></i> Report for review</a></p>\n\t\t</div>\n\t</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n\t<div class=\"row\">\n\t\t<div class=\"col-xs-2 text-center\">\n\t\t\t<img v-if=\"item.photo\" v-bind:src=\"item.photo\">\n\t\t</div>\n\t\t<div class=\"col-xs-4\">\n\t\t\t<p class=\"name\"><a href=\"/rep/{{ item._id }}\">{{ item.name }} {{ party }}</a></p>\n\t\t\t<p class=\"office\">{{ item.office }}</p>\n\t\t\t<p v-if=\"phone\">Office Phone: {{ phone }}</p>\n\t\t\t<address v-if=\"address\">Address:<br>{{{ address }}}</address>\n\t\t</div>\n\t\t<div class=\"col-xs-6 item-links\">\n\t\t\t<p v-if=\"item.website\"><a href=\"{{ item.website }}\"><i class=\"fa fa-desktop\"></i> Homepage</a></p>\n\t\t\t<p v-if=\"item.contact_form\"><a href=\"{{ item.contact_form }}\"><i class=\"fa fa-envelope\"></i> Email</a></p>\n\t\t\t<p v-if=\"item.email\"><a href=\"mailto:{{ item.email }}\"><i class=\"fa fa-envelope\"></i> Email</a></p>\n\t\t\t<p v-if=\"item.facebook_id\"><a href=\"http://facebook.com/{{ item.facebook_id }}\"><i class=\"fa fa-facebook-official\"></i> Facebook.com/{{ item.facebook_id }}</a></p>\n\t\t\t<p v-if=\"item.twitter_id\"><a href=\"http://twitter.com/{{ item.twitter_id }}\"><i class=\"fa fa-twitter\"></i> @{{ item.twitter_id }}</a></p>\n\t\t\t<p v-if=\"item.google_id\"><a href=\"http://plus.google.com/{{ item.google_id }}\"><i class=\"fa fa-google-plus\"></i> {{ item.google_id }}</a></p>\n\t\t\t<p v-if=\"item.youtube_id\"><a href=\"http://youtube.com/{{ item.youtube_id }}\"><i class=\"fa fa-youtube\"></i> {{ item.youtube_id }}</a></p>\n\t\t\t<p v-if=\"role\"><a href=\"/edit/{{ item._id }}\"><i class=\"fa fa-flag\"></i> Edit</a></p>\n\t\t\t<p v-else=\"\"><a v-on:click=\"flag\" href=\"#\"><i class=\"fa fa-flag\"></i> Report for review</a></p>\n\t\t</div>\n\t</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -11228,7 +11242,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":6,"vue-hot-reload-api":5,"vueify-insert-css":7}],9:[function(require,module,exports){
+},{"superagent":4,"vue":6,"vue-hot-reload-api":5,"vueify-insert-css":7}],9:[function(require,module,exports){
 'use strict';
 
 var _vue = require('vue');
