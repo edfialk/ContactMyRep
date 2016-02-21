@@ -1,10 +1,8 @@
 import Vue from 'vue';
 import request from 'superagent';
-
 import Item from './components/item.vue';
 
 Vue.config.debug = true;
-
 Vue.filter('search', {
 	read: function(val){
 		return '';
@@ -15,37 +13,38 @@ Vue.filter('search', {
 });
 
 var vm = new Vue({
-	el: '.home',
+	el: '#home',
 	components: {
 		Item,
 	},
 	data: {
 		loading: false,
 		query: null,
-		zip: null,
-		city: null,
-		state: null,
-		gps: {
-			lat: null,
-			lng: null
-		},
+		queryType: null,
+		location: null,
 		reps: [],
 		districts: [],
 		status: '',
 		apiroot: '/api/v1/',
 		role: null,
 	},
-	watch: {
-		'gps': function(val, oldVal){
-			if (val.lat && val.lng){
-				this.query = val.lat+'/'+val.lng;
-				this.fetch();
-			}
-		}
-	},
 	computed: {
 		hasResults() {
 			return this.reps.length > 0;
+		},
+		printSearch() {
+			let l = this.location;
+			if (!l)
+				return decodeURIComponent(this.query);
+			if (l.city && l.state_name)
+				return l.city + ', ' + l.state_name;
+			if (l.address && l.zip)
+				return l.address + ', ' + l.zip;
+			if (l.zip && l.state_name)
+				return l.zip + ' - ' + l.state_name;
+			if (l.state_name)
+				return l.state_name;
+			return '';
 		}
 	},
 	created() {
@@ -56,28 +55,25 @@ var vm = new Vue({
 		init() {
 			if (this.getUrlQuery().length > 1){ //root is '/'
 				this.query = this.getUrlQuery()
+				this.queryType = "search";
 				this.fetch();
-			}else{
-				var gps = document.getElementById('gps');
-				if (gps){
-					gps = gps.value.split(',');
-					this.gps.lat = gps[0];
-					this.gps.lng = gps[1];
-					this.query = this.gps.lat + '/' + this.gps.lng;
-					this.fetch();
-				}
+			}else if (ipinfo && ipinfo.loc){
+				let gps = ipinfo.loc.split(',');
+				this.query = gps[0] + '/' + gps[1];
+				this.fetch();
 			}
-			this.role = (document.getElementById('role') !== null);
+			this.role = document.getElementById('role') !== null;
 		},
-		search(event) {
-			event.preventDefault();
+		search(e) {
+			e.preventDefault();
+			this.queryType = "search";
 			this.fetch();
-			history.pushState({}, '', '/'+this.query);
+			history.pushState({}, '', '/' + this.query);
 		},
 		fetch() {
 		    this.status = '';
 		    this.loading = true;
-		    console.log('fetching: ' + this.query);
+		    this.reps = [];
 		    request(this.apiroot + this.query, (err, res) => {
 		        this.loading = false;
 
@@ -86,32 +82,24 @@ var vm = new Vue({
 		    		return;
 		    	}
 
-		        var body = res.body;
+		        let body = res.body;
 		    	if (body.status == "error"){
 		    		this.status = body.message;
 		    		return;
 		    	}
 
 		        this.reps = body.reps;
-		        if (body.location) {
-		            this.zip = body.location.zip;
-		            this.city = body.location.city;
-		            this.state = body.location.state;
-		        }else{
-		        	this.zip = null;
-		        	this.city = null;
-		        	this.state = null;
-		        }
+		        this.location = body.location;
 		    });
 		},
 		locate() {
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition( position => {
-					this.gps = {
-				    	lat: position.coords.latitude,
-				    	lng: position.coords.longitude
-			  		};
-			  		history.pushState({}, '', '/');
+					let {latitude, longitude} = position.coords;
+					this.query = latitude+'/'+longitude;
+					this.queryType = "gps";
+			  		history.pushState({}, '', '/'+this.query);
+					this.fetch();
 				}, () => {
 					this.status = 'You must accept location permissions to use your current location.';
 				});

@@ -40,20 +40,20 @@
 				return this.item.party ? '[' + this.item.party[0] + ']' : '';
 			},
 			address() {
-				if (!this.item.address)
-					return '';
-				if (typeof this.item.address == "string")
-					return this.item.address;
-				return this.item.address.join('<br>');
+				let a = this.item.address;
+				if (typeof a == "string")
+					return a;
+				if (Array.isArray(a))
+					return a.join('<br>');
+				return '';
 			},
 			phone() {
-				var phone = '';
-				if (Array.isArray(this.item.phones))
-					phone = this.item.phones[0];
-				else if (typeof this.item.phone == "string")
+				let phone = '';
+				if (typeof this.item.phone == "string")
 					phone = this.item.phone;
-				phone = phone.replace('(', '');
-				phone = phone.replace(') ', '-');
+				else if (Array.isArray(this.item.phones))
+					phone = this.item.phones[0];
+				phone = phone.replace('(', '').replace(') ', '-');
 				return phone;
 			}
 		},

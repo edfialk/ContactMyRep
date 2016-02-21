@@ -24,7 +24,7 @@ class RepresentativeController extends Controller
     public function index(Request $request)
     {
         $ip = $request->ip();
-
+return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
         if (
             filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)
             && stripos($request->header('User-Agent'), 'mobi') === false
@@ -115,8 +115,12 @@ class RepresentativeController extends Controller
         usort($reps, 'rankSort');
 
         $resp->reps = $reps;
-        if (isset($results[0]->location))
+        if (isset($results[0]->location)){
             $resp->location = $results[0]->location;
+
+            if (isset($resp->location->state))
+                $resp->location->state_name = Location::states[$resp->location->state];
+        }
 
         return response()->json($resp);
     }

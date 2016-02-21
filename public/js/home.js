@@ -11260,7 +11260,6 @@ var _item2 = _interopRequireDefault(_item);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 _vue2.default.config.debug = true;
-
 _vue2.default.filter('search', {
 	read: function read(val) {
 		return '';
@@ -11271,7 +11270,7 @@ _vue2.default.filter('search', {
 });
 
 var vm = new _vue2.default({
-	el: '.home',
+	el: '#home',
 	components: {
 		Item: _item2.default
 	},
@@ -11290,11 +11289,14 @@ var vm = new _vue2.default({
 		hasResults: function hasResults() {
 			return this.reps.length > 0;
 		},
-		printLocation: function printLocation() {
-			if (this.queryType == "gps") {
-				return this.location.city + ', ' + this.location.state;
-			}
-			return 'location';
+		printSearch: function printSearch() {
+			var l = this.location;
+			if (!l) return decodeURIComponent(this.query);
+			if (l.city && l.state_name) return l.city + ', ' + l.state_name;
+			if (l.address && l.zip) return l.address + ', ' + l.zip;
+			if (l.zip && l.state_name) return l.zip + ' - ' + l.state_name;
+			if (l.state_name) return l.state_name;
+			return '';
 		}
 	},
 	created: function created() {
@@ -11309,20 +11311,15 @@ var vm = new _vue2.default({
 				this.query = this.getUrlQuery();
 				this.queryType = "search";
 				this.fetch();
-			} else {
-				var gps = document.getElementById('gps');
-				if (gps) {
-					gps = gps.value.split(',');
-					this.gps.lat = gps[0];
-					this.gps.lng = gps[1];
-					this.query = this.gps.lat + '/' + this.gps.lng;
-					this.fetch();
-				}
+			} else if (ipinfo && ipinfo.loc) {
+				var gps = ipinfo.loc.split(',');
+				this.query = gps[0] + '/' + gps[1];
+				this.fetch();
 			}
 			this.role = document.getElementById('role') !== null;
 		},
-		search: function search(event) {
-			event.preventDefault();
+		search: function search(e) {
+			e.preventDefault();
 			this.queryType = "search";
 			this.fetch();
 			history.pushState({}, '', '/' + this.query);
@@ -11332,7 +11329,7 @@ var vm = new _vue2.default({
 
 			this.status = '';
 			this.loading = true;
-			console.log('fetching: ' + this.query);
+			this.reps = [];
 			(0, _superagent2.default)(this.apiroot + this.query, function (err, res) {
 				_this.loading = false;
 
@@ -11379,4 +11376,4 @@ var vm = new _vue2.default({
 
 },{"./components/item.vue":8,"superagent":4,"vue":6}]},{},[9]);
 
-//# sourceMappingURL=main.js.map
+//# sourceMappingURL=home.js.map

@@ -104,7 +104,7 @@
 								<?php $phone = $rep['phones'][$i] ?>
 								<div class="input-group">
 									<input type="text" class="form-control" name="phones[]" value="{{ $phone }}">
-									<span class="input-group-addon">
+									<span class="input-group-btn">
 										<button class="btn {{ $i == 0 ? 'btn-add' : 'btn-minus' }}" type="button">
 											<span class="glyphicon {{ $i == 0 ? 'glyphicon-plus' : 'glyphicon-minus' }}"></span>
 										</button>
@@ -119,7 +119,7 @@
 							@if (!isset($rep['emails']) || count($rep['emails']) == 0)
 								<div class="input-group">
 									<input type="text" class="form-control" name="emails[]">
-									<span class="input-group-addon">
+									<span class="input-group-btn">
 										<button class="btn btn-add" type="button">
 											<span class="glyphicon glyphicon-plus"></span>
 										</button>
@@ -129,7 +129,7 @@
 								@for ($i = 0; $i < count($rep['emails']); $i++)
 									<div class="input-group">
 										<input type="text" class="form-control" name="emails[]" value="{{ $rep['emails'][$i] }}">
-										<span class="input-group-addon">
+										<span class="input-group-btn">
 											<button class="btn {{ $i == 0 ? 'btn-add' : 'btn-minus' }}" type="button">
 												<span class="glyphicon {{ $i == 0 ? 'glyphicon-plus' : 'glyphicon-minus' }}"></span>
 											</button>
@@ -145,7 +145,7 @@
 							@if (count($rep['urls']) == 0)
 								<div class="input-group">
 									<input type="text" class="form-control" name="urls[]">
-									<span class="input-group-addon">
+									<span class="input-group-btn">
 										<button class="btn {{ $i == 0 ? 'btn-add' : 'btn-minus' }}" type="button">
 											<span class="glyphicon glyphicon-plus"></span>
 										</button>
@@ -156,7 +156,7 @@
 									<?php $url = $rep['urls'][$i] ?>
 									<div class="input-group">
 										<input type="text" class="form-control" name="urls[]" value="{{ $url }}">
-										<span class="input-group-addon">
+										<span class="input-group-btn">
 											<button class="btn {{ $i == 0 ? 'btn-add' : 'btn-minus' }}" type="button">
 												<span class="glyphicon {{ $i == 0 ? 'glyphicon-plus' : 'glyphicon-minus' }}"></span>
 											</button>

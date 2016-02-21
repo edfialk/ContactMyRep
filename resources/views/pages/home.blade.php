@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('content')
-<div class="home">
+<div id="home">
 	<div class="container-fluid">
 		<div class="row header">
 			<div class="col-xs-12">
@@ -26,7 +26,9 @@
 							<form v-on:submit="search" class="col-xs-6 col-xs-offset-1 col-md-7">
 								<div class="input-group">
 									<input type="text" id="input" v-model="query | search" class="form-control">
-									<span class="input-group-btn"><button class="btn btn-default" type="button"><i class="fa fa-search"></i></button></span>
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" v-on:click="search"><i class="fa fa-search"></i></button>
+									</span>
 								</div>
 								<p class="help-block">Popular searches: <a href='/90210'>90210</a>, <a href='/Virginia'>Virginia</a>, <a href='/Nikki Haley'>Nikki Haley</a></p>
 							</form>
@@ -40,13 +42,10 @@
 			</div>
 		</div>
 
-		<div class="row location">
+		<div class="row location" v-show="hasResults">
 			<div class="col-sm-12 text-center">
-				<h4 v-show="hasResults">
-					Search Results for 
-					<span class="zip" v-if="zip" v-text="zip"></span> - 
-					<span class="city" v-if="city" v-text="city"></span>, 
-					<span class="state" v-if="state" v-text="state"></span>
+				<h4>
+					Search Results for <span v-text="printSearch"></span>
 				</h4>
 			</div>
 		</div>
@@ -61,28 +60,18 @@
 			</div>
 		</div>
 
-		@if (isset($location))
-			@if (isset($location->loc))
-				<input type='hidden' id='gps' value='{{ $location->loc }}'>
-			@endif
-			@if (isset($location->city))
-				<input type='hidden' id='city' value='{{ $location->city }}' v-model="city">
-			@endif
-			@if (isset($location->region))
-				<input type='hidden' id='state' value='{{ $location->region }}' v-model="state">
-			@endif
-			@if (isset($location->postal))
-				<input type='hidden' id='zip' value='{{ $location->postal }}' v-model="zip">
-			@endif
-		@endif
-
 		@if (Auth::check())
 			<input type="hidden" id="role" value="{{ Auth::user()->id }}">
 		@endif
+
 	</div>
 </div>
 @stop
 
 @section('scripts.body')
-	<script src="{{ URL::asset('js/main.js') }}"></script>
+	@if (isset($location))
+		<script>var ipinfo = {!! json_encode($location) !!}</script>
+	@endif
+
+	<script src="{{ URL::asset('js/home.js') }}"></script>
 @stop
