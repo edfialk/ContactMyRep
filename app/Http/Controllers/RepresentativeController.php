@@ -154,6 +154,9 @@ return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
         //if query has a number, try address
         if (preg_match('/[0-9]/', $query)){
             $address = $this->address($query);
+            if ($address->getData()->status == "error"){
+                return $this->error($address->getData()->message);
+            }
             if (count($address->getData()->reps) > 0){
                 return $address;
             }
@@ -165,10 +168,7 @@ return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
             return response()->json($res);
         }
 
-        //no results
-        $res->reps = [];
-        return response()->json($res);
-
+        return $this->error('No results.');
     }
 
     /**
