@@ -34,16 +34,17 @@ var vm = new Vue({
 		},
 		printSearch() {
 			let l = this.location;
+			let base = 'Search Results for ';
 			if (!l)
-				return decodeURIComponent(this.query);
+				return base + decodeURIComponent(this.query);
 			if (l.city && l.state_name)
-				return l.city + ', ' + l.state_name;
+				return base + l.city + ', ' + l.state_name;
 			if (l.address && l.zip)
-				return l.address + ', ' + l.zip;
+				return base + l.address + ', ' + l.zip;
 			if (l.zip && l.state_name)
-				return l.zip + ' - ' + l.state_name;
+				return base + l.zip + ' - ' + l.state_name;
 			if (l.state_name)
-				return l.state_name;
+				return base + l.state_name;
 			return '';
 		}
 	},

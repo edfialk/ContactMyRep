@@ -45,7 +45,7 @@
 		<div class="row location" v-show="hasResults">
 			<div class="col-sm-12 text-center">
 				<h4>
-					Search Results for <span v-text="printSearch"></span>
+					<span v-text="printSearch"></span>
 				</h4>
 			</div>
 		</div>
