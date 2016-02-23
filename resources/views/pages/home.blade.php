@@ -10,7 +10,7 @@
 						<div class="social">Follow - Like - Donate</div>
 						<div class="logo"><a href='/'>
 							<img class="logo-style" height="67" src="/images/logo.png" width="342" /></a></div>
-						<div class="links text-right text-uppercase">
+						<div class="links text-right text-uppercase" style="font-family:'Myanmar Text'">
 							<a href='/about'>About Us</a> | <a href='/contact'>Contact Us</a><br>
 							<a href='/organizations'>Organizations</a> | <a href='/terms'>Terms of Service</a>
 						</div>
