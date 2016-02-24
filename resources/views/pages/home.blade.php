@@ -7,7 +7,8 @@
 			<div class="col-xs-12">
 				<div class="row header-top">
 					<div class="col-sm-12 col-md-10 col-md-offset-1">
-						<div class="social"><img class="twitter-style" src="/images/twitter-button.png"/><img src="/images/fb-like-button.png"/></div>
+						<div class="social"><img class="twitter-style" src="/images/twitter-button.png"/>
+						<img class="facebook-style" src="/images/fb-like-button.png"/></div>
 						<div class="logo"><a href='/'>
 							<img class="logo-style" src="/images/logo.png"/></a></div>
 						<div class="links text-right text-uppercase" style="font-family:'Arial'">
