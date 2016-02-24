@@ -3,7 +3,11 @@
 }
 
 .twitter-style {
-	margin-right: 4px;
+	margin-right: 1px;
+	width: 35px;
+}
+.facebook-style {
+	width: 35px;
 }
 .banner-style {
 	background-color:#8FA8C2;
