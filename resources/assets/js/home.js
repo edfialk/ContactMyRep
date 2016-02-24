@@ -58,7 +58,7 @@ var vm = new Vue({
 				this.query = this.getUrlQuery()
 				this.queryType = "search";
 				this.fetch();
-			}else if (ipinfo && ipinfo.loc){
+			}else if (typeof ipinfo !== "undefined" && ipinfo.loc){
 				let gps = ipinfo.loc.split(',');
 				this.query = gps[0] + '/' + gps[1];
 				this.fetch();

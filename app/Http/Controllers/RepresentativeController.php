@@ -15,6 +15,15 @@ use StateAPI;
 class RepresentativeController extends Controller
 {
 
+    public function test()
+    {
+        $reps = App\Representative::where('photo', 'like', 'http://contactmyreps.org%')->get()->each(Function($rep){
+            $photo = str_replace('http://contactmyreps.org', '', $rep->photo);
+            $rep->photo = $photo;
+            $rep->save();
+        });
+    }
+
     /**
      * Home Page View
      * @return view

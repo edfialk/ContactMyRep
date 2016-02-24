@@ -169,6 +169,8 @@ class Representative extends Model
      */
     public function setPhoto()
     {
+        if (isset($this->photo)) return;
+
         $dir = '/images/reps/';
         $ext = '.jpg';
 
@@ -182,7 +184,7 @@ class Representative extends Model
         	$filename = $dir.implode("-", $pieces).$ext;
 
             if (\File::exists(public_path().$filename)){
-                $this->photo = "http://contactmyreps.org".$filename;
+                $this->photo = $filename;
             }
         }
     }

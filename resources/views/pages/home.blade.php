@@ -1,15 +1,24 @@
 @extends('layout')
 
 @section('content')
+
+@include('social')
+
 <div id="home">
 	<div class="container-fluid">
 		<div class="row header">
 			<div class="col-xs-12">
 				<div class="row header-top">
 					<div class="col-sm-12 col-md-10 col-md-offset-1">
-						<div class="social"><img class="twitter-style" src="/images/twitter-button.png"/><img src="/images/fb-like-button.png"/></div>
+						<div class="social">
+							<a href="https://facebook.com/ContactMyReps"><img src="/images/fb-like-button-small.png"></a>
+							<a href="https://twitter.com/ContactMyReps" class="twitter-follow-button"
+								data-show-count="false"
+								data-show-screen-name="false">Follow @ContactMyReps</a>
+						</div>
 						<div class="logo"><a href='/'>
-							<img class="logo-style" src="/images/logo.png"/></a></div>
+							<img class="logo-style" src="/images/logo.png"/></a>
+						</div>
 						<div class="links text-right text-uppercase" style="font-family:'Arial'">
 							<a href='/about'>About Us</a> | <a href='/contact'>Contact Us</a><br>
 							<a href='/organizations'>Organizations</a> | <a href='/terms'>Terms of Service</a>

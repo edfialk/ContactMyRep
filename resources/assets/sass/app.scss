@@ -17,6 +17,9 @@
 	position: absolute;
 	top: 0;
 	right: 35px;
+	& > div, & > iframe {
+		vertical-align: middle;
+	}
 }
 .header {
     background: url("/images/us-capitol_960_720.jpg");

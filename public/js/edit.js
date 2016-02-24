@@ -1,1 +1,22 @@
-!function n(r,t,e){function o(u,a){if(!t[u]){if(!r[u]){var f="function"==typeof require&&require;if(!a&&f)return f(u,!0);if(i)return i(u,!0);var c=new Error("Cannot find module '"+u+"'");throw c.code="MODULE_NOT_FOUND",c}var p=t[u]={exports:{}};r[u][0].call(p.exports,function(n){var t=r[u][1][n];return o(t?t:n)},p,p.exports,n,r,t,e)}return t[u].exports}for(var i="function"==typeof require&&require,u=0;u<e.length;u++)o(e[u]);return o}({1:[function(n,r,t){"use strict";$(document).ready(function(){$("form").delegate(".btn-add","click",function(n){var r=$(n.target).parents(".input-group"),t=r.clone();t.find("input").removeAttr("value"),t.find(".btn-add").toggleClass("btn-add btn-minus"),t.find(".glyphicon").toggleClass("glyphicon-plus glyphicon-minus"),r.parent().append(t)}),$("form").delegate(".btn-minus","click",function(n){$(n.target).parents(".input-group").remove()})})},{}]},{},[1]);
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+$(document).ready(function () {
+
+	$('form').delegate('.btn-add', 'click', function (e) {
+		var $group = $(e.target).parents('.input-group');
+		var $clone = $group.clone();
+		$clone.find('input').removeAttr('value');
+		$clone.find('.btn-add').toggleClass('btn-add btn-minus');
+		$clone.find('.glyphicon').toggleClass('glyphicon-plus glyphicon-minus');
+		$group.parent().append($clone);
+	});
+
+	$('form').delegate('.btn-minus', 'click', function (e) {
+		$(e.target).parents('.input-group').remove();
+	});
+});
+
+},{}]},{},[1]);
+
+//# sourceMappingURL=edit.js.map
