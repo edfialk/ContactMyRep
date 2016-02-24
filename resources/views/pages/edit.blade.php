@@ -20,6 +20,12 @@
 						</div>
 					</div>
 					<div class="form-group">
+						<label for="name_suffix" class="col-sm-2 control-label">Nickname</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" name="name_suffix" value="{{ $rep['nickname'] ?? '' }}">
+						</div>
+					</div>
+					<div class="form-group">
 						<label for="middle_name" class="col-sm-2 control-label">Middle Name</label>
 						<div class="col-sm-10">
 							<input type="text" class="form-control" name="middle_name" value="{{ $rep['middle_name'] ?? '' }}">
@@ -35,12 +41,6 @@
 						<label for="name_suffix" class="col-sm-2 control-label">Name Suffix</label>
 						<div class="col-sm-10">
 							<input type="text" class="form-control" name="name_suffix" value="{{ $rep['name_suffix'] ?? '' }}">
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="name_suffix" class="col-sm-2 control-label">Nickname</label>
-						<div class="col-sm-10">
-							<input type="text" class="form-control" name="name_suffix" value="{{ $rep['nickname'] ?? '' }}">
 						</div>
 					</div>
 					<div class="form-group">

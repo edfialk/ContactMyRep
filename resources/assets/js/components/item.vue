@@ -68,9 +68,9 @@
 </script>
 
 <style>
-	img {
-		max-width: 100%;
+	.results img {
 		margin: 0 auto;
+		width: 180px;
 	}
 	.results .row {
 		padding-top: 10px;
