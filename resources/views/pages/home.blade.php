@@ -7,9 +7,9 @@
 			<div class="col-xs-12">
 				<div class="row header-top">
 					<div class="col-sm-12 col-md-10 col-md-offset-1">
-						<div class="social">Follow - Like - Donate</div>
+						<div class="social"><img class="twitter-style" src="/images/twitter-button.png"/><img src="/images/fb-like-button.png"/></div>
 						<div class="logo"><a href='/'>
-							<img class="logo-style" height="67" src="/images/logo.png" width="342" /></a></div>
+							<img class="logo-style" src="/images/logo.png"/></a></div>
 						<div class="links text-right text-uppercase" style="font-family:'Arial'">
 							<a href='/about'>About Us</a> | <a href='/contact'>Contact Us</a><br>
 							<a href='/organizations'>Organizations</a> | <a href='/terms'>Terms of Service</a>
