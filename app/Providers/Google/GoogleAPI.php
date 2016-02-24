@@ -103,11 +103,12 @@ class GoogleAPI
 	{
 		$divisions = [];
 		foreach($reps as $rep){
+			if ($rep->hasSource('google')) continue;
 			if ( ! empty($rep->division) && ! in_array($rep->division, $divisions))
 				array_push($divisions, $rep->division);
 		}
-        $requests = array_map(function($division){
-        	return GoogleAPI::division($division);
+        $requests = array_map(function($d){
+        	return GoogleAPI::division($d);
         }, $divisions);
         $results = Promise\unwrap($requests);
         return array_collapse(array_map(function($result){

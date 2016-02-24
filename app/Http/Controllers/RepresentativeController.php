@@ -10,7 +10,6 @@ use App\Representative;
 use App\Report;
 use App\Providers\IPInfo\IPInfo;
 use GoogleAPI;
-use CongressAPI;
 use StateAPI;
 
 class RepresentativeController extends Controller
@@ -18,13 +17,12 @@ class RepresentativeController extends Controller
 
     /**
      * Home Page View
-     * @param  Request $request Http Request
      * @return view
      */
     public function index(Request $request)
     {
         $ip = $request->ip();
-return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
+
         if (
             filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)
             && stripos($request->header('User-Agent'), 'mobi') === false
@@ -49,7 +47,7 @@ return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
 
     /**
      * Query by zipcode
-     * @param  string $zipcode 5 digit zipcode
+     * @param  string $zipcode 5 digit zipcode - validated in route
      * @return json
      */
     public function zipcode($zipcode)
@@ -115,6 +113,7 @@ return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
         usort($reps, 'rankSort');
 
         $resp->reps = $reps;
+
         if (isset($results[0]->location)){
             $resp->location = $results[0]->location;
 
@@ -154,7 +153,7 @@ return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
         //if query has a number, try address
         if (preg_match('/[0-9]/', $query)){
             $address = $this->address($query);
-            if ($address->getData()->status == "error"){
+            if (isset($address->getData()->status) && $address->getData()->status == "error"){
                 return $this->error($address->getData()->message);
             }
             if (count($address->getData()->reps) > 0){

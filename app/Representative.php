@@ -223,6 +223,11 @@ class Representative extends Model
 		}
 	}
 
+    public function hasSource($src)
+    {
+        return in_array($src, $this->sources);
+    }
+
 	public function addSource($src)
 	{
 		if (!in_array($src, $this->sources)){
