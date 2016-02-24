@@ -52,6 +52,9 @@
 			</div>
 		</div>
 
+		<div class="row loading" v-show="loading">
+			@include('loader')
+		</div>
 		<div class="row location" v-show="hasResults">
 			<div class="col-sm-12 text-center">
 				<h4>
@@ -60,11 +63,6 @@
 			</div>
 		</div>
 		<div class="row results">
-		  	<div class="col-sm-6 col-sm-offset-3" v-show="loading">
-				<div class="progress progress-striped active">
-				  <div class="progress-bar" style="width: 100%"></div>
-				</div>
-	  		</div>
 			<div class="col-sm-12" v-show="!loading">
 				<item v-for="item in reps" :item="item" :role="role"></item>
 			</div>
