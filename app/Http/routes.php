@@ -4,8 +4,6 @@ use App\Representative;
 use App\Location;
 
 
-Route::get('test', 'RepresentativeController@test');
-
 //Authenticated routes
 Route::group(['middleware' => 'auth'], function(){
 	Route::get('reports', 'AdminController@reports');
