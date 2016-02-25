@@ -1,13 +1,17 @@
 <template>
 	<div class="row">
-		<div class="col-xs-2 text-center">
-			<img v-if="item.photo" v-bind:src="item.photo">
-		</div>
-		<div class="col-xs-4">
-			<p class="name"><a href='/rep/{{ item._id }}'>{{ item.name }} {{ party }}</a></p>
-			<p class="office">{{ item.office }}</p>
-			<p v-if="phone"><strong>Telephone:</strong> {{ phone }}</p>
-			<address v-if="address"><strong>Address:</strong><br>{{{ address }}}</address>
+		<div class="col-xs-6">
+			<div class="row">
+				<div class="col-xs-6 text-right">
+					<img v-if="item.photo" v-bind:src="item.photo">
+				</div>
+				<div class="col-xs-6">
+					<p class="name"><a href='/rep/{{ item._id }}'>{{ item.name }} {{ party }}</a></p>
+					<p class="office">{{ item.office }}</p>
+					<p v-if="phone"><strong>Telephone:</strong> {{ phone }}</p>
+					<address v-if="address"><strong>Address:</strong><br>{{{ address }}}</address>
+				</div>
+			</div>
 		</div>
 		<div class="col-xs-6 item-links">
 			<p v-if="item.website"><a href="{{ item.website }}"><i class="fa fa-desktop"></i> Homepage</a></p>
@@ -71,6 +75,7 @@
 	.results img {
 		margin: 0 auto;
 		width: 180px;
+		max-width: 100%;
 	}
 	.results .row {
 		padding-top: 10px;
