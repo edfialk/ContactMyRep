@@ -10,7 +10,7 @@ use File;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-class WikiAPI extends Controller
+class WikiController extends Controller
 {
 
     public function xpath($url)
@@ -20,6 +20,31 @@ class WikiAPI extends Controller
         $doc = new DOMDocument();
         $doc->loadHTML($ht);
         return new DOMXpath($doc);
+    }
+
+    public function srcset($src)
+    {
+        $pieces = explode(",", $src);
+        $biggest = array_pop($pieces);
+        $src = explode(" ", trim($biggest))[0];
+        return $src;
+    }
+
+    public function senators()
+    {
+        $x = $this->xpath('https://en.wikipedia.org/wiki/List_of_current_United_States_Senators');
+        $table = $x->query('//table[contains(@class, "sortable")]')[0];
+        $rows = $x->query('.//tr[td]', $table);
+        foreach($rows as $row){
+            $name = $x->query('.//td[5]//span[contains(@class, "sortkey")]', $row)[0]->textContent;
+            $img = $x->query('.//img', $row)[0];
+            if ($img->hasAttribute('srcset')){
+                $src = $this->srcset($img->getAttribute('srcset'));
+            }else{
+                $src = $img->getAttribute('src');
+            }
+            $this->save($name, $src);
+        }
     }
 
     public function representatives()
