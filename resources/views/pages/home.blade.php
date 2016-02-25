@@ -29,13 +29,16 @@
 					<div class="col-sm-12 col-md-10 col-md-offset-1 search">
 						<div class="row">
 							<div class="col-sm-10 col-sm-offset-1">
-								<h4 class="text-center">Enter your Zip Code, Address, State, or Representative's Name. Discover who represents you and contact them via email or social media. This is your government and you can only make a difference by making your voice heard.</h4>
+								<h4 class="mission-statement text-center">
+									Enter your Zip Code, Address, State, or Representative's Name. Discover who represents you<br>
+									and contact them by email or social media. This is your government and<br>
+									you can only make a difference by making your voice heard.</h4>
 							</div>
 						</div>
 						<div class="row">
 							<form v-on:submit="search" class="col-xs-6 col-xs-offset-1 col-md-7">
 								<div class="input-group">
-									<input type="text" id="input" v-model="query | search" class="form-control">
+									<input type="text" id="input" v-model="query | search" class="form-control" placeholder="Search Zip Code">
 									<span class="input-group-btn">
 										<button class="btn btn-default" type="button" v-on:click="search"><i class="fa fa-search"></i></button>
 									</span>

@@ -117,7 +117,7 @@ class RepresentativeController extends Controller
         if (isset($results[0]->location)){
             $resp->location = $results[0]->location;
 
-            if (isset($resp->location->state))
+            if (isset($resp->location->state) && isset(Location::states[$resp->location->state]))
                 $resp->location->state_name = Location::states[$resp->location->state];
         }
 
@@ -187,7 +187,7 @@ class RepresentativeController extends Controller
         }
         $result = $geo->results[0]; //first is always most "accurate" says google
         $gps = $result->geometry->location;
-        return $this->gps($gps->lat, $gps->lng);
+        return $this->gps(round($gps->lat, 4), round($gps->lng, 4));
     }
 
     /**

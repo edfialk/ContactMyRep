@@ -6,8 +6,8 @@
 		<div class="col-xs-4">
 			<p class="name"><a href='/rep/{{ item._id }}'>{{ item.name }} {{ party }}</a></p>
 			<p class="office">{{ item.office }}</p>
-			<p v-if="phone">Office Phone: {{ phone }}</p>
-			<address v-if="address">Address:<br>{{{ address }}}</address>
+			<p v-if="phone"><strong>Telephone:</strong> {{ phone }}</p>
+			<address v-if="address"><strong>Address:</strong><br>{{{ address }}}</address>
 		</div>
 		<div class="col-xs-6 item-links">
 			<p v-if="item.website"><a href="{{ item.website }}"><i class="fa fa-desktop"></i> Homepage</a></p>
@@ -18,7 +18,7 @@
 			<p v-if="item.google_id"><a href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-google-plus"></i> {{ item.google_id }}</a></p>
 			<p v-if="item.youtube_id"><a href="http://youtube.com/{{ item.youtube_id }}"><i class="fa fa-youtube"></i> {{ item.youtube_id }}</a></p>
 			<p v-if="role"><a href="/edit/{{ item._id }}"><i class="fa fa-flag"></i> Edit</a></p>
-			<p v-else><a v-on:click="flag" href="#"><i class="fa fa-flag"></i> Report for review</a></p>
+			<p v-else><a v-on:click="flag" href="#"><i class="fa fa-flag"></i> Report Broken Link</a></p>
 		</div>
 	</div>
 </template>
@@ -76,7 +76,7 @@
 		padding-top: 10px;
 		padding-bottom: 10px;
 	}
-	.results .row:nth-of-type(odd) {
+	.results .row:nth-of-type(even) {
 		background: #DEE1EA;
 	}
 	.name {
