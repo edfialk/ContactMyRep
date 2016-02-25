@@ -6,7 +6,10 @@
 					<img v-if="item.photo" v-bind:src="item.photo">
 				</div>
 				<div class="col-xs-7">
-					<p class="name"><a href='/rep/{{ item._id }}'>{{ item.name }} {{ party }}</a></p>
+					<p class="name">
+						<a v-if="item.website" href="{{ item.website }}">{{ item.name }} {{ party }}</a>
+						<span v-else>{{ item.name}} {{ party }}</span>
+					</p>
 					<p class="office">{{ item.office }}</p>
 					<p v-if="phone"><strong>Telephone:</strong> {{ phone }}</p>
 					<address v-if="address"><strong>Address:</strong><br>{{{ address }}}</address>
