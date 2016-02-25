@@ -75,7 +75,6 @@ class StateAPI
 	{
 		return $this->client->getAsync($url)->then(
 			function(ResponseInterface $res){
-				dd($res);
 				return $this->validate(json_decode($res->getBody(), true));
 			},
 			function(RequestException $e){
