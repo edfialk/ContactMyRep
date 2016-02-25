@@ -24,6 +24,7 @@ Route::get('logout', 'Auth\AuthController@getLogout');
 //Api...
 Route::group(['prefix' => 'api'], function(){
 	Route::get('wiki/senators', 'WikiController@senators');
+	Route::get('wiki/house', 'WikiController@house');
 	Route::group(['prefix' => 'v1'], function(){
 		Route::get('/{zipcode}', 'RepresentativeController@zipcode');
 		Route::get('/{query}', 'RepresentativeController@query');

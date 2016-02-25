@@ -22,14 +22,6 @@ class WikiController extends Controller
         return new DOMXpath($doc);
     }
 
-    public function srcset($src)
-    {
-        $pieces = explode(",", $src);
-        $biggest = array_pop($pieces);
-        $src = explode(" ", trim($biggest))[0];
-        return $src;
-    }
-
     public function senators()
     {
         $x = $this->xpath('https://en.wikipedia.org/wiki/List_of_current_United_States_Senators');
@@ -38,16 +30,12 @@ class WikiController extends Controller
         foreach($rows as $row){
             $name = $x->query('.//td[5]//span[contains(@class, "sortkey")]', $row)[0]->textContent;
             $img = $x->query('.//img', $row)[0];
-            if ($img->hasAttribute('srcset')){
-                $src = $this->srcset($img->getAttribute('srcset'));
-            }else{
-                $src = $img->getAttribute('src');
-            }
+            $src = $this->getSrc($img);
             $this->save($name, $src);
         }
     }
 
-    public function representatives()
+    public function house()
     {
         $x = $this->xpath('https://en.wikipedia.org/wiki/Current_members_of_the_United_States_House_of_Representatives');
         $table = $x->query('//table[contains(@class, "sortable")]')[1];
