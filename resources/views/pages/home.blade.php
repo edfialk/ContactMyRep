@@ -45,7 +45,7 @@
 								</div>
 								<p class="help-block">Popular searches: <a href='/90210'>90210</a>, <a href='/Virginia'>Virginia</a>, <a href='/Nikki Haley'>Nikki Haley</a></p>
 							</form>
-							<div class="col-xs-4 col-md-3">
+							<div class="col-xs-4">
 								<span class="hidden-xs pr30">OR</span>
 								<button type="button" class="enable-geo btn btn-primary" v-on:click="locate">Use My Location <i class="fa fa-map-marker"></i></button>
 							</div>
