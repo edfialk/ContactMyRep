@@ -1,11 +1,11 @@
 <template>
 	<div class="row">
-		<div class="col-xs-6">
+		<div class="col-sm-6">
 			<div class="row">
-				<div class="col-xs-6 text-right">
+				<div class="col-xs-5 text-right">
 					<img v-if="item.photo" v-bind:src="item.photo">
 				</div>
-				<div class="col-xs-6">
+				<div class="col-xs-7">
 					<p class="name"><a href='/rep/{{ item._id }}'>{{ item.name }} {{ party }}</a></p>
 					<p class="office">{{ item.office }}</p>
 					<p v-if="phone"><strong>Telephone:</strong> {{ phone }}</p>
@@ -13,7 +13,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-xs-6 item-links">
+		<div class="col-sm-6 item-links">
 			<p v-if="item.website"><a href="{{ item.website }}"><i class="fa fa-desktop"></i> Homepage</a></p>
 			<p v-if="item.contact_form"><a href="{{ item.contact_form }}"><i class="fa fa-envelope"></i> Email</a></p>
 			<p v-if="item.email"><a href="mailto:{{ item.email }}"><i class="fa fa-envelope"></i> Email</a></p>
