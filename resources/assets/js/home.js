@@ -27,6 +27,7 @@ var vm = new Vue({
 		status: '',
 		apiroot: '/api/v1/',
 		role: null,
+		$results: null
 	},
 	computed: {
 		hasResults() {
@@ -54,6 +55,7 @@ var vm = new Vue({
 	},
 	methods: {
 		init() {
+			this.$results = $('.results');
 			if (this.getUrlQuery().length > 1){ //root is '/'
 				this.query = this.getUrlQuery()
 				this.queryType = "search";
@@ -74,6 +76,7 @@ var vm = new Vue({
 		fetch() {
 		    this.status = '';
 		    this.loading = true;
+		    this.$results.css('display', 'none');
 		    this.reps = [];
 		    request(this.apiroot + this.query, (err, res) => {
 		        this.loading = false;
@@ -91,6 +94,7 @@ var vm = new Vue({
 
 		        this.reps = body.reps;
 		        this.location = body.location;
+		        this.$results.fadeIn();
 		    });
 		},
 		locate() {
