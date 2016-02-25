@@ -150,8 +150,7 @@ class RepresentativeController extends Controller
             return response()->json($res);
         }
 
-        //if query has a number, try address
-        if (preg_match('/[0-9]/', $query)){
+        if (preg_match('/[0-9,]/', $query)){
             $address = $this->address($query);
             if (isset($address->getData()->status) && $address->getData()->status == "error"){
                 return $this->error($address->getData()->message);
