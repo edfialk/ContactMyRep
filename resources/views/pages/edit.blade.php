@@ -92,15 +92,21 @@
 					<div class="form-group">
 						<label for="address" class="col-sm-2 control-label">Address</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][0] ?? '' }}">
-							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][1] ?? '' }}">
-							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][2] ?? '' }}">
+							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][0] or '' }}">
+							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][1] or '' }}">
+							<input type="text" class="form-control" name="address[]" value="{{ $rep['address'][2] or '' }}">
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="contact_form" class="col-sm-2 control-label">Contact Form</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" name="contact_form" value="{{ $rep['contact_form'] }}">
+							<input type="text" class="form-control" name="contact_form" value="{{ $rep['contact_form'] or '' }}">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fax" class="col-sm-2 control-label">Fax</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" name="fax" value="{{ $rep['fax'] or ''}}">
 						</div>
 					</div>
 					<div class="form-group">
