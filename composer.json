@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "name": "Contact My Reps",
+    "description": "A Channel for Your Voice",
+    "keywords": ["government", "representatives"],
     "license": "MIT",
     "type": "project",
     "require": {
@@ -10,7 +10,8 @@
         "guzzlehttp/guzzle": "~6.0",
         "intervention/image": "dev-master",
         "mongodb/mongodb": "^1.0.0@beta",
-        "jenssegers/mongodb": "^3.0.0-beta"
+        "jenssegers/mongodb": "^3.0.0-beta",
+        "arcanedev/log-viewer": "~3.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

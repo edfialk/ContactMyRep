@@ -167,7 +167,7 @@ class RepresentativeController extends Controller
         }
 
         $address = $this->address($query);
-        if (count($address->getData()->reps) > 0){
+        if (isset($address->getData()->reps) && count($address->getData()->reps) > 0){
             return $address;
         }
 

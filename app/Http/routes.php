@@ -6,6 +6,7 @@ use App\Location;
 
 //Authenticated routes
 Route::group(['middleware' => 'auth'], function(){
+	Route::get('logs', '\Arcanedev\LogViewer\Http\Controllers\LogViewerController@index');
 	Route::get('reports', 'AdminController@reports');
 	Route::get('edit/{id}', 'RepresentativeController@edit');
 	Route::post('edit/{id}', 'RepresentativeController@store')->name('editrep');

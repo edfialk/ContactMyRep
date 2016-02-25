@@ -95,7 +95,7 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
+    'log' => env('APP_LOG', 'daily'),
 
     /*
     |--------------------------------------------------------------------------
@@ -149,6 +149,7 @@ return [
         App\Providers\Google\GoogleServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Jenssegers\Mongodb\MongodbServiceProvider::class,
+        Arcanedev\LogViewer\LogViewerServiceProvider::class,
     ],
 
     /*
