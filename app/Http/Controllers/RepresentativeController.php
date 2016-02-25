@@ -166,6 +166,11 @@ class RepresentativeController extends Controller
             return response()->json($res);
         }
 
+        $address = $this->address($query);
+        if (count($address->getData()->reps) > 0){
+            return $address;
+        }
+
         return $this->error('No results.');
     }
 
