@@ -106,17 +106,28 @@
 					<div class="form-group">
 						<label for="phones" class="col-sm-2 control-label">Phones</label>
 						<div class="col-sm-10">
-							@for ($i = 0; $i < count($rep['phones']); $i++)
-								<?php $phone = $rep['phones'][$i] ?>
+							@if (!isset($rep['phones']) || count($rep['phones']) == 0)
 								<div class="input-group">
-									<input type="text" class="form-control" name="phones[]" value="{{ $phone }}">
+									<input type="text" class="form-control" name="phones[]">
 									<span class="input-group-btn">
-										<button class="btn {{ $i == 0 ? 'btn-add' : 'btn-minus' }}" type="button">
-											<span class="glyphicon {{ $i == 0 ? 'glyphicon-plus' : 'glyphicon-minus' }}"></span>
+										<button class="btn btn-add" type="button">
+											<span class="glyphicon glyphicon-plus"></span>
 										</button>
 									</span>
 								</div>
-							@endfor
+							@else
+								@for ($i = 0; $i < count($rep['phones']); $i++)
+									<?php $phone = $rep['phones'][$i] ?>
+									<div class="input-group">
+										<input type="text" class="form-control" name="phones[]" value="{{ $phone }}">
+										<span class="input-group-btn">
+											<button class="btn {{ $i == 0 ? 'btn-add' : 'btn-minus' }}" type="button">
+												<span class="glyphicon {{ $i == 0 ? 'glyphicon-plus' : 'glyphicon-minus' }}"></span>
+											</button>
+										</span>
+									</div>
+								@endfor
+							@endif
 						</div>
 					</div>
 					<div class="form-group">
@@ -152,7 +163,7 @@
 								<div class="input-group">
 									<input type="text" class="form-control" name="urls[]">
 									<span class="input-group-btn">
-										<button class="btn {{ $i == 0 ? 'btn-add' : 'btn-minus' }}" type="button">
+										<button class="btn btn-add" type="button">
 											<span class="glyphicon glyphicon-plus"></span>
 										</button>
 									</span>
