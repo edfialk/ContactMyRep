@@ -36,6 +36,8 @@ class SyncController extends Controller
                     $data = json_decode($res->getBody(), true);
                     if (count($data) == 1){
                         $name = $rep->name;
+                        $dist = $rep->district;
+                        $state = $rep->state;
                         $data = $data[0];
                         foreach($fields as $key=>$value){
                             if (isset($data[$key])){
@@ -65,6 +67,10 @@ class SyncController extends Controller
                         $rep->addSource('openstates');
                         $rep->save();
                         echo "$name --> ".$rep->name."<br>";
+                        echo "-- $district --> ".$rep->district."<br>";
+                        echo "-- $state --> ".$rep->state."<br>";
+                    }else{
+                        echo "<h5>more than 1 data: ".count($data)."</h5>"
                     }
 
                 },
