@@ -70,7 +70,8 @@ class SyncController extends Controller
                         echo "-- $district --> ".$rep->district."<br>";
                         echo "-- $state --> ".$rep->state."<br>";
                     }else{
-                        echo "<h5>more than 1 data: ".count($data)."</h5>";
+                        echo "<h5>ODD DATA: ".count($data)."</h5>";
+                        echo "district: ".$rep->district.", state: ".$rep->state."<br>";
                     }
 
                 },
