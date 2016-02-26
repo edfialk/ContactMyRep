@@ -12,7 +12,7 @@
 				<tbody>
 					@foreach($reps as $rep)
 						<tr>
-							<td><a href='{{ route('editrep', ['id' => $rep->id]) }}'>{{ $rep->name }}</a></td>
+							<td><a href='{{ route('editrep', ['id' => $rep->id, 'redirect' => 'reports']) }}'>{{ $rep->name }}</a></td>
 							<td>{{ $rep->reports()->count() }}</td>
 						</tr>
 					@endforeach
@@ -20,7 +20,4 @@
 			</table>
 		</div>
 	</div>
-@stop
-
-@section('scripts.body')
 @stop
