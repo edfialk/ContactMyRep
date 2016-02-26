@@ -19,6 +19,7 @@ class SyncController extends Controller
 
     public function openstates($max = 100)
     {
+        $max = intval($max);
         $requests = [];
         $fields = StateAPI::fields();
         $client = StateAPI::client();
