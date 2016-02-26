@@ -323,7 +323,7 @@ class Representative extends Model
             if (stripos($first, " ") !== false){
                 $first = explode(" ", $first)[0];
             }
-            $query->name = $f.' '.$query->last_name;
+            $query->name = $first.' '.$query->last_name;
         }
     	$reps = Representative::name($query->name)->get()->all();
     	if (count($reps) == 1){
