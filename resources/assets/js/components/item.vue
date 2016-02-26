@@ -55,6 +55,7 @@
 				return '';
 			},
 			phone() {
+				console.log(this.item);
 				let phone = '';
 				if (!this.item.phone && !this.item.phones)
 					return '';
