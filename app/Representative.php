@@ -45,30 +45,8 @@ class Representative extends Model
 
 	protected $collection = 'reps'; //mongo table name
 	protected $primaryKey = '_id';
-    // protected $hidden = ['_id'];
 
     public $timestamps = false;
-
-    public function __construct($data = [])
-    {
-    	parent::__construct($data);
-    	$this->setAliases();
-    	$this->setDivision();
-    	$this->setPhoto();
-    }
-
-    public static function fromData($data, $keys = null)
-    {
-    	$rep = new Representative;
-    	$rep->load($data, $keys);
-
-    	//computed properties
-    	$rep->setAliases();
-    	$rep->setDivision();
-    	$rep->setPhoto();
-
-    	return $rep;
-    }
 
     public function save(array $options = array())
     {
@@ -78,6 +56,9 @@ class Representative extends Model
                 $this->first_name = $p[0];
                 $this->middle_name = $p[1];
             }
+        }
+        if (strlen($this->middle_name) == 1){
+            $this->middle_name = $this->middle_name.'.';
         }
 
     	$this->setAliases();
@@ -95,33 +76,16 @@ class Representative extends Model
     /**
      * copy info from data - overwrites present info!
      * @param  array $data input
-     * @param  array $keys string names of fields to copy from data.
-     *                     If entry is a key=>value, data->key will be copied to this->value
      * @return null
      */
-    public function load($data, $keys = null)
+    public function load($data)
     {
-    	if (is_null($keys)){
-	    	foreach($data as $key=>$value){
-   				$this->$key = $value;
-	    	}
-	    }else{
-			foreach($keys as $key=>$value){
-				if (is_string($key) && isset($data[$key]))
-					$this->$value = $data[$key];
-				else if (isset($data[$value]))
-					$this->$value = $data[$value];
-			}
-	    }
-
-    	if (stripos($this->first_name, " ") !== false && empty($this->middle_name)){
-    		$p = explode(" ", $this->first_name);
-    		$this->first_name = $p[0];
-    		$this->middle_name = $p[1];
-    	}
-    	if (strlen($this->middle_name) == 1){
-    		$this->middle_name = $this->middle_name.'.';
-    	}
+		foreach($keys as $key=>$value){
+			if (is_string($key) && isset($data[$key]))
+				$this->$value = $data[$key];
+			else if (isset($data[$value]))
+				$this->$value = $data[$value];
+		}
     }
 
     /**

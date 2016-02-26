@@ -39,9 +39,6 @@ class RepresentativeController extends Controller
      */
     public function view(Request $request)
     {
-        if (\Auth::check())
-            $request->session()->put('backUrl', $request->fullUrl()); //for post edit redirect
-
         return view('pages.home');
     }
 
@@ -63,21 +60,6 @@ class RepresentativeController extends Controller
         }
 
         $reps = Representative::atLocation($l);
-        $updates = [];
-        $keeps = [];
-        foreach($reps as $rep){
-            in_array('google', $rep->sources) ? array_push($keeps, $rep) : array_push($updates, $rep);
-        }
-
-        if (count($updates) > 0){
-            GoogleAPI::update($updates);
-            foreach($updates as &$u){
-                $u = Representative::where('_id', $u->_id)->first(); //refresh from db, ->fresh() should work but doesnt
-            }
-        }
-
-        $reps = array_merge($updates, $keeps);
-
         usort($reps, 'rankSort');
 
         $resp->reps = $reps;
@@ -95,7 +77,7 @@ class RepresentativeController extends Controller
     public function gps($lat, $lng)
     {
         $googReq = GoogleAPI::address($lat.','.$lng);
-        $stateReq = StateAPI::gps($lat, $lng);
+        $stateReq = StateAPI::gps($lat, $lng, ['boundary_id']);
         $resp = new \stdClass();
         $results = Promise\unwrap([$googReq, $stateReq]);
 
@@ -149,6 +131,7 @@ class RepresentativeController extends Controller
             return response()->json($res);
         }
 
+        //if query has number try address
         if (preg_match('/[0-9,]/', $query)){
             $address = $this->address($query);
             if (isset($address->getData()->status) && $address->getData()->status == "error"){
@@ -159,12 +142,14 @@ class RepresentativeController extends Controller
             }
         }
 
+        //if query doesnt have number try name
         $reps = Representative::name($query)->orderBy('name')->get()->all();
         if (count($reps) > 0){
             $res->reps = $reps;
             return response()->json($res);
         }
 
+        //if no name, or state, try address
         $address = $this->address($query);
         if (isset($address->getData()->reps) && count($address->getData()->reps) > 0){
             return $address;
@@ -200,9 +185,11 @@ class RepresentativeController extends Controller
     /**
      * GET /edit/{$id}
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         $q = Representative::where('_id',$id)->first();
+        if ($request->has('redirect'))
+            $request->session()->put('redirect', $request->input('redirect'));
         return view('pages.edit', ['rep' => $q] );
     }
 
@@ -217,7 +204,7 @@ class RepresentativeController extends Controller
         }
         //todo: validator
         foreach($request->all() as $key=>$value){
-            if ($key == '_token') continue;
+            if (in_array($key, ['redirect', 'token'])) continue;
             if ($key == 'clear_reports' && $value === 'yes'){
                 $q->reports()->delete();
             }
@@ -233,8 +220,8 @@ class RepresentativeController extends Controller
 
         $q->save();
 
-        if ($request->session()->has('backUrl'))
-            return redirect($request->session()->get('backUrl'))->with('status', 'Saved!');
+        if ($request->session()->has('redirect'))
+            return redirect($request->session()->get('redirect'));
 
         return redirect('/')->with('status', 'Saved!');
     }

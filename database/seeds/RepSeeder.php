@@ -18,9 +18,6 @@ class RepSeeder extends Seeder
      */
     public function run()
     {
-    	// UNCOMMENT BELOW LINE TO RE-DOWNLOAD DATA
-    	// $this->downloadStates();
-
     	// $this->congress();
     	$this->states();
     	// $this->google();
@@ -87,7 +84,7 @@ class RepSeeder extends Seeder
 	    $data = CongressAPI::validate($data);
 	    foreach($data as $d){
             $d['source'] = ['opencongress'];
-	    	$rep = Representative::fromData($d);
+	    	$rep = Representative::fromData($d); //deprecated, use format() then new()
 	    	if (! Representative::exists($rep) ){
 	    		$rep->save();
             }

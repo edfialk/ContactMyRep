@@ -24,7 +24,7 @@
 			<p v-if="item.twitter_id"><a href="http://twitter.com/{{ item.twitter_id }}"><i class="fa fa-fw fa-twitter"></i> @{{ item.twitter_id }}</a></p>
 			<p v-if="item.google_id"><a href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-fw fa-google-plus"></i> {{ item.google_id }}</a></p>
 			<p v-if="item.youtube_id"><a href="http://youtube.com/{{ item.youtube_id }}"><i class="fa fa-fw fa-youtube"></i> {{ item.youtube_id }}</a></p>
-			<p v-if="role"><a href="/edit/{{ item._id }}"><i class="fa fa-fw fa-flag"></i> Edit</a></p>
+			<p v-if="role"><a href="/edit/{{ item._id }}?redirect={{ redirect }}"><i class="fa fa-fw fa-flag"></i> Edit</a></p>
 			<p v-else><a v-on:click="flag" href="#"><i class="fa fa-fw fa-flag"></i> Report Broken Link</a></p>
 		</div>
 	</div>
@@ -82,6 +82,9 @@
 				else if (Array.isArray(this.item.urls))
 					return this.item.urls[0];
 				return '';
+			},
+			redirect() {
+				return window.location.pathname;
 			}
 		},
 		methods: {

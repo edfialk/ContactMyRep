@@ -132,9 +132,14 @@ class StateAPI
 	 * @param  float $lng   longitude
 	 * @return promise      request promise
 	 */
-	public function gps($lat, $lng)
+	public function gps($lat, $lng, $fields = [])
 	{
-		return $this->async('legislators/geo/?lat='.$lat.'&long='.$lng);
+		$url = 'legislators/geo/?lat='.$lat.'&long='.$lng;
+		if (!empty($fields)){
+			$fields = implode("&", $fields);
+			$url .= '&fields='.$fields;
+		}
+		return $this->async($url);
 	}
 
 	/**
@@ -159,57 +164,6 @@ class StateAPI
 
 		return array_values($array);
 	}
-
-    /**
-     * download csv data from http://openstates.org/downloads/
-     */
-    public static function download()
-    {
-    	Log::info('downloading state api data');
-		$data_path = "resources/assets/data/";
-		libxml_use_internal_errors(true);
-		$ht = file_get_contents("http://openstates.org/downloads/");
-		$doc = new DOMDocument();
-		$doc->loadHTML($ht);
-		$x = new DOMXpath($doc);
-
-		$table = $x->query('//table[@id="download_list"]')[0];
-		$rows = $x->query('.//tr', $table);
-
-		//state, json, csv - first row is header
-		// 51 total for district of columbia
-		for ($i = 1; $i <= 52; $i++){
-			$state = $x->query('.//td[1]', $rows->item($i))[0];
-			$state = $state->textContent;
-
-			$zip_path = $data_path."temp/zips/".$state.".zip";
-			$unzip_path = $data_path."states/".$state;
-
-			$url = $x->query('.//td[2]/a', $rows->item($i))[0];
-			$url = $url->getAttribute('href');
-
-			$file = file_get_contents($url);
-			if ($file === FALSE){
-				Log::error("failed to download $state data at $url");
-			}
-
-			$status = file_put_contents($zip_path, $file);
-			if ($status === FALSE){
-				Log::error("failed to write temp data to $zip_path");
-				continue;
-			}
-
-			$zip = new \ZipArchive;
-			$res = $zip->open($zip_path);
-			if ($res !== TRUE){
-				Log::error("failed to open zip at $path");
-			}
-
-			$zip->extractTo($unzip_path);
-			$zip->close();
-		}
- 		Log::info('finished downloading state api data');
-    }
 
     /**
      * convert OpenStates JSON Data to ContactMyReps data
@@ -253,7 +207,7 @@ class StateAPI
 			}
 		}
 
-		if (is_array($rep['address']) && count($rep['address'] > 0))
+		if (isset($rep['address']) && is_array($rep['address']) && count($rep['address'] > 0))
 			$rep['address'] = $rep['address'][0];
 
 		return $rep;
