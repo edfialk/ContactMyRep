@@ -58,15 +58,22 @@
 		<div class="row loading" v-show="loading">
 			@include('loader')
 		</div>
+		<div class="row status" v-show="status">
+			<div class="col-xs-12 text-center">
+				<h4>
+					<span v-text="status"></span>
+				</h4>
+			</div>
+		</div>
 		<div class="row location" v-show="hasResults">
-			<div class="col-sm-12 text-center">
+			<div class="col-xs-12 text-center">
 				<h4>
 					<span v-text="printSearch"></span>
 				</h4>
 			</div>
 		</div>
 		<div class="row results">
-			<div class="col-sm-12" v-show="!loading">
+			<div class="col-xs-12" v-show="!loading">
 				<item v-for="item in reps" :item="item" :role="role"></item>
 			</div>
 		</div>
