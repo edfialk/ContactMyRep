@@ -143,24 +143,15 @@ class StateAPI
 			foreach($this->fields as $key=>$value){
 				if (isset($data[$key])) $valid->$value = $data[$key];
 			}
-
 	    	$rep = Representative::find($valid);
 	    	// if (is_null($rep)) $rep = new Representative($valid);
-	    	if (is_null($rep)) continue; //for now no new reps
+	    	if (is_null($rep)){
+	    		continue; //for now no new reps
+	    	}
 
 	    	if (in_array('openstates', $rep->sources)){
 	    		$array[$i] = $rep;
 	    		continue;
-	    	}
-
-	    	if (isset($data['chamber'])){
-	    		if ($data['chamber'] == 'upper' || $data['chamber'] == 'senate'){
-	    			$rep->title = 'State Senator';
-	    			$rep->office = 'State Senate';
-	    		}else if ($data['chamber'] == 'lower' || $data['chamber'] == 'house'){
-	    			$rep->title = 'State Representative';
-	    			$rep->office = 'State House';
-	    		}
 	    	}
 
 			if (isset($data['offices']) && count($data['offices']) > 0){
@@ -170,7 +161,7 @@ class StateAPI
 				}, $data['offices'][0]);
 
 				foreach($office as $k=>$v){
-					if ( ! empty($rep->$k) || empty($v))
+					if ( !empty($rep->$k) || empty($v) )
 						continue;
 					switch($k){
 						case 'fax';
@@ -182,6 +173,15 @@ class StateAPI
 					}
 				}
 			}
+
+			if (isset($data['photo_url']) && !isset($rep->photo))
+				$rep->photo = $data['photo_url'];
+			if (isset($data['leg_id']))
+				$rep->leg_id = $data['leg_id'];
+			if (isset($data['email']) && !isset($rep->email))
+				$rep->email = $data['email'];
+			if (isset($data['url']) && !isset($rep->website))
+				$rep->website = $data['url'];
 
 			$rep->addSource('openstates');
 			$rep->save();
@@ -241,6 +241,5 @@ class StateAPI
 		}
  		Log::info('finished downloading state api data');
     }
-
 
 }

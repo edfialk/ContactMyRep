@@ -25,6 +25,7 @@ Route::get('logout', 'Auth\AuthController@getLogout');
 Route::group(['prefix' => 'api'], function(){
 	Route::get('wiki/senators', 'WikiController@senators');
 	Route::get('wiki/house', 'WikiController@house');
+	Route::get('sync/openstates', 'SyncController@openstates');
 	Route::group(['prefix' => 'v1'], function(){
 		Route::get('/{zipcode}', 'RepresentativeController@zipcode');
 		Route::get('/{query}', 'RepresentativeController@query');

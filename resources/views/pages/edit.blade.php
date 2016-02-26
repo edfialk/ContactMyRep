@@ -220,6 +220,38 @@
 				</div>
 			</div>
 
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="sources" class="col-sm-2 control-label">Sources</label>
+						<div class="col-sm-10">
+							@if (count($rep['sources']) == 0)
+								<div class="input-group">
+									<input type="text" class="form-control" name="sources[]">
+									<span class="input-group-btn">
+										<button class="btn btn-add" type="button">
+											<span class="glyphicon glyphicon-plus"></span>
+										</button>
+									</span>
+								</div>
+							@else
+								@for ($i = 0; $i < count($rep['sources']); $i++)
+									<?php $url = $rep['sources'][$i] ?>
+									<div class="input-group">
+										<input type="text" class="form-control" name="sources[]" value="{{ $url }}">
+										<span class="input-group-btn">
+											<button class="btn {{ $i == 0 ? 'btn-add' : 'btn-minus' }}" type="button">
+												<span class="glyphicon {{ $i == 0 ? 'glyphicon-plus' : 'glyphicon-minus' }}"></span>
+											</button>
+										</span>
+									</div>
+								@endfor
+							@endif
+						</div>
+					</div>
+				</div>
+			</div>
+
 			@if ($rep->reports()->count() > 0)
 				<div class="panel panel-default">
 					<div class="panel-body">

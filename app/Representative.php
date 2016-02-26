@@ -214,12 +214,10 @@ class Representative extends Model
 	{
 		if (stripos($name, 'house of representatives') !== false){
 			$this->attributes['office'] = 'House of Representatives'; //remove district
-		}else if (stripos($name, 'state house') !== false){
+		}else if (stripos($name, 'state house') !== false || stripos($name, 'state assembly') !== false){
 			$this->attributes['office'] = 'State House';
 		}else if (stripos($name, 'state senate') !== false){
 			$this->attributes['office'] = 'State Senate';
-		}else if (stripos($name, 'state assembly') !== false){
-			$this->attributes['office'] = 'State House';
 		}else{
 			$this->attributes['office'] = str_replace(["United States ", " of the United States"], "", $name);
 		}
@@ -320,7 +318,14 @@ class Representative extends Model
 
     public static function find($query)
     {
-    	$reps = Representative::where('name', $query->name)->get()->all();
+        if (isset($query->first_name) && isset($query->last_name)){
+            $first = $query->first_name;
+            if (stripos($first, " ") !== false){
+                $first = explode(" ", $first)[0];
+            }
+            $query->name = $first.' '.$query->last_name;
+        }
+    	$reps = Representative::name($query->name)->get()->all();
     	if (count($reps) == 1){
     		return $reps[0];
     	}else if (count($reps) > 1){

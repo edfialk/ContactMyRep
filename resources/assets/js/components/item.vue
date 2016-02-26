@@ -56,6 +56,8 @@
 			},
 			phone() {
 				let phone = '';
+				if (!phone)
+					return '';
 				if (typeof this.item.phone == "string")
 					phone = this.item.phone;
 				else if (Array.isArray(this.item.phones))
