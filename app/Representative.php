@@ -333,8 +333,8 @@ class Representative extends Model
     			if (isset($query->district) && isset($query->state))
     				return $query->district == $r->district && $query->state == $r->state;
     		});
-	    	if (count($reps) == 1){
-	    		return $reps[0];
+	    	if (count($reps) === 1){
+	    		return array_pop($reps);
 	    	}
     	}
 
