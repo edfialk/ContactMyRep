@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 
 use App\Representative;
 use StateAPI;
+use Log;
 
 class SyncController extends Controller
 {

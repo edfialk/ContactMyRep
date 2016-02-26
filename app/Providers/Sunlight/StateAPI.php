@@ -146,6 +146,7 @@ class StateAPI
 	    	$rep = Representative::find($valid);
 	    	// if (is_null($rep)) $rep = new Representative($valid);
 	    	if (is_null($rep)){
+	    		Log::info('no rep found for data', (array) $valid);
 	    		continue; //for now no new reps
 	    	}
 
