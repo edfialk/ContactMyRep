@@ -71,7 +71,7 @@ class SyncController extends Controller
                         echo "-- $state --> ".$rep->state."<br>";
                     }else{
                         echo "<h5>ODD DATA: ".count($data)."</h5>";
-                        echo "district: ".$rep->district.", state: ".$rep->state."<br>";
+                        echo "district: ".$rep->district.", state: ".$rep->state.", chamber: ".$rep->chamber."<br>";
                     }
 
                 },
