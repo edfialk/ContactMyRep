@@ -323,7 +323,7 @@ class Representative extends Model
             if (stripos($first, " ") !== false){
                 $first = explode(" ", $first)[0];
             }
-            $query->name = $first.' '.$query->last_name;
+            $query->name = $f.' '.$query->last_name;
         }
     	$reps = Representative::name($query->name)->get()->all();
     	if (count($reps) == 1){
@@ -340,12 +340,12 @@ class Representative extends Model
 	    	}
     	}
 
-    	$q = Representative::whereRaw(array('aliases' => array('$in' => array($query->name))));
+/*    	$q = Representative::whereRaw(array('aliases' => array('$in' => array($query->name))));
     	if (isset($query->division)){
 			return $q->where('division', $query->division)->first();
     	}else if (isset($query->district) && isset($query->state)){
     		return $q->where('district', $query->district)->where('state', strtoupper($query->state))->first();
-    	}
+    	}*/
 
     	return null;
     }
