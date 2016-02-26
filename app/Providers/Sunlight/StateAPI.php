@@ -15,7 +15,7 @@ use App\Representative;
 class StateAPI
 {
 
-	protected $client;
+	public $client;
 
 	//csv and api data
 	//csv: leg_id,full_name,first_name,middle_name,last_name,suffixes,nickname,active,state,chamber,district,party,transparencydata_id,photo_url,created_at,updated_at
@@ -41,7 +41,6 @@ class StateAPI
 		'leg_id',
 		'transparencydata_id',
 		'chamber',
-		'offices'
 	];
 
 	public function __construct()
@@ -64,6 +63,16 @@ class StateAPI
 			$fields[$key] = $key;
 		}
 		$this->fields = $fields;
+	}
+
+	public function client()
+	{
+		return $this->client;
+	}
+
+	public function fields()
+	{
+		return $this->fields;
 	}
 
 	/**

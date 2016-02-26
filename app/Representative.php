@@ -82,6 +82,14 @@ class Representative extends Model
 
     public function save(array $options = array())
     {
+        if (stripos($this->first_name, " ") !== false && empty($this->middle_name)){
+            $p = explode(" ", $this->first_name);
+            if (count($p) == 2){
+                $this->first_name = $p[0];
+                $this->middle_name = $p[1];
+            }
+        }
+
     	$this->setAliases();
     	$this->setDivision();
     	$this->setPhoto();
