@@ -17,15 +17,15 @@
 			</div>
 		</div>
 		<div class="col-sm-6 item-links">
-			<p v-if="website"><a href="{{ website }}"><i class="fa fa-desktop"></i> Homepage</a></p>
-			<p v-if="item.contact_form"><a href="{{ item.contact_form }}"><i class="fa fa-envelope"></i> Email</a></p>
-			<p v-if="email"><a href="mailto:{{ email }}"><i class="fa fa-envelope"></i> Email</a></p>
-			<p v-if="item.facebook_id"><a href="http://facebook.com/{{ item.facebook_id }}"><i class="fa fa-facebook-official"></i> Facebook.com/{{ item.facebook_id }}</a></p>
-			<p v-if="item.twitter_id"><a href="http://twitter.com/{{ item.twitter_id }}"><i class="fa fa-twitter"></i> @{{ item.twitter_id }}</a></p>
-			<p v-if="item.google_id"><a href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-google-plus"></i> {{ item.google_id }}</a></p>
-			<p v-if="item.youtube_id"><a href="http://youtube.com/{{ item.youtube_id }}"><i class="fa fa-youtube"></i> {{ item.youtube_id }}</a></p>
-			<p v-if="role"><a href="/edit/{{ item._id }}"><i class="fa fa-flag"></i> Edit</a></p>
-			<p v-else><a v-on:click="flag" href="#"><i class="fa fa-flag"></i> Report Broken Link</a></p>
+			<p v-if="website"><a href="{{ website }}"><i class="fa fa-fw fa-desktop"></i> Homepage</a></p>
+			<p v-if="item.contact_form"><a href="{{ item.contact_form }}"><i class="fa fa-fw fa-envelope"></i> Email</a></p>
+			<p v-if="email"><a href="mailto:{{ email }}"><i class="fa fa-fw fa-envelope"></i> Email</a></p>
+			<p v-if="item.facebook_id"><a href="http://facebook.com/{{ item.facebook_id }}"><i class="fa fa-fw fa-facebook-official"></i> Facebook.com/{{ item.facebook_id }}</a></p>
+			<p v-if="item.twitter_id"><a href="http://twitter.com/{{ item.twitter_id }}"><i class="fa fa-fw fa-twitter"></i> @{{ item.twitter_id }}</a></p>
+			<p v-if="item.google_id"><a href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-fw fa-google-plus"></i> {{ item.google_id }}</a></p>
+			<p v-if="item.youtube_id"><a href="http://youtube.com/{{ item.youtube_id }}"><i class="fa fa-fw fa-youtube"></i> {{ item.youtube_id }}</a></p>
+			<p v-if="role"><a href="/edit/{{ item._id }}"><i class="fa fa-fw fa-flag"></i> Edit</a></p>
+			<p v-else><a v-on:click="flag" href="#"><i class="fa fa-fw fa-flag"></i> Report Broken Link</a></p>
 		</div>
 	</div>
 </template>
