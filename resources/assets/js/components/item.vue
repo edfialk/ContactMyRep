@@ -55,9 +55,8 @@
 				return '';
 			},
 			phone() {
-				console.log(this.item);
-				let phone = '';
-				if (!this.item.phone && !this.item.phones)
+				var phone = '';
+				if (typeof this.item.phone == 'undefined' && typeof this.item.phones == 'undefined')
 					return '';
 				if (typeof this.item.phone == "string")
 					phone = this.item.phone;
