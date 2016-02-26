@@ -19,7 +19,7 @@ class SyncController extends Controller
 
     public function openstates()
     {
-        $max = 500;
+        $max = 1;
         $requests = [];
         $fields = StateAPI::fields();
         $client = StateAPI::client();
@@ -49,8 +49,8 @@ class SyncController extends Controller
                             }, $data['offices'][0]);
 
                             foreach($office as $k=>$v){
-                                if ( !empty($rep->$k) || empty($v) )
-                                    continue;
+                                if (empty($v)) continue;
+
                                 switch($k){
                                     case 'fax';
                                     case 'phone';
@@ -60,6 +60,7 @@ class SyncController extends Controller
                                     break;
                                 }
                             }
+
                         }
                         $rep->addSource('openstates');
                         $rep->save();

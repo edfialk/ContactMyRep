@@ -7,7 +7,7 @@
 				</div>
 				<div class="col-xs-7">
 					<p class="name">
-						<a v-if="item.website" href="{{ item.website }}">{{ item.name }} {{ party }}</a>
+						<a v-if="website" href="{{ website }}">{{ item.name }} {{ party }}</a>
 						<span v-else>{{ item.name}} {{ party }}</span>
 					</p>
 					<p class="office">{{ item.office }}</p>
@@ -17,9 +17,9 @@
 			</div>
 		</div>
 		<div class="col-sm-6 item-links">
-			<p v-if="item.website"><a href="{{ item.website }}"><i class="fa fa-desktop"></i> Homepage</a></p>
+			<p v-if="website"><a href="{{ website }}"><i class="fa fa-desktop"></i> Homepage</a></p>
 			<p v-if="item.contact_form"><a href="{{ item.contact_form }}"><i class="fa fa-envelope"></i> Email</a></p>
-			<p v-if="item.email"><a href="mailto:{{ item.email }}"><i class="fa fa-envelope"></i> Email</a></p>
+			<p v-if="email"><a href="mailto:{{ email }}"><i class="fa fa-envelope"></i> Email</a></p>
 			<p v-if="item.facebook_id"><a href="http://facebook.com/{{ item.facebook_id }}"><i class="fa fa-facebook-official"></i> Facebook.com/{{ item.facebook_id }}</a></p>
 			<p v-if="item.twitter_id"><a href="http://twitter.com/{{ item.twitter_id }}"><i class="fa fa-twitter"></i> @{{ item.twitter_id }}</a></p>
 			<p v-if="item.google_id"><a href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-google-plus"></i> {{ item.google_id }}</a></p>
@@ -64,6 +64,24 @@
 					phone = this.item.phones[0];
 				phone = phone.replace('(', '').replace(') ', '-');
 				return phone;
+			},
+			email() {
+				if (!this.item.email && !this.item.emails)
+					return '';
+				if (typeof this.item.email == "string")
+					return this.item.email;
+				else if (Array.isArray(this.item.emails))
+					return this.item.emails[0];
+				return '';
+			},
+			website() {
+				if (!this.item.website && !this.item.urls)
+					return '';
+				if (typeof this.item.website == "string")
+					return this.item.website;
+				else if (Array.isArray(this.item.urls))
+					return this.item.urls[0];
+				return '';
 			}
 		},
 		methods: {
