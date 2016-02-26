@@ -71,7 +71,6 @@ class RepSeeder extends Seeder
                     echo "division: $division \n";
 
                     $rep = Representative::firstOrCreate(['division' => $division]);
-
                     $rep->load($d);
                     $rep->addSource('openstates');
                     $rep->save();

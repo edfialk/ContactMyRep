@@ -253,14 +253,8 @@ class StateAPI
 			}
 		}
 
-		if (isset($data['photo_url']))
-			$rep['photo'] = $data['photo_url'];
-		if (isset($data['leg_id']))
-			$rep['leg_id'] = $data['leg_id'];
-		if (isset($data['email']))
-			$rep['email'] = $data['email'];
-		if (isset($data['url']))
-			$rep['website'] = $data['url'];
+		if (is_array($rep['address']) && count($rep['address'] > 0))
+			$rep['address'] = $rep['address'][0];
 
 		return $rep;
     }

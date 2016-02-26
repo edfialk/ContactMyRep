@@ -11211,8 +11211,8 @@ exports.default = {
 			return '';
 		},
 		phone: function phone() {
-			var phone = '';
 			if (typeof this.item.phone == 'undefined' && typeof this.item.phones == 'undefined') return '';
+			var phone = '';
 			if (typeof this.item.phone == "string") phone = this.item.phone;else if (Array.isArray(this.item.phones) && this.item.phones.length > 0) phone = this.item.phones[0];
 			phone = phone.replace('(', '').replace(') ', '-');
 			return phone;

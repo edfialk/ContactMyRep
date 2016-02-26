@@ -41,17 +41,7 @@ class Representative extends Model
 		'emails' => [],
 	];
 
-    protected $fillable = [
-    	'name',
-    	'first_name',
-    	'middle_name',
-    	'last_name',
-    	'name_suffix',
-    	'office',
-    	'sources',
-    	'title',
-    	'division',
-    ];
+    protected $guarded = [];
 
 	protected $collection = 'reps'; //mongo table name
 	protected $primaryKey = '_id';
