@@ -34,7 +34,7 @@ class SyncController extends Controller
 
                 function(ResponseInterface $res) use (&$rep, $fields){
                     $data = json_decode($res->getBody(), true);
-                    if (count($data == 1)){
+                    if (count($data) == 1){
                         $name = $rep->name;
                         $data = $data[0];
                         foreach($fields as $key=>$value){
