@@ -159,7 +159,7 @@ class RepresentativeController extends Controller
             }
         }
 
-        $reps = Representative::name($query)->get()->all()->orderBy('name')->get()->all();
+        $reps = Representative::name($query)->orderBy('name')->get()->all();
         if (count($reps) > 0){
             $res->reps = $reps;
             return response()->json($res);
