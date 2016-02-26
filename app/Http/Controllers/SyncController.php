@@ -17,9 +17,8 @@ use Log;
 class SyncController extends Controller
 {
 
-    public function openstates()
+    public function openstates($max = 100)
     {
-        $max = 1;
         $requests = [];
         $fields = StateAPI::fields();
         $client = StateAPI::client();
