@@ -56,7 +56,7 @@
 			},
 			phone() {
 				let phone = '';
-				if (!phone && !phones)
+				if (!this.item.phone && !this.item.phones)
 					return '';
 				if (typeof this.item.phone == "string")
 					phone = this.item.phone;
