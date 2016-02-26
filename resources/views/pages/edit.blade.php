@@ -20,9 +20,9 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="name_suffix" class="col-sm-2 control-label">Nickname</label>
+						<label for="nickname" class="col-sm-2 control-label">Nickname</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" name="name_suffix" value="{{ $rep['nickname'] ?? '' }}">
+							<input type="text" class="form-control" name="nickname" value="{{ $rep['nickname'] ?? '' }}">
 						</div>
 					</div>
 					<div class="form-group">
