@@ -21,57 +21,39 @@ class SyncController extends Controller
     {
         $max = intval($max);
         $requests = [];
-        $fields = StateAPI::fields();
         $client = StateAPI::client();
 
-        $reps = Representative::where('division', 'like', '%/sld%')->whereNotIn('sources', ['openstates'])->whereNotNull('sources')->take($max)->get();
-        echo 'Total reps: '.count($reps).'<br>';
+        $reps = Representative::where('division', 'like', '%/sld%')->whereNotNull('sources')->whereNotIn('sources', ['openstates'])->take($max)->get();
 
         foreach($reps as $rep){
-            $url = 'legislators?district='.$rep->district.'&state='.$rep->state.'&chamber='.$rep->chamber;
+            $url = 'legislators/?district='.$rep->district.'&state='.$rep->state.'&chamber='.$rep->chamber;
+            echo $url."<br>";
 
             $requests[] = $client->getAsync($url)->then(
 
-                function(ResponseInterface $res) use (&$rep, $fields){
+                function(ResponseInterface $res) use ($fields){
                     $data = json_decode($res->getBody(), true);
                     if (count($data) == 1){
-                        $name = $rep->name;
-                        $dist = $rep->district;
-                        $state = $rep->state;
-                        $data = $data[0];
-                        foreach($fields as $key=>$value){
-                            if (isset($data[$key])){
-                                $rep->$value = $data[$key];
-                            }
-                        }
-                        if (isset($data['offices']) && count($data['offices']) > 0){
+                        $data = StateAPI::format($data[0]);
+                        $division = 'ocd-division/country:us/state:'.$data['state'].'/';
+                        $division .= $data['chamber'] == 'lower' ? 'sldl:' : 'sldu:';
+                        $division .= $data['district'];
+                        echo "division: ".$division."<br>";
+                        $r = Representative::where('division', $division)->firstOrCreate();
+                        $r->load($data);
+                        dd($r);
+                        $r->addSource('openstates');
+                        $r->save();
 
-                            $office = array_first($data['offices'], function($key, $value){
-                                return $key == 'type' && $value == 'capitol';
-                            }, $data['offices'][0]);
-
-                            foreach($office as $k=>$v){
-                                if (empty($v)) continue;
-
-                                switch($k){
-                                    case 'fax';
-                                    case 'phone';
-                                    case 'address';
-                                    case 'email';
-                                        $rep->$k = $v;
-                                    break;
-                                }
-                            }
-
-                        }
-                        $rep->addSource('openstates');
-                        $rep->save();
-                        echo "$name --> ".$rep->name."<br>";
-                        echo "-- $district --> ".$rep->district."<br>";
-                        echo "-- $state --> ".$rep->state."<br>";
+                        echo "$name --> ".$r->name."<br>";
+                        echo "-- $dist --> ".$r->district."<br>";
+                        echo "-- $state --> ".$r->state."<br>";
                     }else{
-                        echo "<h5>ODD DATA: ".count($data)."</h5>";
-                        echo "district: ".$rep->district.", state: ".$rep->state.", chamber: ".$rep->chamber."<br>";
+                        echo "<br>UNEXPECTED DATA COUNT: ".count($data)."<br>";
+                        echo "<pre>";
+                        print_r($data);
+                        echo "</pre>";
+                        die();
                     }
 
                 },

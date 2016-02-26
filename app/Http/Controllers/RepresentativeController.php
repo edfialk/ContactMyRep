@@ -63,7 +63,6 @@ class RepresentativeController extends Controller
         }
 
         $reps = Representative::atLocation($l);
-
         $updates = [];
         $keeps = [];
         foreach($reps as $rep){

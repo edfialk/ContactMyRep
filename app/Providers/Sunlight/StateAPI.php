@@ -28,19 +28,19 @@ class StateAPI
 
 	const copy = [
 		'address',
-		'first_name',
-		'middle_name',
-		'last_name',
-		'nickname',
-		'suffixes',
-		'district',
-		'state',
-		'votesmart_id',
-		'party',
-		'email',
-		'leg_id',
-		'transparencydata_id',
 		'chamber',
+		'district',
+		'email',
+		'first_name',
+		'last_name',
+		'leg_id',
+		'middle_name',
+		'nickname',
+		'party',
+		'suffixes',
+		'state',
+		'transparencydata_id',
+		'votesmart_id',
 	];
 
 	public function __construct()
@@ -110,6 +110,11 @@ class StateAPI
 		);
 	}
 
+	public function state($state)
+	{
+		return $this->async('legislators/?state='.$state);
+	}
+
 	/**
 	 * query api by district
 	 * @param  string  $state    2 letter state abbreviation
@@ -148,54 +153,8 @@ class StateAPI
 				continue;
 			}
 
-			$valid = new \stdClass();
-			foreach($this->fields as $key=>$value){
-				if (isset($data[$key])) $valid->$value = $data[$key];
-			}
-	    	$rep = Representative::find($valid);
-	    	// if (is_null($rep)) $rep = new Representative($valid);
-	    	if (is_null($rep)){
-	    		Log::info('no rep found for data', (array) $valid);
-	    		continue; //for now no new reps
-	    	}
-
-	    	if (in_array('openstates', $rep->sources)){
-	    		$array[$i] = $rep;
-	    		continue;
-	    	}
-
-			if (isset($data['offices']) && count($data['offices']) > 0){
-
-				$office = array_first($data['offices'], function($key, $value){
-					return $key == 'type' && $value == 'capitol';
-				}, $data['offices'][0]);
-
-				foreach($office as $k=>$v){
-					if ( !empty($rep->$k) || empty($v) )
-						continue;
-					switch($k){
-						case 'fax';
-						case 'phone';
-						case 'address';
-						case 'email';
-							$rep->$k = $v;
-						break;
-					}
-				}
-			}
-
-			if (isset($data['photo_url']) && !isset($rep->photo))
-				$rep->photo = $data['photo_url'];
-			if (isset($data['leg_id']))
-				$rep->leg_id = $data['leg_id'];
-			if (isset($data['email']) && !isset($rep->email))
-				$rep->email = $data['email'];
-			if (isset($data['url']) && !isset($rep->website))
-				$rep->website = $data['url'];
-
-			$rep->addSource('openstates');
-			$rep->save();
-	    	$array[$i] = $rep;
+			$valid = $this->format($data);
+	    	$array[$i] = $valid;
 		}
 
 		return array_values($array);
@@ -226,7 +185,7 @@ class StateAPI
 			$zip_path = $data_path."temp/zips/".$state.".zip";
 			$unzip_path = $data_path."states/".$state;
 
-			$url = $x->query('.//td[3]/a', $rows->item($i))[0];
+			$url = $x->query('.//td[2]/a', $rows->item($i))[0];
 			$url = $url->getAttribute('href');
 
 			$file = file_get_contents($url);
@@ -252,4 +211,57 @@ class StateAPI
  		Log::info('finished downloading state api data');
     }
 
+    /**
+     * convert OpenStates JSON Data to ContactMyReps data
+     * @param  array $data openstates decoded json response
+     * @return array       array filtered and renamed using contactmyreps format
+     */
+    public function format($data)
+    {
+    	$rep = [];
+		foreach($this->fields as $key=>$value){
+			if (isset($data[$key])) $rep[$value] = $data[$key];
+		}
+
+		if (isset($data['offices']) && count($data['offices']) > 0){
+
+			$office = array_first($data['offices'], function($key, $value){
+				return $key == 'type' && $value == 'capitol';
+			}, $data['offices'][0]);
+
+			foreach($office as $k=>$v){
+				if ( !empty($rep->$k) || empty($v) )
+					continue;
+				switch($k){
+					case 'fax';
+					case 'phone';
+					case 'address';
+					case 'email';
+						$rep[$k] = $v;
+					break;
+				}
+			}
+		}
+
+		if (isset($data['chamber'])){
+			if ($data['chamber'] == 'upper'){
+				$rep['office'] = 'State Senate';
+				$rep['title'] = 'State Senator';
+			}else{
+				$rep['office'] = 'State House';
+				$rep['title'] = 'State Representative';
+			}
+		}
+
+		if (isset($data['photo_url']))
+			$rep['photo'] = $data['photo_url'];
+		if (isset($data['leg_id']))
+			$rep['leg_id'] = $data['leg_id'];
+		if (isset($data['email']))
+			$rep['email'] = $data['email'];
+		if (isset($data['url']))
+			$rep['website'] = $data['url'];
+
+		return $rep;
+    }
 }

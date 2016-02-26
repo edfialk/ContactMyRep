@@ -103,7 +103,6 @@ class GoogleAPI
 	{
 		$divisions = [];
 		foreach($reps as $rep){
-			if ($rep->hasSource('google')) continue;
 			if ( ! empty($rep->division) && ! in_array($rep->division, $divisions))
 				array_push($divisions, $rep->division);
 		}

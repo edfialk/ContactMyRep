@@ -21,9 +21,9 @@ class RepSeeder extends Seeder
     	// UNCOMMENT BELOW LINE TO RE-DOWNLOAD DATA
     	// $this->downloadStates();
 
-    	$this->congress();
+    	// $this->congress();
     	$this->states();
-    	$this->google();
+    	// $this->google();
     }
 
     public function google()
@@ -58,22 +58,27 @@ class RepSeeder extends Seeder
 
     public function states()
     {
-		$dir = 'resources/assets/data/states/';
-		$di = new RecursiveDirectoryIterator($dir);
-		foreach (new RecursiveIteratorIterator($di) as $filename => $file) {
-			if (stripos($filename, 'legislators.csv') === false)
-				continue;
+        $api = new StateAPI();
+        foreach(Location::states as $state=>$state_name){
+            $request = $api->state($state)->then(function($data) use ($api){
+                foreach($data as $d){
+                    if (!isset($d['state']) || !isset($d['chamber']) || !isset($d['district'])) continue;
 
-			$data = $this->readCSV($filename);
-		    $data = StateAPI::validate($data);
-		    foreach($data as $d){
-                $d['source'] = ['openstates'];
-                $rep = Representative::fromData($d);
-		    	if (! Representative::exists($rep) ){
+                    $d = $api->format($d);
+                    $division = 'ocd-division/country:us/state:'.$d['state'].'/sld';
+                    $division .= $d['chamber'] == 'upper' ? 'u' : 'l' ;
+                    $division .= ':'.$d['district'];
+                    echo "division: $division \n";
+
+                    $rep = Representative::firstOrCreate(['division' => $division]);
+
+                    $rep->load($d);
+                    $rep->addSource('openstates');
                     $rep->save();
                 }
-		    }
-		}
+            });
+            $request->wait();
+        }
     }
 
     public function congress()

@@ -264,22 +264,22 @@ class Representative extends Model
     }
     public function scopeState($query, $state)
     {
-    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state))->get()->all();
+    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state));
     }
 
     public function scopesldl($query, $state, $district)
     {
-    	return $query->where('division','ocd-division/country:us/state:'.strtolower($state).'/sldl:'.$district)->get()->all();
+    	return $query->where('division','ocd-division/country:us/state:'.strtolower($state).'/sldl:'.$district);
     }
 
     public function scopesldu($query, $state, $district)
     {
-    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state).'/sldu:'.$district)->get()->all();
+    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state).'/sldu:'.$district);
     }
 
     public function scopecd($query, $state, $district)
     {
-    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state).'/cd:'.$district)->first();
+    	return $query->where('division', 'ocd-division/country:us/state:'.strtolower($state).'/cd:'.$district);
     }
 
     public function scopeAtLocation($query, $location)
@@ -288,7 +288,7 @@ class Representative extends Model
         //US house
         if (isset($location->cd)){
 	        foreach($location->cd as $cd){
-                $q = self::cd($location->state, $cd);
+                $q = self::cd($location->state, $cd)->first();
                 if (!is_null($q)) $resp[] = $q;
 	        }
 	    }
@@ -296,21 +296,21 @@ class Representative extends Model
         //state district upper
         if (isset($location->sldu)){
 	        foreach($location->sldu as $sldu){
-                $q = self::sldu($location->state, $sldu);
-                if (is_array($q)) $resp = array_merge($resp, $q);
+                $q = self::sldu($location->state, $sldu)->first();
+                if (!is_null($q)) $resp[] = $q;
 	        }
 	    }
 
         //state district lower
         if (isset($location->sldl)){
 	        foreach($location->sldl as $sldl){
-                $q = self::sldl($location->state, $sldl);
-                if (is_array($q)) $resp = array_merge($resp, $q);
+                $q = self::sldl($location->state, $sldl)->first();
+                if (!is_null($q)) $resp[] = $q;
 	        }
 	    }
 
         //governor and US senators
-        $q = self::state($location->state);
+        $q = self::state($location->state)->get()->all();
         if (is_array($q)) $resp = array_merge($resp, $q);
 
         //president
@@ -348,42 +348,6 @@ class Representative extends Model
 	    	}
     	}
 
-/*    	$q = Representative::whereRaw(array('aliases' => array('$in' => array($query->name))));
-    	if (isset($query->division)){
-			return $q->where('division', $query->division)->first();
-    	}else if (isset($query->district) && isset($query->state)){
-    		return $q->where('district', $query->district)->where('state', strtoupper($query->state))->first();
-    	}*/
-
     	return null;
-    }
-
-    public static function sync($data, $src)
-    {
-    	if (!is_array($data)) $data = [$data];
-
-    	$c = count($data);
-    	for($i = 0; $i < $c; $i++){
-    		$grep = $data[$i];
-
-        	if (method_exists($grep, 'getAttributes'))
-        		$grep = $grep->getAttributes();
-	    	if (is_array($grep))
-	    		$grep = (object) $grep;
-
-    		if (isset($grep->office) && in_array($grep->office, ['State House', 'State Senate', 'Senate', 'Representative'])){
-		        $rep = Representative::find($grep);
-		        if (!is_null($rep)){
-		            foreach($grep as $k=>$v){
-		                if (!empty($v) && !isset($rep->$k)){
-		                    $rep->$k = $v;
-		                }
-		            }
-		            $rep->addSource($src);
-		            $rep->save();
-		            $data[$i] = $rep;
-		        }
-    		}
-    	}
     }
 }
