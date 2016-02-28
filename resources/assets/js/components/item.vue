@@ -1,31 +1,35 @@
 <template>
 	<div class="row">
-		<div class="col-sm-6">
+		<div class="container">
 			<div class="row">
-				<div class="col-xs-5 text-right">
-					<img v-if="item.photo" v-bind:src="item.photo">
+				<div class="col-sm-6">
+					<div class="row">
+						<div class="col-xs-5 img-wrap">
+							<img v-if="item.photo" v-bind:src="item.photo">
+						</div>
+						<div class="col-xs-7">
+							<p class="name">
+								<a v-if="website" href="{{ website }}">{{ item.name }} {{ party }}</a>
+								<span v-else>{{ item.name}} {{ party }}</span>
+							</p>
+							<p class="office">{{ item.office }}</p>
+							<p v-if="phone"><strong>Telephone:</strong> {{ phone }}</p>
+							<address v-if="address"><strong>Address:</strong><br>{{{ address }}}</address>
+						</div>
+					</div>
 				</div>
-				<div class="col-xs-7">
-					<p class="name">
-						<a v-if="website" href="{{ website }}">{{ item.name }} {{ party }}</a>
-						<span v-else>{{ item.name}} {{ party }}</span>
-					</p>
-					<p class="office">{{ item.office }}</p>
-					<p v-if="phone"><strong>Telephone:</strong> {{ phone }}</p>
-					<address v-if="address"><strong>Address:</strong><br>{{{ address }}}</address>
+				<div class="col-xs-10 col-xs-offset-1 col-sm-5 col-sm-offset-0 col-md-5 item-links">
+					<p v-if="website"><a href="{{ website }}"><i class="fa fa-fw fa-desktop"></i> Homepage</a></p>
+					<p v-if="item.contact_form"><a href="{{ item.contact_form }}"><i class="fa fa-fw fa-envelope"></i> Email</a></p>
+					<p v-if="email"><a href="mailto:{{ email }}"><i class="fa fa-fw fa-envelope"></i> Email</a></p>
+					<p v-if="item.facebook_id"><a href="http://facebook.com/{{ item.facebook_id }}"><i class="fa fa-fw fa-facebook-official"></i> Facebook.com/{{ item.facebook_id }}</a></p>
+					<p v-if="item.twitter_id"><a href="http://twitter.com/{{ item.twitter_id }}"><i class="fa fa-fw fa-twitter"></i> @{{ item.twitter_id }}</a></p>
+					<p v-if="item.google_id"><a href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-fw fa-google-plus"></i> {{ item.google_id }}</a></p>
+					<p v-if="item.youtube_id"><a href="http://youtube.com/{{ item.youtube_id }}"><i class="fa fa-fw fa-youtube"></i> {{ item.youtube_id }}</a></p>
+					<p v-if="role"><a href="/edit/{{ item._id }}?redirect={{ redirect }}"><i class="fa fa-fw fa-flag"></i> Edit</a></p>
+					<p v-else><a v-on:click="flag" href="#"><i class="fa fa-fw fa-flag"></i> Report Broken Link</a></p>
 				</div>
 			</div>
-		</div>
-		<div class="col-sm-6 item-links">
-			<p v-if="website"><a href="{{ website }}"><i class="fa fa-fw fa-desktop"></i> Homepage</a></p>
-			<p v-if="item.contact_form"><a href="{{ item.contact_form }}"><i class="fa fa-fw fa-envelope"></i> Email</a></p>
-			<p v-if="email"><a href="mailto:{{ email }}"><i class="fa fa-fw fa-envelope"></i> Email</a></p>
-			<p v-if="item.facebook_id"><a href="http://facebook.com/{{ item.facebook_id }}"><i class="fa fa-fw fa-facebook-official"></i> Facebook.com/{{ item.facebook_id }}</a></p>
-			<p v-if="item.twitter_id"><a href="http://twitter.com/{{ item.twitter_id }}"><i class="fa fa-fw fa-twitter"></i> @{{ item.twitter_id }}</a></p>
-			<p v-if="item.google_id"><a href="http://plus.google.com/{{ item.google_id }}"><i class="fa fa-fw fa-google-plus"></i> {{ item.google_id }}</a></p>
-			<p v-if="item.youtube_id"><a href="http://youtube.com/{{ item.youtube_id }}"><i class="fa fa-fw fa-youtube"></i> {{ item.youtube_id }}</a></p>
-			<p v-if="role"><a href="/edit/{{ item._id }}?redirect={{ redirect }}"><i class="fa fa-fw fa-flag"></i> Edit</a></p>
-			<p v-else><a v-on:click="flag" href="#"><i class="fa fa-fw fa-flag"></i> Report Broken Link</a></p>
 		</div>
 	</div>
 </template>
@@ -97,7 +101,12 @@
 	};
 </script>
 
-<style>
+<style lang="sass">
+	.results .img-wrap {
+		@media screen and (max-width: 767px){
+			text-align: center;
+		}
+	}
 	.results img {
 		margin: 0 auto;
 		width: 180px;
@@ -117,5 +126,8 @@
 	}
 	.office {
 		font-size: 18px;
+	}
+	.item-links {
+		padding-top: 10px;
 	}
 </style>

@@ -3,6 +3,9 @@
 use App\Representative;
 use App\Location;
 
+Route::get('404', function(){
+	return view('errors.404');
+});
 
 //Authenticated routes
 Route::group(['middleware' => 'auth'], function(){

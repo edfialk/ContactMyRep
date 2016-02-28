@@ -43,6 +43,64 @@ class RepresentativeController extends Controller
     }
 
     /**
+     *  General string query (not zip or lat/lng) - could be address, city, state, or name
+     * @param  string $query text input from homepage
+     * @return json
+     */
+    public function query($query)
+    {
+        $res = new \stdClass();
+
+        //check if query is a state
+        $states = Location::states;
+        $state_names = array_map('strtolower', array_values($states));
+        $state_abbrevs = array_keys($states);
+
+        if (in_array(strtolower($query), $state_names)){
+            $state = $state_abbrevs[array_search(strtolower($query), $state_names)];
+        }else if (in_array(strtoupper($query), $state_abbrevs)){
+            $state = strtoupper($query);
+        }
+
+        if (isset($state)){
+            $res->reps = Representative::state($state)->get()->all();
+            $res->location = (object) [
+                'state' => $state,
+                'state_name' => Location::states[$state]
+            ];
+            $res->reps[] = Representative::where('office','President')->first();
+            usort($res->reps, 'rankSort');
+            return response()->json($res);
+        }
+
+        //if query has number try address
+        if (preg_match('/[0-9,]/', $query)){
+            $address = $this->address($query);
+            if (isset($address->getData()->status) && $address->getData()->status == "error"){
+                return $this->error($address->getData()->message);
+            }
+            if (count($address->getData()->reps) > 0){
+                return $address;
+            }
+        }
+
+        //if query doesnt have number try name
+        $reps = Representative::name($query)->orderBy('name')->get()->all();
+        if (count($reps) > 0){
+            $res->reps = $reps;
+            return response()->json($res);
+        }
+
+        //if no name, or state, try address
+        $address = $this->address($query);
+        if (isset($address->getData()->reps) && count($address->getData()->reps) > 0){
+            return $address;
+        }
+
+        return $this->error('No results.');
+    }
+
+    /**
      * Query by zipcode
      * @param  string $zipcode 5 digit zipcode - validated in route
      * @return json
@@ -103,59 +161,6 @@ class RepresentativeController extends Controller
         }
 
         return response()->json($resp);
-    }
-
-    public function query($query)
-    {
-        $res = new \stdClass();
-
-        //check if query is a state
-        $states = Location::states;
-        $state_names = array_map('strtolower', array_values($states));
-        $state_abbrevs = array_keys($states);
-
-        if (in_array(strtolower($query), $state_names)){
-            $state = $state_abbrevs[array_search(strtolower($query), $state_names)];
-        }else if (in_array(strtoupper($query), $state_abbrevs)){
-            $state = strtoupper($query);
-        }
-
-        if (isset($state)){
-            $res->reps = Representative::state($state)->get()->all();
-            $res->location = (object) [
-                'state' => $state,
-                'state_name' => Location::states[$state]
-            ];
-            $res->reps[] = Representative::where('office','President')->first();
-            usort($res->reps, 'rankSort');
-            return response()->json($res);
-        }
-
-        //if query has number try address
-        if (preg_match('/[0-9,]/', $query)){
-            $address = $this->address($query);
-            if (isset($address->getData()->status) && $address->getData()->status == "error"){
-                return $this->error($address->getData()->message);
-            }
-            if (count($address->getData()->reps) > 0){
-                return $address;
-            }
-        }
-
-        //if query doesnt have number try name
-        $reps = Representative::name($query)->orderBy('name')->get()->all();
-        if (count($reps) > 0){
-            $res->reps = $reps;
-            return response()->json($res);
-        }
-
-        //if no name, or state, try address
-        $address = $this->address($query);
-        if (isset($address->getData()->reps) && count($address->getData()->reps) > 0){
-            return $address;
-        }
-
-        return $this->error('No results.');
     }
 
     /**
@@ -240,6 +245,7 @@ class RepresentativeController extends Controller
             'text' => $request->input('text', '')
         ]);
     }
+
     /**
      * give json error
      * @param  string $error message

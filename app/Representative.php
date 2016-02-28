@@ -55,8 +55,12 @@ class Representative extends Model
             if (count($p) == 2){
                 $this->first_name = $p[0];
                 $this->middle_name = $p[1];
+            }else{
+                $this->first_name = array_shift($p);
+                $this->middle_name = implode(" ", $p);
             }
         }
+
         if (strlen($this->middle_name) == 1){
             $this->middle_name = $this->middle_name.'.';
         }
@@ -80,12 +84,9 @@ class Representative extends Model
      */
     public function load($data)
     {
-		foreach($keys as $key=>$value){
-			if (is_string($key) && isset($data[$key]))
-				$this->$value = $data[$key];
-			else if (isset($data[$value]))
-				$this->$value = $data[$value];
-		}
+        foreach($data as $key=>$value){
+            $this->$key = $value;
+        }
     }
 
     /**
