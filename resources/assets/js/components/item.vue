@@ -4,10 +4,10 @@
 			<div class="row">
 				<div class="col-sm-6">
 					<div class="row">
-						<div class="col-xs-5 img-wrap">
+						<div class="col-xs-offset-1 col-xs-5 col-sm-offset-0 img-wrap">
 							<img v-if="item.photo" v-bind:src="item.photo">
 						</div>
-						<div class="col-xs-7">
+						<div class="col-xs-6 col-sm-7">
 							<p class="name">
 								<a v-if="website" href="{{ website }}">{{ item.name }} {{ party }}</a>
 								<span v-else>{{ item.name}} {{ party }}</span>
@@ -18,7 +18,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-xs-10 col-xs-offset-1 col-sm-5 col-sm-offset-0 col-md-5 item-links">
+				<div class="col-xs-offset-1 col-sm-5 item-links">
 					<p v-if="website"><a href="{{ website }}"><i class="fa fa-fw fa-desktop"></i> Homepage</a></p>
 					<p v-if="item.contact_form"><a href="{{ item.contact_form }}"><i class="fa fa-fw fa-envelope"></i> Email</a></p>
 					<p v-if="email"><a href="mailto:{{ email }}"><i class="fa fa-fw fa-envelope"></i> Email</a></p>
@@ -102,15 +102,13 @@
 </script>
 
 <style lang="sass">
-	.results .img-wrap {
-		@media screen and (max-width: 767px){
-			text-align: center;
-		}
-	}
 	.results img {
 		margin: 0 auto;
 		width: 180px;
 		max-width: 100%;
+		@media screen and (max-width: 767px){
+			margin-bottom: 10px;
+		}
 	}
 	.results .row {
 		padding-top: 10px;
@@ -129,5 +127,11 @@
 	}
 	.item-links {
 		padding-top: 10px;
+		@media screen and (max-width: 767px){
+			padding-top: 0;
+		}
+	}
+	address {
+		margin-bottom: 10px;
 	}
 </style>
