@@ -41,6 +41,8 @@ class StateAPI
 		'state',
 		'transparencydata_id',
 		'votesmart_id',
+		'photo',
+		'website'
 	];
 
 	public function __construct()

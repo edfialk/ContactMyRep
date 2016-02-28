@@ -60,7 +60,6 @@ class RepSeeder extends Seeder
             $request = $api->state($state)->then(function($data) use ($api){
                 foreach($data as $d){
                     if (!isset($d['state']) || !isset($d['chamber']) || !isset($d['district'])) continue;
-
                     $d = $api->format($d);
                     $division = 'ocd-division/country:us/state:'.$d['state'].'/sld';
                     $division .= $d['chamber'] == 'upper' ? 'u' : 'l' ;
