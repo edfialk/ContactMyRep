@@ -150,6 +150,7 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Jenssegers\Mongodb\MongodbServiceProvider::class,
         Arcanedev\LogViewer\LogViewerServiceProvider::class,
+        GrahamCampbell\Markdown\MarkdownServiceProvider::class
     ],
 
     /*
@@ -203,6 +204,7 @@ return [
         'GoogleAPI' => App\Providers\Google\GoogleAPIFacade::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Moloquent' => Jenssegers\Mongodb\Model::class,
+        'Markdown' => GrahamCampbell\Markdown\Facades\Markdown::class
 
     ],
 

@@ -3,10 +3,6 @@
 use App\Representative;
 use App\Location;
 
-Route::get('404', function(){
-	return view('errors.404');
-});
-
 //Authenticated routes
 Route::group(['middleware' => 'auth'], function(){
 	Route::get('log-viewer', '\Arcanedev\LogViewer\Http\Controllers\LogViewerController@index');
@@ -38,6 +34,7 @@ Route::group(['prefix' => 'api'], function(){
 });
 
 //Page routes...
+Route::get('about', 'PageController@about');
 Route::get('', 'RepresentativeController@index');
 Route::get('{zipcode}', 'RepresentativeController@view');
 Route::get('{query}', 'RepresentativeController@view');
