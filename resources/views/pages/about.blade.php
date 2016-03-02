@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div id="about" class="container-fluid">
+<div id="about" class="container-fluid page">
 
 	@include('partials/_nav')
 
@@ -25,6 +25,12 @@
 
 @section('scripts.body')
 	<script>
-		
+		$('.enable-geo').click(function(){
+			window.location = '/me';
+		});
+		$('form').submit(function(e){
+			e.preventDefault();
+			window.location = '/'+$('#input').val();
+		});
 	</script>
 @stop

@@ -1,4 +1,4 @@
-ContactMyReps.org is a comprehensive government tracking website aimed at providing every possible contact channel, including social media, for U.S. representatives in the highest levels of government. The site is used by ordinary citizens and it  provides them a tool to become engaged in the democratic process and to hold elected official accountable.
+ContactMyReps.org is a comprehensive government tracking website aimed at providing every possible contact channel, including social media, for U.S. representatives in the highest levels of government. The site is used by ordinary citizens as a tool to become engaged in the democratic process and to hold elected officials accountable.
 
 We created a sophisticated search engine that accurately identifies all of your elected representatives based on your zip code alone. You can also search by using your location, by state or even by a representative’s name. We bring together all of their official communication methods along with their social media accounts so that you can use your preferred method of communication.
 
