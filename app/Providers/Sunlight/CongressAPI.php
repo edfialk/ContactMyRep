@@ -30,7 +30,7 @@ class CongressAPI
 	{
 		$this->api_key = env('SUNLIGHT_KEY', null);
 
-		if (is_null($this->api_key)){
+		if (null === $this->api_key){
 			abort(500, 'Missing Sunlight API key');
 		}
 

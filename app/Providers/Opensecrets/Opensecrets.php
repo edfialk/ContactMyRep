@@ -14,7 +14,7 @@ class Opensecrets
 	{
 
 		$this->api_key = env('OPENSECRETS_KEY', null);
-		if (is_null($this->api_key)){
+		if (null === $this->api_key){
 			abort(500, 'Missing OpenSecrets API key');
 		}
 
@@ -26,7 +26,7 @@ class Opensecrets
 	public function get($method = null, $cid = null, $cycle = 2016)
 	{
 		//cid: 'N00007360'
-		if (is_null($method)){
+		if (null === $method){
 			abort(500, 'Missing method for OpenSecrets API call');
 		}
 		//check cid for some methods
@@ -47,7 +47,7 @@ class Opensecrets
 	}
 
 	public function getCandidate($cid = null){
-		if (is_null($cid)){
+		if (null === $cid){
 			abort(500, 'Missing candidate id for OpenSecrets candidate request');
 		}
 

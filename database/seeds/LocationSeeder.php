@@ -29,7 +29,7 @@ class LocationSeeder extends Seeder
     	for ($i = 1; $i < count($file); $i++){
     		$pieces = explode(",", $file[$i]);
     		$loc = Location::where('zip', intval($pieces[0]))->first();
-    		if (is_null($loc)){
+    		if (null === $loc){
     			$loc = new Location();
     			$loc->zip = intval($pieces[0]);
     		}
@@ -75,7 +75,7 @@ class LocationSeeder extends Seeder
         for($i = 3; $i<$rows->length; $i++){
         	$row = $rows[$i];
         	$a = $x->query('./td[2]/a', $row)[0];
-        	if (is_null($a)){
+        	if (null === $a){
         		return;
         	}
         	$folder = $a->getAttribute('href');
@@ -127,7 +127,7 @@ class LocationSeeder extends Seeder
 			$district = ltrim(trim($line[2]), "0");
 
 			$loc = Location::where('zip', intval($line[1]))->first();
-			if (is_null($loc)){
+			if (null === $loc){
 				$loc = new Location();
 				$loc->zip = intval($zip);
 			}

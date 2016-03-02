@@ -49,7 +49,7 @@ class StateAPI
 	{
 		$this->api_key = env('SUNLIGHT_KEY', null);
 
-		if (is_null($this->api_key)){
+		if (null === $this->api_key){
 			abort(500, 'Missing Sunlight API key');
 		}
 
@@ -65,16 +65,6 @@ class StateAPI
 			$fields[$key] = $key;
 		}
 		$this->fields = $fields;
-	}
-
-	public function client()
-	{
-		return $this->client;
-	}
-
-	public function fields()
-	{
-		return $this->fields;
 	}
 
 	/**

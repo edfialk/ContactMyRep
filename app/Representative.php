@@ -244,7 +244,7 @@ class Representative extends Model
         if (isset($location->cd)){
 	        foreach($location->cd as $cd){
                 $q = self::cd($location->state, $cd)->first();
-                if (!is_null($q)) $resp[] = $q;
+                if (null !== $q) $resp[] = $q;
 	        }
 	    }
 
@@ -252,7 +252,7 @@ class Representative extends Model
         if (isset($location->sldu)){
 	        foreach($location->sldu as $sldu){
                 $q = self::sldu($location->state, $sldu)->first();
-                if (!is_null($q)) $resp[] = $q;
+                if (null !== $q) $resp[] = $q;
 	        }
 	    }
 
@@ -260,7 +260,7 @@ class Representative extends Model
         if (isset($location->sldl)){
 	        foreach($location->sldl as $sldl){
                 $q = self::sldl($location->state, $sldl)->first();
-                if (!is_null($q)) $resp[] = $q;
+                if (null !== $q) $resp[] = $q;
 	        }
 	    }
 
@@ -276,7 +276,7 @@ class Representative extends Model
 
     public static function exists($rep)
     {
-    	return !is_null(self::find($rep));
+    	return null !== self::find($rep);
     }
 
     public static function find($query)

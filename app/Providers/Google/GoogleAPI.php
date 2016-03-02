@@ -22,7 +22,7 @@ class GoogleAPI
 	{
 		$this->api_key = env('GOOGLE_KEY', null);
 
-		if (is_null($this->api_key))
+		if (null === $this->api_key)
 			abort(500, 'Missing Google API key');
 
 		$this->client = new Client([
@@ -46,7 +46,7 @@ class GoogleAPI
 	        },
 	        function (RequestException $e){
 	        	$msg = $e->getResponse();
-	        	$msg = is_null($msg) ? "Google Error" : $msg->getReasonPhrase();
+	        	$msg = null === $msg ? "Google Error" : $msg->getReasonPhrase();
 	        	return (object)[
 	        		'status' => 'error',
 	        		'message' => $msg
@@ -137,7 +137,7 @@ class GoogleAPI
 			);
 			if (!empty($city) && !empty($l->zip)){
 				$location = Location::where('zip', intval($l->zip))->first();
-				if (!is_null($location)){
+				if (null !== $location){
 					$location->city = $city;
 					$location->save();
 				}
@@ -166,7 +166,7 @@ class GoogleAPI
 
 				$rep = Representative::find($d);
 				// if (is_null($rep)) $rep = new Representative((array) $d);
-				if (is_null($rep)) continue; //for now no new reps
+				if (null === $rep) continue; //for now no new reps
 
 				if (in_array('google', $rep->sources)){
 					$response->reps[] = $rep;

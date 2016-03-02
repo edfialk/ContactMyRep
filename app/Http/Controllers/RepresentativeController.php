@@ -110,7 +110,7 @@ class RepresentativeController extends Controller
         $resp = new \stdClass();
 
         $l = Location::where('zip', intval($zipcode))->first();
-        if (is_null($l)){
+        if (null === $l){
             return [
                 'status' => 'error',
                 'message' => 'zipcode not found'
@@ -204,7 +204,7 @@ class RepresentativeController extends Controller
     public function store(Request $request, $id)
     {
         $q = Representative::where('_id',$id)->first();
-        if (is_null($q)){
+        if (null === $q){
             return $this->error("no representative with id: $id");
         }
         //todo: validator
@@ -237,7 +237,7 @@ class RepresentativeController extends Controller
     public function flag(Request $request, $id)
     {
         $rep = Representative::where('_id', $id)->first();
-        if (is_null($rep)){
+        if (null === $rep){
             return $this->error("no representative with id: $id");
         }
 
