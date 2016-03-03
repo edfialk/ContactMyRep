@@ -5,7 +5,7 @@
 
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-	<meta name="description" content="@yield('description')">
+	<meta name="description" content="@yield('description', 'A comprehensive government tracking website aimed at providing every possible contact channel for U.S. representatives in government. Search by zipcode, address, city, or name to find your government representatives.')">
 	<meta name="google-site-verification" content="AE_XVi6xkk5SCzCBGF_nUkmWOW5GNZRnB7IaaRLPxPI" />
 
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
