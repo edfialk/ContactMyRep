@@ -12,7 +12,6 @@ class PageController extends Controller
 {
     public function about()
     {
-        // $page = Markdown::convertToHtml(view('markdown.about'));
         return view('pages.about');
     }
 

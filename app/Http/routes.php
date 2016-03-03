@@ -35,6 +35,8 @@ Route::group(['prefix' => 'api'], function(){
 
 //Page routes...
 Route::get('about', 'PageController@about');
+Route::get('contact', 'ContactController@index');
+Route::post('contact', 'ContactController@sendContactMessage');
 Route::get('', 'RepresentativeController@index');
 Route::get('{zipcode}', 'RepresentativeController@view');
 Route::get('{query}', 'RepresentativeController@view');

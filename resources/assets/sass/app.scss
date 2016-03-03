@@ -152,3 +152,17 @@ img {
 .edit .input-field {
 	margin-top: 3rem;
 }
+
+#contact .sidebar-right {
+	.row {
+		margin-top: 20px;
+	}
+	img {
+		width: 50px;
+	}
+	.contact-label {
+		text-transform: uppercase;
+		display: block;
+		font-weight: bold;
+	}
+}
