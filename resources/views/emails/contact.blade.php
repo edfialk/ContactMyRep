@@ -10,8 +10,6 @@
 </ul>
 <hr>
 <p>
-  @foreach ($messageLines as $messageLine)
-    {{ $messageLine }}<br>
-  @endforeach
+  {{ $message }}
 </p>
 <hr>

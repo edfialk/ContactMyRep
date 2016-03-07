@@ -16,7 +16,8 @@ class ContactController extends Controller
     public function sendContactMessage(ContactRequest $request)
     {
         $data = $request->only('name', 'email');
-        $data['messageLines'] = explode("\n", $request->get('message'));
+        $data['message'] = str_replace('/\\n/g', '<br>', $data['message']);
+        // $data['messageLines'] = explode("\n", $request->get('message'));
 
         Mail::send('emails.contact', $data, function ($message) use ($data) {
             $message->subject('Contact From: '.$data['name'])
