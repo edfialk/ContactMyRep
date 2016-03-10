@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div class="row loading" v-show="loading" transition="fade">
+		<div class="row loading" v-show="false" transition="fade">
 			<div class="col-xs-12 text-center">
 			</div>
 		</div>
@@ -11,10 +11,10 @@
 				</h4>
 			</div>
 		</div>
-		<div class="row location">
+		<div class="row location" v-show="!loading" transition="fade">
 			<div class="col-xs-12 text-center">
 				<h4>
-					<span v-text="printSearch" v-show="!loading"></span>
+					<span v-text="printSearch"></span>
 				</h4>
 			</div>
 		</div>
@@ -35,7 +35,7 @@ export default {
 	components: {
 		Item
 	},
-	props: ['query'],
+	props: ['query','geolocation'],
 	data() {
 		return {
 			reps: [],
@@ -66,7 +66,10 @@ export default {
 	watch: {
 		query: function(val){
 			if (val == '' || val == '/'){
-				if (typeof ipinfo !== 'undefined' && ipinfo.loc){
+				if (this.geolocation && this.geolocation.latitude && this.geolocation.longitude){
+					this.loading = true;
+					store.fetch(this.geolocation.latitude+'/'+this.geolocation.longitude).then(this.handleResponse);
+				}else if (typeof ipinfo !== 'undefined' && ipinfo.loc){
 					this.loading = true;
 					let g = ipinfo.loc.split(',');
 					store.fetch(g[0]+'/'+g[1]).then(this.handleResponse);

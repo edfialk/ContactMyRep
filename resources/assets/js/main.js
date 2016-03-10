@@ -38,6 +38,11 @@ var vm = new Vue({
 		this.$input = $('#input');
 		this.init();
 	},
+	watch: {
+		query: function(val){
+			if (this.currentView != 'query') this.currentView = 'query';
+		}
+	},
 	methods: {
 		init() {
 			this.page(window.location.pathname.substr(1));
@@ -47,7 +52,7 @@ var vm = new Vue({
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition( position => {
 					this.geolocation = position.coords;
-					this.query = this.geolocation.latitude+'/'+this.geolocation.longitude;
+					this.page('');
 				}, () => {
 					this.status = 'You must accept location permissions to use your current location.';
 				});
@@ -56,7 +61,6 @@ var vm = new Vue({
 			}
 		},
 		search(e) {
-			// this.currentView = 'query';
 			this.page(this.$input.val());
 			this.$input.focus();
 		},
