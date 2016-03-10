@@ -8,7 +8,7 @@
 				</div>
 				<div class="col-sm-6">
 					<div class="logo">
-						<a href='/'><img class="logo-style" src="/images/logo.png"/></a>
+						<a href='/' v-on:click.stop.prevent="page('')"><img class="logo-style" src="/images/logo.png"/></a>
 					</div>
 				</div>
 				<div class="col-sm-6">
@@ -17,8 +17,8 @@
 						@include('partials/_social')
 					</div>
 					<div class="links text-right text-uppercase" style="font-family:'Arial'">
-						<a href='/about'>About Us</a> | <a href='/contact'>Contact Us</a><br>
-						<a href='/organizations'>Organizations</a> | <a href='/terms'>Terms of Service</a>
+						<a href='/about' v-on:click.stop.prevent="page('about')">About Us</a> | <a href='/contact' v-on:click.stop.prevent="page('contact')">Contact Us</a><br>
+						<a href='/organizations' v-on:click.stop.prevent="page('organizations')">Organizations</a> | <a href='/terms' v-on:click.stop.prevent="page('terms')">Terms of Service</a>
 					</div>
 				</div>
 			</div>
@@ -42,14 +42,14 @@
 							<span class="hidden-xs pr30">OR</span>
 							<button type="button" class="enable-geo btn btn-primary" v-on:click="locate">Use My Location <i class="fa fa-map-marker"></i></button>
 						</div>
-						<form v-on:submit="search" class="col-sm-6 col-sm-pull-4 col-sm-offset-1">
+						<form v-on:submit.prevent="search" class="col-sm-6 col-sm-pull-4 col-sm-offset-1">
 							<div class="input-group">
-								<input type="text" id="input" v-model="query | search" class="form-control" placeholder="Search Zip Code">
+								<input type="text" id="input" class="form-control" placeholder="Search Zip Code">
 								<span class="input-group-btn">
 									<button class="btn btn-default" type="button" v-on:click="search"><i class="fa fa-search"></i></button>
 								</span>
 							</div>
-							<p class="help-block">Popular searches: <a href='/90210'>90210</a>, <a href='/Virginia'>Virginia</a>, <a href='/Nikki Haley'>Nikki Haley</a></p>
+							<p class="help-block">Popular searches: <a href='/90210' v-on:click.stop.prevent="page('90210')">90210</a>, <a href='/Virginia' v-on:click.stop.prevent="page('Virginia')">Virginia</a>, <a href='/Nikki Haley' v-on:click.stop.prevent="page('Nikki Haley')">Nikki Haley</a></p>
 						</form>
 					</div>
 				</div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Log;
+use Mail;
 use App\Http\Requests\ContactRequest;
 use App\Http\Controllers\Controller;
 
@@ -15,17 +16,17 @@ class ContactController extends Controller
 
     public function sendContactMessage(ContactRequest $request)
     {
-        $data = $request->only('name', 'email');
-        $data['message'] = str_replace('/\\n/g', '<br>', $data['message']);
-        // $data['messageLines'] = explode("\n", $request->get('message'));
+        $data = $request->only('name', 'email', 'message');
+        $data['text'] = str_replace('/\\n/g', '<br>', $data['message']);
 
-        Mail::send('emails.contact', $data, function ($message) use ($data) {
-            $message->subject('Contact From: '.$data['name'])
-                ->replyTo($data['email']);
+        Mail::send('emails.contact', $data, function ($m) use ($data) {
+            // $m->from($data['email'], $data['name']);
+            $m->to('admin@contactmyreps.org');
+            $m->subject('Contact From: '.$data['name']);
+            $m->replyTo($data['email']);
         });
 
-        return back()
-            ->with("success","Thank you for your message. It has been sent.");
+        return response()->json(["status" => "success"]);
     }
 
 }

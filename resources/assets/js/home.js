@@ -3,14 +3,14 @@ import request from 'superagent';
 import Item from './components/item.vue';
 
 Vue.config.debug = true;
-Vue.filter('search', {
+/*Vue.filter('search', {
 	read: function(val){
 		return '';
 	},
 	write: function(val, oldVal){
 		return val;
 	}
-});
+});*/
 
 var vm = new Vue({
 	el: '#home',

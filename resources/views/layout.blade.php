@@ -7,6 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="@yield('description', 'A comprehensive government tracking website aimed at providing every possible contact channel for U.S. representatives in government. Search by zipcode, address, city, or name to find and contact your representatives.')">
 	<meta name="google-site-verification" content="AE_XVi6xkk5SCzCBGF_nUkmWOW5GNZRnB7IaaRLPxPI" />
+	<meta name="csrf-token" content="{{ csrf_token() }}" />
 
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>

@@ -31,15 +31,18 @@ Route::group(['prefix' => 'api'], function(){
 		Route::get('/{state}/{district}', 'RepresentativeController@district');
 		Route::get('/{lat}/{lng}', 'RepresentativeController@gps');
 	});
+	Route::group(['prefix' => 'page'], function(){
+		Route::get('about', 'PageController@about');
+	});
 });
 
 //Page routes...
-Route::get('about', 'PageController@about');
-Route::get('contact', 'ContactController@index');
+Route::get('about', 'PageController@index');
+Route::get('contact', 'PageController@index');
 Route::post('contact', 'ContactController@sendContactMessage');
-Route::get('', 'RepresentativeController@index');
-Route::get('{zipcode}', 'RepresentativeController@view');
-Route::get('{query}', 'RepresentativeController@view');
-Route::get('{lat}/{lng}', 'RepresentativeController@view');
+Route::get('', 'PageController@index');
+Route::get('{zipcode}', 'PageController@index');
+Route::get('{query}', 'PageController@index');
+Route::get('{lat}/{lng}', 'PageController@index');
 Route::get('rep/{id}','RepresentativeController@show');
 Route::get('rep/{id}/flag', 'RepresentativeController@flag')->name('flagrep');

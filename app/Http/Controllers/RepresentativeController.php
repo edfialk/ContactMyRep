@@ -8,30 +8,11 @@ use GuzzleHttp\Promise;
 use App\Location;
 use App\Representative;
 use App\Report;
-use App\Providers\IPInfo\IPInfo;
 use GoogleAPI;
 use StateAPI;
 
 class RepresentativeController extends Controller
 {
-
-    /**
-     * Home Page View
-     * @return view
-     */
-    public function index(Request $request)
-    {
-        $ip = $request->ip();
-
-        if (
-            filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)
-            && stripos($request->header('User-Agent'), 'mobi') === false
-        ){
-            return view('pages.home', ['location' => IPInfo::getLocation($ip)]);
-        }
-
-        return view('pages.home');
-    }
 
     /**
      * Any query page view (/zip, /state, etc.)
