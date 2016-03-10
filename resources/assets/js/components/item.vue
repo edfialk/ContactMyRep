@@ -95,7 +95,12 @@
 			flag(e) {
 				e.preventDefault();
 		    	request('/rep/' + this.item._id + '/flag', (err, res) => {});
-				$(e.target).replaceWith('<p>Thanks!</p>');
+		    	let $a = $('<p>Thanks!</p>');
+				$(e.target).replaceWith($a);
+				window.setTimeout(function(){
+					$a.fadeOut();
+				}, 2000);
+
 			}
 		}
 	};
