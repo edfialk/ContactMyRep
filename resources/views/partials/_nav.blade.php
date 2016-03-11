@@ -7,7 +7,7 @@
 				</div>
 				<div class="col-sm-6">
 					<div class="logo">
-						<a href='/' v-on:click.stop.prevent="page('')"><img class="logo-style" src="/images/logo.png"/></a>
+						<a href='/' v-on:click.stop.prevent="page('')"><img class="logo-style" src="/images/logo.png" alt="contactmyreps.org"/></a>
 					</div>
 				</div>
 				<div class="col-sm-6">

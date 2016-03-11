@@ -1,20 +1,20 @@
 <template>
 	<div class="row">
 		<div class="container">
-			<div class="row">
+			<div class="row" itemscope itemtype="http://schema.org/Person">
 				<div class="col-sm-6">
 					<div class="row">
 						<div class="col-xs-offset-1 col-xs-5 col-sm-offset-0 img-wrap">
-							<img v-if="item.photo" v-bind:src="item.photo">
+							<img v-if="item.photo" v-bind:src="item.photo" itemprop="image" alt="{{ item.name }}">
 						</div>
 						<div class="col-xs-6 col-sm-7">
-							<p class="name">
+							<p class="name" itemprop="name">
 								<a v-if="website" href="{{ website }}">{{ item.name }} {{ party }}</a>
 								<span v-else>{{ item.name}} {{ party }}</span>
 							</p>
-							<p class="office">{{ item.office }}</p>
-							<p v-if="phone"><strong>Telephone:</strong> {{ phone }}</p>
-							<address v-if="address"><strong>Address:</strong><br>{{{ address }}}</address>
+							<p class="office" itemprop="jobTitle">{{ item.office }}</p>
+							<p v-if="phone" itemprop="telephone"><strong>Telephone:</strong> {{ phone }}</p>
+							<address v-if="address" itemprop="address"><strong>Address:</strong><br>{{{ address }}}</address>
 						</div>
 					</div>
 				</div>
