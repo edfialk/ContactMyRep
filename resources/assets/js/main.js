@@ -31,35 +31,57 @@ var vm = new Vue({
 	el: '#app',
 	data: {
 		currentView: '',
-		query: null,
+		query: '',
 		geolocation: null,
 		$input: null,
+		pages: [
+			'about', 'contact', 'terms'
+		]
 	},
 	events: {
 		'message-sent': function(){
 			this.page('');
 		}
 	},
-	created() {
-		window.onpopstate = this.init;
-		this.$input = $('#input');
-		this.init();
-	},
 	watch: {
 		query: function(val){
-			if (this.currentView != 'query') this.currentView = 'query';
+			console.log('main js new query: ' + val);
+			this.currentView = 'query';
+		},
+		currentView: function(val){
+			console.log('main js new view: ' + val);
+			if (val == 'query'){
+			}
+			this.isPopState = false;
 		}
+	},
+	created() {
+		this.$input = $('#input', this.$el).focus();
+		this.init();
+		window.onpopstate = e => {
+			this.isPopState = true;
+			this.init();
+		};
 	},
 	methods: {
 		init() {
-			this.page(window.location.pathname.substr(1));
-			this.$input.focus();
+			let path = window.location.pathname.substr(1);
+			if (this.pages.indexOf(path) !== -1){
+				this.currentView = path;
+				document.title = 'Contact My Reps - ' + path.charAt(0).toUpperCase() + path.slice(1);
+			}else{
+				this.currentView = 'query';
+				this.query = path;
+				document.title = this.query != '' ? 'Contact My Reps - ' + this.query : 'Contact My Representatives';
+			}
 		},
 		locate() {
 			if (navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition( position => {
 					this.geolocation = position.coords;
-					this.page('');
+					this.query = this.geolocation.latitude+'/'+this.geolocation.longitude;
+					document.title = 'Contact My Reps - My Location';
+					history.replaceState({}, 'ContactMyReps - My Location', '/');
 				}, () => {
 					this.status = 'You must accept location permissions to use your current location.';
 				});
@@ -68,28 +90,33 @@ var vm = new Vue({
 			}
 		},
 		search(e) {
-			this.page(this.$input.val());
+			this.query = this.$input.val();
+			document.title = 'Contact My Reps - ' + this.query;
+			history.pushState({}, 'ContactMyReps - ' + this.query, '/' + this.query);
 			this.$input.focus();
 		},
 		page(page) {
-			if (page == 'about' || page == 'contact' || page == 'terms'){
+			if (window.location.pathname.substr(1) == page){
+				return;
+			}
+
+			if (this.pages.indexOf(page) != -1){
 				this.currentView = page;
 				document.title = 'Contact My Reps - ' + page.charAt(0).toUpperCase() + page.slice(1);
-				history.pushState({}, page, page);
+				history.pushState({}, page, '/'+page);
 				return;
 			}
 
+			this.query = page;
 			this.currentView = 'query';
-			if (page == '/' || page == ''){
+			if (this.query == ''){
 				document.title = 'Contact My Reps';
 				history.pushState({}, 'ContactMyReps', '/');
-				this.query = '';
-				return;
+			}else{
+				document.title = 'Contact My Reps - ' + this.query;
+				history.pushState({}, 'ContactMyReps - ' + this.query, '/' + this.query);
 			}
 
-			history.pushState({}, page, '/' + page);
-			document.title = 'Contact My Reps - ' + page;
-			this.query = page;
-		}
+		},
 	}
 });

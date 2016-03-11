@@ -43,7 +43,7 @@
 						</div>
 						<form v-on:submit.prevent="search" class="col-sm-6 col-sm-pull-4 col-sm-offset-1">
 							<div class="input-group">
-								<input type="text" id="input" class="form-control" placeholder="Search Zip Code">
+								<input type="text" id="input" class="form-control" placeholder="Search Zip Code" required>
 								<span class="input-group-btn">
 									<button class="btn btn-default" type="button" v-on:click="search"><i class="fa fa-search"></i></button>
 								</span>

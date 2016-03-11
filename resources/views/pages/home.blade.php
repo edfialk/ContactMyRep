@@ -6,7 +6,7 @@
 
 	@include('partials/_nav')
 
-	<component :is="currentView" :query="query" :geolocation="geolocation"></component>
+	<component :is="currentView" :query="query" :geolocation="geolocation" keep-alive></component>
 
 	@if (Auth::check())
 		<input type="hidden" id="role" value="{{ Auth::user()->id }}">

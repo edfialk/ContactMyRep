@@ -50,7 +50,9 @@ export default {
 		printSearch() {
 			let l = this.location;
 			let base = 'Search Results for ';
-			if (!l)
+			if (!l && this.query == '')
+				return '';
+			if (!l && this.query != '')
 				return base + decodeURIComponent(this.query);
 			if (l.city && l.state_name)
 				return base + l.city + ', ' + l.state_name;
