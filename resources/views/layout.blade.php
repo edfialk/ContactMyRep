@@ -7,6 +7,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="@yield('description', 'A comprehensive government tracking website aimed at providing every possible contact channel for U.S. representatives in government. Search by zipcode, address, city, or name to find and contact your representatives.')">
 	<meta name="google-site-verification" content="AE_XVi6xkk5SCzCBGF_nUkmWOW5GNZRnB7IaaRLPxPI" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@contactmyreps" />
+	<meta name="twitter:title" content="A Channel for Your Voice" />
+	<meta name="twitter:description" content="Every possible contact channel for U.S. representatives in the highest levels of government." />
+	<meta name="twitter:image" content="http://contactmyreps.orgv/images/logo.png" />
+	<meta property="og:title" content="Contact My Reps" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://contactmyreps.org" />
+	<meta property="og:image" content="http://contactmyreps.org/images/logo.png" />
 	<meta name="csrf-token" content="{{ csrf_token() }}" />
 
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
