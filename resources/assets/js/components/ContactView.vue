@@ -25,14 +25,9 @@
 			<div class="col-md-3 sidebar-right">
 				<div class="row">
 					<div class="col-xs-12">
-						<label>email</label>
-						<span class="contact-text"><a href='mailto:admin@contactmyreps.org'>admin@contactmyreps.org</a></span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-12">
 						<a href='http://facebook.com/contactmyreps'><img src='/images/fb-art.jpg'></a>
 						<a href='http://twitter.com/contactmyreps'><img src='/images/twitter-art.png'></a>
+						<a href="https://www.gofundme.com/cbtnqb5g" class="btn btn-success btn-lg">Donate</a>
 					</div>
 				</div>
 			</div>
@@ -56,19 +51,14 @@ export default {
 	},
 	methods: {
 		submit() {
+			this.mailsent = true;
 			$.post('/contact', {
 				name: this.name,
 				email: this.email,
 				message: this.message
-			}).done( resp => {
-				this.status = resp;
-				this.mailsent = true;
-			}).fail( (jqxhr, text, error) => {
-				this.status = text;
-				console.log(text, error);
-				this.mailsent = true;
 			});
 			swal('Thanks!', 'Your message has been received.', 'success');
+			this.$dispatch('message-sent');
 		}
 	}
 }

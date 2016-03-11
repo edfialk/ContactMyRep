@@ -2,6 +2,7 @@ import Vue from 'vue';
 import QueryView from './components/QueryView.vue';
 import AboutView from './components/AboutView.vue';
 import ContactView from './components/ContactView.vue';
+import TermsView from './components/TermsView.vue';
 import store from './store';
 
 Vue.config.debug = true;
@@ -9,6 +10,7 @@ Vue.config.debug = true;
 Vue.component('about', AboutView);
 Vue.component('query', QueryView);
 Vue.component('contact', ContactView);
+Vue.component('terms', TermsView);
 
 Vue.filter('search', {
 	read: function(val){
@@ -32,6 +34,11 @@ var vm = new Vue({
 		query: null,
 		geolocation: null,
 		$input: null,
+	},
+	events: {
+		'message-sent': function(){
+			this.page('');
+		}
 	},
 	created() {
 		window.onpopstate = this.init;
@@ -65,7 +72,7 @@ var vm = new Vue({
 			this.$input.focus();
 		},
 		page(page) {
-			if (page == 'about' || page == 'contact'){
+			if (page == 'about' || page == 'contact' || page == 'terms'){
 				this.currentView = page;
 				document.title = 'Contact My Reps - ' + page.charAt(0).toUpperCase() + page.slice(1);
 				history.pushState({}, page, page);

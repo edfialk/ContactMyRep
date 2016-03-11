@@ -37,12 +37,14 @@ img {
 .links {
 	margin-top: 40px;
 	@media only screen and (max-width: 767px){
+		margin-top: 20px;
+		margin-bottom: 10px;
 		a {
 			display: block;
 		}
 	}
 	@media only screen and (min-width: 768px){
-		a:nth-child(1):after, a:nth-child(4):after {
+		a:nth-child(1):after {
 			content: " - ";
 		}
 	}
@@ -50,6 +52,9 @@ img {
 .links a, .results a {
 	color: #882710;
 	font-weight: bold;
+}
+.results a {
+	word-wrap: break-word;
 }
 .social {
 	position: absolute;

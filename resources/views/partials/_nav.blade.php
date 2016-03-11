@@ -17,7 +17,6 @@
 					<div class="links text-right text-uppercase" style="font-family:'Arial'">
 						<a href="/about" v-on:click.stop.prevent="page('about')">About Us</a>
 						<a href="/contact" v-on:click.stop.prevent="page('contact')">Contact Us</a><br class="hidden-xs">
-						<a href="/organizations" v-on:click.stop.prevent="page('organizations')">Organizations</a>
 						<a href="/terms" v-on:click.stop.prevent="page('terms')">Terms of Service</a>
 					</div>
 				</div>

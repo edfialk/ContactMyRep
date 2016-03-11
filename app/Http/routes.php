@@ -33,6 +33,7 @@ Route::group(['prefix' => 'api'], function(){
 	});
 	Route::group(['prefix' => 'page'], function(){
 		Route::get('about', 'PageController@about');
+		Route::get('terms', 'PageController@terms');
 	});
 });
 
