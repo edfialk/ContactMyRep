@@ -3,7 +3,6 @@
 		<div class="container">
 			<div class="row">
 				<div class="social visible-xs">
-					<a href="https://facebook.com/ContactMyReps"><img src="/images/fb-like-button-small.png"></a>
 					@include('partials/_social')
 				</div>
 				<div class="col-sm-6">
@@ -13,12 +12,13 @@
 				</div>
 				<div class="col-sm-6">
 					<div class="social hidden-xs">
-						<a href="https://facebook.com/ContactMyReps"><img src="/images/fb-like-button-small.png"></a>
 						@include('partials/_social')
 					</div>
 					<div class="links text-right text-uppercase" style="font-family:'Arial'">
-						<a href='/about' v-on:click.stop.prevent="page('about')">About Us</a> | <a href='/contact' v-on:click.stop.prevent="page('contact')">Contact Us</a><br>
-						<a href='/organizations' v-on:click.stop.prevent="page('organizations')">Organizations</a> | <a href='/terms' v-on:click.stop.prevent="page('terms')">Terms of Service</a>
+						<a href="/about" v-on:click.stop.prevent="page('about')">About Us</a>
+						<a href="/contact" v-on:click.stop.prevent="page('contact')">Contact Us</a><br class="hidden-xs">
+						<a href="/organizations" v-on:click.stop.prevent="page('organizations')">Organizations</a>
+						<a href="/terms" v-on:click.stop.prevent="page('terms')">Terms of Service</a>
 					</div>
 				</div>
 			</div>
