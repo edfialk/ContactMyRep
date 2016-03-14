@@ -45,23 +45,13 @@ var vm = new Vue({
 	},
 	watch: {
 		query: function(val){
-			console.log('main js new query: ' + val);
 			this.currentView = 'query';
 		},
-		currentView: function(val){
-			console.log('main js new view: ' + val);
-			if (val == 'query'){
-			}
-			this.isPopState = false;
-		}
 	},
 	created() {
 		this.$input = $('#input', this.$el).focus();
 		this.init();
-		window.onpopstate = e => {
-			this.isPopState = true;
-			this.init();
-		};
+		window.onpopstate = this.init;
 	},
 	methods: {
 		init() {

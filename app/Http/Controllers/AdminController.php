@@ -14,7 +14,6 @@ class AdminController extends Controller
     public function reports()
     {
         $reps = Representative::has('reports')->get();
-        return view('admin.reports', compact('reps') );
+        return view('admin.reports', compact('reps'));
     }
-
 }

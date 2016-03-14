@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class APITest extends TestCase
 {
+
     public function testZip()
     {
     	$faker = \Faker\Factory::create();
@@ -29,4 +30,12 @@ class APITest extends TestCase
         $url = '/api/v1/'.$lat.'/'.$lng;
         $this->get($url)->seeJson();
     }
+
+    public function testState()
+    {
+        $faker = \Faker\Factory::create();
+        $this->get('/api/v1/'.$faker->state())->seeJson();
+        $this->get('/api/v1/'.$faker->stateAbbr())->seeJson();
+    }
+
 }

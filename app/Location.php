@@ -75,4 +75,22 @@ class Location extends Eloquent
     	return isset(self::states[$abbrev]) ? self::states[$abbrev] : null;
     }
 
+    public static function isState($query)
+    {
+        $state = null;
+        $states = self::states;
+        $state_names = array_map('strtolower', array_values($states));
+        $state_abbrevs = array_keys($states);
+
+        if (in_array(strtolower($query), $state_names)){
+            $state = $state_abbrevs[array_search(strtolower($query), $state_names)];
+        }else if (in_array(strtoupper($query), $state_abbrevs)){
+            $state = strtoupper($query);
+        }
+
+        return $state;
+
+
+    }
+
 }

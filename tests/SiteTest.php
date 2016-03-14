@@ -6,28 +6,16 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class SiteTest extends TestCase
 {
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function testHome()
-    {
-    	$this->visit('/')->assertResponseOk();
-    }
 
-    public function testZip()
+    public function testPages()
     {
-    	$faker = \Faker\Factory::create();
-    	$zip = $faker->postcode();
-        $this->get($zip)->assertResponseOk();
-    }
+        $this->visit('/')->assertResponseOk();
 
-    public function testGPS()
-    {
-        $faker = \Faker\Factory::create();
-        $lat = $faker->latitude();
-        $lng = $faker->longitude();
-        $this->get($lat.'/'.$lng)->assertResponseOk();
+        //markdown
+        $this->visit('api/page/about')->see('ABOUT US');
+        $this->get('api/page/terms')->see('TERMS OF SERVICE');
+
+        //js views
+        $this->get('contact')->assertResponseOk();
     }
 }
