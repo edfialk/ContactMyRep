@@ -85,7 +85,13 @@ class Representative extends Model
     public function load($data)
     {
         foreach($data as $key=>$value){
-            $this->$key = $value;
+            if (empty($value)) continue;
+            if (is_string($this->$key) && is_string($value) && strcasecmp($this->$key, $value) !== 0){
+                //don't replace if case insensitive equals
+                $this->$key = $value;
+            }else if ($this->$key != $value){
+                $this->$key = $value;
+            }
         }
     }
 

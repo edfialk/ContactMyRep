@@ -4,6 +4,7 @@ import AboutView from './components/AboutView.vue';
 import ContactView from './components/ContactView.vue';
 import TermsView from './components/TermsView.vue';
 import store from './store';
+import autotrack from './lib/autotrack';
 
 Vue.config.debug = true;
 
@@ -106,7 +107,6 @@ var vm = new Vue({
 				document.title = 'Contact My Reps - ' + this.query;
 				history.pushState({}, 'ContactMyReps - ' + this.query, '/' + this.query);
 			}
-
 		},
 	}
 });
